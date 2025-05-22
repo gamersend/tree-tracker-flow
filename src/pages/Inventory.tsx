@@ -262,6 +262,16 @@ const Inventory = () => {
     item.strain.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
+  // Calculate inventory statistics safely
+  const calculateAverageCostPerGram = () => {
+    if (inventory.length === 0) return 0;
+    
+    const totalCost = inventory.reduce((sum, item) => sum + item.totalCost, 0);
+    const totalQuantity = inventory.reduce((sum, item) => sum + item.quantity, 0);
+    
+    return totalQuantity > 0 ? totalCost / totalQuantity : 0;
+  };
+  
   return (
     <motion.div 
       className="space-y-6"
@@ -568,10 +578,7 @@ const Inventory = () => {
             >
               <h3 className="text-sm text-muted-foreground">Average Cost/g</h3>
               <p className="text-2xl font-bold mt-1">
-                ${inventory.length > 0 
-                  ? (inventory.reduce((sum, item) => sum + (item.totalCost / inventory.length), 0) / 
-                    (inventory.reduce((sum, item) => sum + item.quantity, 0) / inventory.length)).toFixed(2)
-                  : "0.00"}
+                ${calculateAverageCostPerGram().toFixed(2)}
               </p>
             </motion.div>
           </div>
