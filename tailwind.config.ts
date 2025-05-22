@@ -2,7 +2,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
+	darkMode: ["class", '[data-theme="dark"]'],
 	content: [
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
@@ -108,18 +108,44 @@ export default {
 				'pulse-subtle': {
 					'0%, 100%': { opacity: '1' },
 					'50%': { opacity: '0.8' }
-				}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' }
+				},
+				'spin-slow': {
+					'0%': { transform: 'rotate(0deg)' },
+					'100%': { transform: 'rotate(360deg)' }
+				},
+				'bounce-subtle': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
+				},
+				'glow': {
+					'0%, 100%': { boxShadow: '0 0 5px rgba(138, 51, 253, 0.5)' },
+					'50%': { boxShadow: '0 0 20px rgba(138, 51, 253, 0.8), 0 0 30px rgba(138, 51, 253, 0.5)' }
+				},
+				'ripple': {
+					'0%': { boxShadow: '0 0 0px rgba(138, 51, 253, 0.8)', opacity: '1' },
+					'100%': { boxShadow: '0 0 20px 10px rgba(138, 51, 253, 0)', opacity: '0' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
 				'slide-in-right': 'slide-in-right 0.3s ease-out',
-				'pulse-subtle': 'pulse-subtle 3s infinite ease-in-out'
+				'pulse-subtle': 'pulse-subtle 3s infinite ease-in-out',
+				'float': 'float 3s infinite ease-in-out',
+				'spin-slow': 'spin-slow 8s linear infinite',
+				'bounce-subtle': 'bounce-subtle 2s infinite ease-in-out',
+				'glow': 'glow 2s infinite ease-in-out',
+				'ripple': 'ripple 1.5s linear',
 			},
 			backgroundImage: {
 				'cannabis-pattern': "url('/cannabis-pattern.svg')",
 				'gradient-purple': 'linear-gradient(135deg, #24243e 0%, #302b63 50%, #0f0c29 100%)',
+				'psychedelic-gradient': 'linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc, #ff00cc)',
 			}
 		}
 	},

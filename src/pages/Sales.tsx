@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -34,15 +34,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Search, Plus, ArrowUpDown, Trash2 } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon, Search, Plus, ArrowUpDown, Trash2, HelpCircle, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { Slider } from "@/components/ui/slider";
 
 // Type for sales item
 type SaleItem = {
@@ -54,71 +63,50 @@ type SaleItem = {
   salePrice: number;
   costPerGram: number;
   profit: number;
+  image?: string;
 };
 
-// Mock data
-const mockSales: SaleItem[] = [
-  {
-    id: "sale1",
-    strain: "OG Kush",
-    date: new Date(2023, 5, 15),
-    quantity: 14,
-    customer: "John Doe",
-    salePrice: 140,
-    costPerGram: 5,
-    profit: 70,
-  },
-  {
-    id: "sale2",
-    strain: "Blue Dream",
-    date: new Date(2023, 5, 18),
-    quantity: 7,
-    customer: "Jane Smith",
-    salePrice: 70,
-    costPerGram: 5,
-    profit: 35,
-  },
-  {
-    id: "sale3",
-    strain: "Sour Diesel",
-    date: new Date(2023, 5, 20),
-    quantity: 28,
-    customer: "Alex Johnson",
-    salePrice: 252,
-    costPerGram: 4,
-    profit: 140,
-  },
-  {
-    id: "sale4",
-    strain: "Purple Haze",
-    date: new Date(2023, 5, 22),
-    quantity: 3.5,
-    customer: "Sam Williams",
-    salePrice: 35,
-    costPerGram: 6,
-    profit: 14,
-  },
-];
+// Type for inventory strain
+type StrainInfo = {
+  name: string;
+  costPerGram: number;
+  image?: string;
+};
 
-// Mock inventory data for strain selection
-const availableStrains = [
-  { name: "OG Kush", costPerGram: 5 },
-  { name: "Blue Dream", costPerGram: 5 },
-  { name: "Sour Diesel", costPerGram: 4 },
-  { name: "Purple Haze", costPerGram: 6 },
-  { name: "White Widow", costPerGram: 5.5 },
-];
+// Type for customer with loyalty info
+type CustomerInfo = {
+  name: string;
+  orderCount: number;
+  lastOrderDate: Date | null;
+  totalSpent: number;
+  loyaltyTag: "🆕 New" | "🌀 Regular" | "🔥 VIP" | "👻 Ghosted";
+};
 
-// Mock customer data
-const existingCustomers = [
-  "John Doe",
-  "Jane Smith", 
-  "Alex Johnson",
-  "Sam Williams"
-];
+// Load from localStorage helper
+const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+  } catch (error) {
+    console.error(`Error loading ${key} from localStorage:`, error);
+    return defaultValue;
+  }
+};
 
 const Sales = () => {
-  const [sales, setSales] = useState<SaleItem[]>(mockSales);
+  // Load initial data from localStorage or use defaults
+  const [sales, setSales] = useState<SaleItem[]>(loadFromStorage('sales', []));
+  const [availableStrains, setAvailableStrains] = useState<StrainInfo[]>(loadFromStorage('strains', [
+    { name: "OG Kush", costPerGram: 5 },
+    { name: "Blue Dream", costPerGram: 5 },
+    { name: "Sour Diesel", costPerGram: 4 },
+    { name: "Purple Haze", costPerGram: 6 },
+    { name: "White Widow", costPerGram: 5.5 },
+  ]));
+  
+  // Customer data with loyalty
+  const [customers, setCustomers] = useState<CustomerInfo[]>(loadFromStorage('customers', []));
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [sortColumn, setSortColumn] = useState<keyof SaleItem | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
@@ -131,6 +119,112 @@ const Sales = () => {
   const [salePrice, setSalePrice] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [customerInput, setCustomerInput] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
+  // Pricing calculator state
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const [calcCostPerGram, setCalcCostPerGram] = useState("5.00");
+  const [calcMargin, setCalcMargin] = useState(70);
+  const [targetMargin, setTargetMargin] = useState(70);
+  const [showSuggestion, setShowSuggestion] = useState(false);
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    localStorage.setItem('sales', JSON.stringify(sales));
+  }, [sales]);
+
+  useEffect(() => {
+    localStorage.setItem('strains', JSON.stringify(availableStrains));
+  }, [availableStrains]);
+  
+  useEffect(() => {
+    localStorage.setItem('customers', JSON.stringify(customers));
+  }, [customers]);
+  
+  // Load user preference for target margin
+  useEffect(() => {
+    const storedMargin = localStorage.getItem('targetMargin');
+    if (storedMargin) {
+      setTargetMargin(parseInt(storedMargin));
+    }
+  }, []);
+  
+  // Update customer loyalty data
+  useEffect(() => {
+    const updateCustomerLoyalty = () => {
+      const customerMap: Record<string, CustomerInfo> = {};
+      
+      // Initialize customer data
+      customers.forEach(c => {
+        customerMap[c.name] = {
+          ...c,
+          orderCount: 0,
+          lastOrderDate: null,
+          totalSpent: 0
+        };
+      });
+      
+      // Update with sales data
+      sales.forEach(sale => {
+        if (!customerMap[sale.customer]) {
+          customerMap[sale.customer] = {
+            name: sale.customer,
+            orderCount: 0,
+            lastOrderDate: null,
+            totalSpent: 0,
+            loyaltyTag: "🆕 New"
+          };
+        }
+        
+        customerMap[sale.customer].orderCount += 1;
+        
+        if (!customerMap[sale.customer].lastOrderDate || 
+            new Date(sale.date) > new Date(customerMap[sale.customer].lastOrderDate!)) {
+          customerMap[sale.customer].lastOrderDate = new Date(sale.date);
+        }
+        
+        customerMap[sale.customer].totalSpent += sale.salePrice;
+      });
+      
+      // Calculate loyalty tags
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
+      
+      const updatedCustomers = Object.values(customerMap).map(customer => {
+        // Determine loyalty tag
+        if (customer.orderCount === 0) {
+          customer.loyaltyTag = "🆕 New";
+        } else if (customer.orderCount >= 6) {
+          // Check if ghosted
+          if (customer.lastOrderDate && customer.lastOrderDate < thirtyDaysAgo) {
+            customer.loyaltyTag = "👻 Ghosted";
+          } else {
+            customer.loyaltyTag = "🔥 VIP";
+          }
+        } else if (customer.orderCount >= 2) {
+          // Check if ghosted
+          if (customer.lastOrderDate && customer.lastOrderDate < thirtyDaysAgo) {
+            customer.loyaltyTag = "👻 Ghosted";
+          } else {
+            customer.loyaltyTag = "🌀 Regular";
+          }
+        } else {
+          // Check if ghosted for New (1 order) customers
+          if (customer.lastOrderDate && customer.lastOrderDate < thirtyDaysAgo) {
+            customer.loyaltyTag = "👻 Ghosted";
+          } else {
+            customer.loyaltyTag = "🆕 New";
+          }
+        }
+        
+        return customer;
+      });
+      
+      setCustomers(updatedCustomers);
+    };
+    
+    updateCustomerLoyalty();
+  }, [sales]);
   
   // Sort function
   const handleSort = (column: keyof SaleItem) => {
@@ -173,16 +267,53 @@ const Sales = () => {
       return 0;
     });
   
+  // Calculate suggested price range based on cost and target margin
+  const calculateSuggestedPrice = (costPerGram: number, quantity: number) => {
+    const totalCost = costPerGram * quantity;
+    
+    // Calculate minimum price (50% margin)
+    const minPrice = totalCost / (1 - 0.5);
+    
+    // Calculate maximum price (100% margin)
+    const maxPrice = totalCost * 2;
+    
+    // Calculate target price based on user preference
+    const targetPrice = totalCost / (1 - targetMargin/100);
+    
+    return {
+      min: minPrice,
+      max: maxPrice,
+      target: targetPrice
+    };
+  };
+  
+  // Get price suggestions for common weights
+  const calculatePriceMatrix = (costPerGram: number, margin: number) => {
+    const commonWeights = [3.5, 7, 14, 28, 56];
+    const costFactor = 1 - margin/100;
+    
+    return commonWeights.map(weight => {
+      const totalCost = costPerGram * weight;
+      const suggestedPrice = totalCost / costFactor;
+      return {
+        weight,
+        totalCost,
+        price: suggestedPrice,
+        pricePerGram: suggestedPrice / weight
+      };
+    });
+  };
+  
   // Handle form submission
   const handleAddSale = () => {
     if (!selectedStrain || !saleDate || !quantity || !customer || !salePrice) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
     
     const selectedStrainInfo = availableStrains.find(strain => strain.name === selectedStrain);
     if (!selectedStrainInfo) {
-      alert("Invalid strain selected");
+      toast.error("Invalid strain selected");
       return;
     }
     
@@ -200,9 +331,11 @@ const Sales = () => {
       salePrice: salePriceValue,
       costPerGram,
       profit,
+      image: selectedImage || selectedStrainInfo.image
     };
     
     setSales([...sales, newSale]);
+    toast.success("Sale added successfully!");
     
     // Reset form
     setSelectedStrain("");
@@ -210,12 +343,14 @@ const Sales = () => {
     setQuantity("");
     setCustomer("");
     setSalePrice("");
+    setSelectedImage(null);
     setIsDialogOpen(false);
   };
   
   // Handle sale deletion
   const handleDeleteSale = (id: string) => {
     setSales(sales.filter(sale => sale.id !== id));
+    toast.info("Sale deleted");
   };
   
   // Handle customer selection or creation
@@ -224,12 +359,72 @@ const Sales = () => {
     setCustomerInput(value);
   };
   
+  // Handle image upload
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setSelectedImage(event.target.result.toString());
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  // Save target margin preference
+  const saveTargetMargin = (value: number) => {
+    setTargetMargin(value);
+    localStorage.setItem('targetMargin', value.toString());
+    toast.success(`Default profit margin set to ${value}%`);
+  };
+  
+  // Helper function to get loyalty tag badge color
+  const getLoyaltyTagColor = (tag: string) => {
+    if (tag.includes("🆕")) return "bg-blue-500 text-white";
+    if (tag.includes("🌀")) return "bg-green-500 text-white";
+    if (tag.includes("🔥")) return "bg-orange-500 text-white";
+    if (tag.includes("👻")) return "bg-gray-500 text-white";
+    return "bg-slate-600 text-white";
+  };
+
+  // Find customer loyalty tag
+  const getCustomerLoyaltyTag = (customerName: string) => {
+    const customerInfo = customers.find(c => c.name === customerName);
+    return customerInfo?.loyaltyTag || "🆕 New";
+  };
+  
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Sales Logging</h1>
-          <p className="text-gray-400">Track your cannabis sales and profits</p>
+          <motion.h1 
+            className="text-3xl font-bold text-white"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <span className="mr-2">💰</span> Sales Logging
+          </motion.h1>
+          <motion.p 
+            className="text-gray-400"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Track your cannabis sales and profits
+          </motion.p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
           <div className="relative flex-grow">
@@ -244,13 +439,17 @@ const Sales = () => {
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="whitespace-nowrap">
-                <Plus className="mr-2 h-4 w-4" /> Add Sale
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button className="whitespace-nowrap bg-tree-green hover:bg-tree-green/80 text-white">
+                  <Plus className="mr-2 h-4 w-4" /> Add Sale
+                </Button>
+              </motion.div>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Add New Sale</DialogTitle>
+                <DialogTitle className="flex items-center">
+                  <span className="mr-2">🛒</span> Add New Sale
+                </DialogTitle>
                 <DialogDescription>
                   Record a new sale transaction
                 </DialogDescription>
@@ -258,7 +457,13 @@ const Sales = () => {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="strain">Strain</Label>
-                  <Select value={selectedStrain} onValueChange={setSelectedStrain}>
+                  <Select value={selectedStrain} onValueChange={(value) => {
+                    setSelectedStrain(value);
+                    // Clear price suggestion when strain changes
+                    if (quantity) {
+                      setShowSuggestion(true);
+                    }
+                  }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select strain" />
                     </SelectTrigger>
@@ -306,10 +511,123 @@ const Sales = () => {
                     type="number"
                     step="0.1"
                     value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
+                    onChange={(e) => {
+                      setQuantity(e.target.value);
+                      if (selectedStrain && e.target.value) {
+                        setShowSuggestion(true);
+                      } else {
+                        setShowSuggestion(false);
+                      }
+                    }}
                     placeholder="e.g., 3.5"
                   />
                 </div>
+                
+                {/* Auto-suggested pricing */}
+                <AnimatePresence>
+                  {showSuggestion && selectedStrain && quantity && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="bg-tree-green/10 border border-tree-green/20 rounded-md p-3 text-sm"
+                    >
+                      {(() => {
+                        const strain = availableStrains.find(s => s.name === selectedStrain);
+                        if (!strain) return null;
+                        
+                        const quantityNum = parseFloat(quantity);
+                        if (isNaN(quantityNum)) return null;
+                        
+                        const { min, max, target } = calculateSuggestedPrice(strain.costPerGram, quantityNum);
+                        
+                        return (
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center">
+                                <span className="mr-2">💡</span> Suggested Price:
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        size="sm" 
+                                        variant="ghost" 
+                                        onClick={() => setSalePrice(min.toFixed(2))}
+                                        className="px-2 py-0 h-6"
+                                      >
+                                        ${min.toFixed(2)}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>50% profit margin</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                <span>-</span>
+                                
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        size="sm" 
+                                        variant="default" 
+                                        onClick={() => setSalePrice(target.toFixed(2))}
+                                        className="px-2 py-0 h-6 bg-tree-green hover:bg-tree-green/80"
+                                      >
+                                        ${target.toFixed(2)}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{targetMargin}% profit margin (default)</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                <span>-</span>
+                                
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        size="sm" 
+                                        variant="ghost" 
+                                        onClick={() => setSalePrice(max.toFixed(2))}
+                                        className="px-2 py-0 h-6"
+                                      >
+                                        ${max.toFixed(2)}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>100% profit margin</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </div>
+                            
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-muted-foreground">Set your preferred margin:</span>
+                              <div className="flex items-center space-x-2">
+                                <Slider 
+                                  value={[targetMargin]} 
+                                  min={50} 
+                                  max={100} 
+                                  step={1}
+                                  className="w-[100px]"
+                                  onValueChange={(value) => saveTargetMargin(value[0])}
+                                />
+                                <span className="text-xs w-10">{targetMargin}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 
                 <div className="grid gap-2">
                   <Label htmlFor="customer">Customer</Label>
@@ -323,8 +641,8 @@ const Sales = () => {
                       onBlur={() => setCustomer(customerInput)}
                     />
                     <datalist id="customer-options">
-                      {existingCustomers.map(c => (
-                        <option key={c} value={c} />
+                      {customers.map(c => (
+                        <option key={c.name} value={c.name} />
                       ))}
                     </datalist>
                     <Select onValueChange={handleCustomerSelect}>
@@ -332,8 +650,15 @@ const Sales = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {existingCustomers.map(c => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        {customers.map(c => (
+                          <SelectItem key={c.name} value={c.name}>
+                            <div className="flex items-center">
+                              <span>{c.name}</span>
+                              <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${getLoyaltyTagColor(c.loyaltyTag)}`}>
+                                {c.loyaltyTag}
+                              </span>
+                            </div>
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -350,6 +675,37 @@ const Sales = () => {
                     onChange={(e) => setSalePrice(e.target.value)}
                     placeholder="e.g., 35"
                   />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="image" className="flex items-center">
+                    <span>Image</span>
+                    <span className="text-xs text-muted-foreground ml-2">(optional)</span>
+                  </Label>
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="cursor-pointer"
+                  />
+                  {selectedImage && (
+                    <div className="mt-2 relative">
+                      <img 
+                        src={selectedImage} 
+                        alt="Selected" 
+                        className="h-24 w-24 object-cover rounded-md"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                        onClick={() => setSelectedImage(null)}
+                      >
+                        &times;
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="bg-slate-800/50 rounded-lg p-4 mt-2">
@@ -376,14 +732,136 @@ const Sales = () => {
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddSale}>Add Sale</Button>
+                <Button onClick={handleAddSale} className="bg-tree-green hover:bg-tree-green/80">Add Sale</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
       </div>
 
-      <Card>
+      {/* Price Calculator Tool */}
+      <Dialog open={isCalculatorOpen} onOpenChange={setIsCalculatorOpen}>
+        <DialogTrigger asChild>
+          <motion.div
+            className="fixed right-6 bottom-6 z-10"
+            whileHover={{ scale: 1.1, rotate: 10 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Button size="lg" className="rounded-full h-14 w-14 bg-tree-purple shadow-lg shadow-tree-purple/20">
+              <Calculator className="h-6 w-6" />
+            </Button>
+          </motion.div>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-lg">
+              <span className="mr-2">🧮</span> Price Calculator
+            </DialogTitle>
+            <DialogDescription>
+              Calculate suggested pricing based on cost and margin
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-6 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="cost">Cost per Gram ($)</Label>
+                <Input
+                  id="cost"
+                  type="number"
+                  step="0.01"
+                  value={calcCostPerGram}
+                  onChange={(e) => setCalcCostPerGram(e.target.value)}
+                  placeholder="e.g., 5.00"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="margin">Profit Margin (%)</Label>
+                <div className="grid grid-cols-4 gap-2 items-center">
+                  <Input
+                    id="margin"
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="col-span-1"
+                    value={calcMargin}
+                    onChange={(e) => setCalcMargin(Number(e.target.value))}
+                  />
+                  <Slider
+                    value={[calcMargin]}
+                    min={0}
+                    max={100}
+                    step={1}
+                    className="col-span-3"
+                    onValueChange={(value) => setCalcMargin(value[0])}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
+              <h3 className="font-medium mb-3 flex items-center">
+                <span className="mr-2">💵</span> Suggested Prices
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-xs uppercase text-muted-foreground">
+                      <th className="text-left pb-2">Weight</th>
+                      <th className="text-right pb-2">Cost</th>
+                      <th className="text-right pb-2">Price</th>
+                      <th className="text-right pb-2">Per Gram</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-700/30">
+                    {calculatePriceMatrix(parseFloat(calcCostPerGram) || 0, calcMargin).map((item) => (
+                      <motion.tr 
+                        key={item.weight} 
+                        className="text-sm"
+                        whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                      >
+                        <td className="py-3">{item.weight}g</td>
+                        <td className="text-right py-3">${item.totalCost.toFixed(2)}</td>
+                        <td className="text-right py-3 font-medium text-tree-green">
+                          ${item.price.toFixed(2)}
+                        </td>
+                        <td className="text-right py-3 text-xs text-muted-foreground">
+                          ${item.pricePerGram.toFixed(2)}/g
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div className="mt-4 text-xs text-muted-foreground">
+                <p className="flex items-center">
+                  <HelpCircle className="h-3 w-3 mr-1" />
+                  Formula: Price = Cost ÷ (1 - Margin%)
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCalculatorOpen(false)}>
+              Close
+            </Button>
+            <Button 
+              onClick={() => {
+                // Save as default target margin
+                saveTargetMargin(calcMargin);
+                setIsCalculatorOpen(false);
+              }}
+              className="bg-tree-purple hover:bg-tree-purple/80"
+            >
+              Set as Default
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Card className="border-tree-green/20 bg-gradient-to-br from-slate-950 to-slate-900">
         <CardHeader>
           <CardTitle>Sales Transactions</CardTitle>
           <CardDescription>
@@ -394,6 +872,7 @@ const Sales = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead></TableHead>
                 <TableHead>
                   <Button 
                     variant="ghost" 
@@ -473,11 +952,34 @@ const Sales = () => {
             <TableBody>
               {sortedAndFilteredSales.length > 0 ? (
                 sortedAndFilteredSales.map((sale) => (
-                  <TableRow key={sale.id}>
+                  <TableRow 
+                    key={sale.id}
+                    className="group transition-colors duration-150 hover:bg-slate-800/50"
+                  >
+                    <TableCell className="w-10">
+                      {sale.image ? (
+                        <img 
+                          src={sale.image} 
+                          alt={sale.strain} 
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-tree-purple/20 flex items-center justify-center text-xs">
+                          {sale.strain.substring(0, 2)}
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{sale.strain}</TableCell>
-                    <TableCell>{format(sale.date, "MMM d, yyyy")}</TableCell>
+                    <TableCell>{format(new Date(sale.date), "MMM d, yyyy")}</TableCell>
                     <TableCell className="text-right">{sale.quantity}</TableCell>
-                    <TableCell>{sale.customer}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <span>{sale.customer}</span>
+                        <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${getLoyaltyTagColor(getCustomerLoyaltyTag(sale.customer))}`}>
+                          {getCustomerLoyaltyTag(sale.customer)}
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right">${sale.salePrice.toFixed(2)}</TableCell>
                     <TableCell className="text-right">${(sale.quantity * sale.costPerGram).toFixed(2)}</TableCell>
                     <TableCell className="text-right font-medium text-tree-green">${sale.profit.toFixed(2)}</TableCell>
@@ -486,6 +988,7 @@ const Sales = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDeleteSale(sale.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       >
                         <Trash2 className="h-4 w-4 text-red-400" />
                       </Button>
@@ -494,7 +997,7 @@ const Sales = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
                     {searchQuery 
                       ? "No sales match your search"
                       : "No sales recorded yet"}
@@ -506,41 +1009,57 @@ const Sales = () => {
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="border-tree-purple/20 bg-gradient-to-br from-slate-950 to-slate-900">
         <CardHeader>
           <CardTitle>Sales Summary</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-slate-800/50 rounded-lg p-4">
+            <motion.div 
+              className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/30"
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <h3 className="text-sm text-muted-foreground">Total Sales</h3>
               <p className="text-2xl font-bold mt-1">{sales.length}</p>
-            </div>
+            </motion.div>
             
-            <div className="bg-slate-800/50 rounded-lg p-4">
+            <motion.div 
+              className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/30"
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <h3 className="text-sm text-muted-foreground">Total Quantity</h3>
               <p className="text-2xl font-bold mt-1">
                 {sales.reduce((sum, sale) => sum + sale.quantity, 0).toFixed(1)}g
               </p>
-            </div>
+            </motion.div>
             
-            <div className="bg-slate-800/50 rounded-lg p-4">
+            <motion.div 
+              className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/30"
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <h3 className="text-sm text-muted-foreground">Total Revenue</h3>
               <p className="text-2xl font-bold mt-1">
                 ${sales.reduce((sum, sale) => sum + sale.salePrice, 0).toFixed(2)}
               </p>
-            </div>
+            </motion.div>
             
-            <div className="bg-slate-800/50 rounded-lg p-4">
+            <motion.div 
+              className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/30"
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <h3 className="text-sm text-muted-foreground">Total Profit</h3>
               <p className="text-2xl font-bold mt-1 text-tree-green">
                 ${sales.reduce((sum, sale) => sum + sale.profit, 0).toFixed(2)}
               </p>
-            </div>
+            </motion.div>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 
