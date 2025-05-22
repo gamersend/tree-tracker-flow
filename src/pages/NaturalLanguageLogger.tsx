@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/utils";
-import { useSaleParser } from "@/hooks/useSaleParser";
+import { useSaleParser } from "@/hooks/use-sale-parser";
 import { ParsedSale } from "@/components/sale-logger/types";
 import { InputCard } from "@/components/sale-logger/InputCard";
 import { PreviewCard } from "@/components/sale-logger/PreviewCard";
+import { AlertCircle } from "lucide-react";
 
 const NaturalLanguageLogger = () => {
   const [saleText, setSaleText] = useState("");
@@ -252,6 +252,3 @@ const NaturalLanguageLogger = () => {
 };
 
 export default NaturalLanguageLogger;
-
-// Missing imports
-import { AlertCircle } from "lucide-react";
