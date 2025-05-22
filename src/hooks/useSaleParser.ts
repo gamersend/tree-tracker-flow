@@ -173,12 +173,14 @@ export function useSaleParser() {
           .join(' ');
       }
       
-      // Extract strain name
-      const { strain, confidence: strainConfidence } = findBestStrain(text);
-      confidence.strain = strainConfidence;
+      // Extract strain name - FIX: Use let instead of const for the initial strain variable
+      // Get initial strain from helper function
+      const strainResult = findBestStrain(text);
+      let detectedStrain = strainResult.strain;
+      confidence.strain = strainResult.confidence;
       
       // If no strain found by the helper function, try these patterns
-      if (!strain) {
+      if (!detectedStrain) {
         // Pattern 1: After "of" and before "to" (e.g., "3.5g of Blue Dream to Tom")
         const strainMatch1 = normalizedText.match(/(?:of|got)\s+([^,]+?)(?=\s+(?:to|for|from|on|at|-))/i);
         
@@ -192,21 +194,21 @@ export function useSaleParser() {
           const extractedStrain = strainMatch1[1].trim();
           // Check if the extracted part looks like a strain (not containing certain keywords)
           if (!/(sold|bought|paid|gave|got|made|profit|tick|front|grams|dollars)/i.test(extractedStrain)) {
-            strain = extractedStrain;
+            detectedStrain = extractedStrain;
             confidence.strain = 0.7;
           }
         } else if (strainMatch2) {
-          strain = strainMatch2[1].trim();
+          detectedStrain = strainMatch2[1].trim();
           confidence.strain = 0.6;
         } else if (strainMatch3) {
-          strain = strainMatch3[1].trim();
+          detectedStrain = strainMatch3[1].trim();
           confidence.strain = 0.5;
         }
       }
       
       // Capitalize the strain name
-      if (strain) {
-        strain = strain
+      if (detectedStrain) {
+        detectedStrain = detectedStrain
           .split(' ')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
           .join(' ');
@@ -416,10 +418,10 @@ export function useSaleParser() {
         }
       }
       
-      // Return the parsed sale
+      // Return the parsed sale with the corrected strain variable
       return {
         customer,
-        strain,
+        strain: detectedStrain,
         date,
         quantity,
         salePrice,
