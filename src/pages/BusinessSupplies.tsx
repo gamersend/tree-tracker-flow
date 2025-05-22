@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { Label } from "@/components/ui/label";
 
 import {
   Card,
@@ -286,9 +287,19 @@ const BusinessSupplies = () => {
   // Add new supply item
   const handleAddItem = (data: z.infer<typeof supplyItemSchema>) => {
     const newItem: SupplyItem = {
-      ...data,
       id: `sup-${Date.now()}`,
+      name: data.name,
+      category: data.category,
+      startingStock: data.startingStock,
+      unitType: data.unitType,
+      currentStock: data.currentStock,
+      restockThreshold: data.restockThreshold,
+      purchaseFrequency: data.purchaseFrequency,
+      costPerUnit: data.costPerUnit,
       totalCost: data.startingStock * data.costPerUnit,
+      lastPurchaseDate: data.lastPurchaseDate,
+      notes: data.notes || "",
+      restockReminderDate: data.restockReminderDate
     };
 
     setSupplies(prev => [...prev, newItem]);
@@ -304,9 +315,19 @@ const BusinessSupplies = () => {
     setSupplies(prev => prev.map(item => 
       item.id === currentItem.id 
         ? { 
-            ...data, 
             id: item.id,
-            totalCost: data.startingStock * data.costPerUnit 
+            name: data.name,
+            category: data.category,
+            startingStock: data.startingStock,
+            unitType: data.unitType,
+            currentStock: data.currentStock,
+            restockThreshold: data.restockThreshold,
+            purchaseFrequency: data.purchaseFrequency,
+            costPerUnit: data.costPerUnit,
+            totalCost: data.startingStock * data.costPerUnit,
+            lastPurchaseDate: data.lastPurchaseDate,
+            notes: data.notes || "",
+            restockReminderDate: data.restockReminderDate
           } 
         : item
     ));
@@ -796,8 +817,7 @@ const BusinessSupplies = () => {
                       <div className="w-full">
                         <Progress 
                           value={stockLevel} 
-                          className="h-2" 
-                          indicatorClassName={stockLevelColor}
+                          className={`h-2 ${stockLevelColor}`}
                         />
                         <div className="text-xs mt-1 text-muted-foreground">{stockLevel}%</div>
                       </div>
