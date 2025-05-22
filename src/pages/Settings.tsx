@@ -28,6 +28,7 @@ import { Calendar, Cloud, Lock, Settings2, User, Database, Key, AlertTriangle, H
 import { useToast } from "@/hooks/use-toast";
 import StorageSettingsTab from "@/components/settings/StorageSettingsTab";
 import IntegrationsTab from "@/components/settings/IntegrationsTab";
+import AISettingsTab from "@/components/settings/AISettingsTab";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -50,11 +51,17 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="general">
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 flex flex-wrap">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="storage">Data Storage</TabsTrigger>
           <TabsTrigger value="accounts">Accounts</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
+          <TabsTrigger value="ai">
+            <div className="flex items-center gap-1">
+              <BrainCircuit className="h-4 w-4" />
+              <span>AI</span>
+            </div>
+          </TabsTrigger>
           <TabsTrigger value="api">API Keys</TabsTrigger>
         </TabsList>
         
@@ -270,6 +277,10 @@ const Settings = () => {
         
         <TabsContent value="integrations">
           <IntegrationsTab />
+        </TabsContent>
+        
+        <TabsContent value="ai">
+          <AISettingsTab />
         </TabsContent>
         
         <TabsContent value="api">
