@@ -14,7 +14,7 @@ export const showParsingResultToast = (parsedSale: ParsedSale) => {
       confidence.salePrice < 0.5)) {
     toast("Some fields may need review", {
       description: "I wasn't 100% confident about some details. Please check before saving.",
-      icon: <AlertCircle className="h-4 w-4" />
+      icon: "alert-circle"
     });
   } else {
     toast.success("Sale parsed successfully!");
@@ -36,7 +36,6 @@ export const showSaleAddedToast = (sale: ParsedSale) => {
 export const showErrorToast = (error: any, message = "An error occurred") => {
   console.error(error);
   toast.error(message, {
-    description: error.message || "Please try again.",
-    icon: <X className="h-4 w-4" />
+    description: error.message || "Please try again."
   });
 };
