@@ -23,6 +23,7 @@ import NotFound from "@/pages/NotFound";
 import Notes from "@/pages/Notes";
 import NaturalLanguageLogger from "@/pages/NaturalLanguageLogger";
 import Api from "@/pages/Api";
+import MatesRatesCalculator from "@/pages/MatesRatesCalculator";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
               <Route path="/notes" element={<Layout><Notes /></Layout>} />
               <Route path="/quick-sale" element={<Layout><NaturalLanguageLogger /></Layout>} />
               <Route path="/api" element={<Layout><Api /></Layout>} />
+              <Route path="/mates-rates" element={<Layout><MatesRatesCalculator /></Layout>} />
               <Route path="*" element={<Layout><NotFound /></Layout>} />
             </Routes>
           </SidebarProvider>

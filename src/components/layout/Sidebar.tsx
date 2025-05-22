@@ -1,4 +1,3 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -16,6 +15,7 @@ import {
   ShoppingBagIcon,
   SettingsIcon,
   Brain,
+  Users2,
 } from "lucide-react";
 import {
   Sidebar as SidebarComponent,
@@ -40,6 +40,94 @@ const Sidebar = () => {
     navigate(path);
   };
 
+  // Inside the navigation items array, add a new item for Mates Rates
+  const navigationItems = [
+    {
+      title: "Home",
+      icon: <HomeIcon className="mr-2" />,
+      href: "/",
+      colors: "from-blue-500 to-blue-600",
+    },
+    {
+      title: "Dashboard",
+      icon: <LayoutDashboardIcon className="mr-2" />,
+      href: "/dashboard",
+      colors: "from-green-500 to-green-600",
+    },
+    {
+      title: "Inventory",
+      icon: <PackageIcon className="mr-2" />,
+      href: "/inventory",
+      colors: "from-red-500 to-red-600",
+    },
+    {
+      title: "Sales",
+      icon: <DollarSignIcon className="mr-2" />,
+      href: "/sales",
+      colors: "from-yellow-500 to-yellow-600",
+    },
+    {
+      title: "Quick Sale",
+      icon: <Brain className="mr-2" />,
+      href: "/quick-sale",
+      colors: "from-pink-500 to-pink-600",
+    },
+    {
+      title: "Customers",
+      icon: <UsersIcon className="mr-2" />,
+      href: "/customers",
+      colors: "from-purple-500 to-purple-600",
+    },
+    {
+      title: "Stock",
+      icon: <BoxIcon className="mr-2" />,
+      href: "/stock",
+      colors: "from-green-500 to-green-600",
+    },
+    {
+      title: "Analytics",
+      icon: <TrendingUpIcon className="mr-2" />,
+      href: "/analytics",
+      colors: "from-blue-500 to-blue-600",
+    },
+    {
+      title: "Calendar",
+      icon: <CalendarIcon className="mr-2" />,
+      href: "/calendar",
+      colors: "from-red-500 to-red-600",
+    },
+    {
+      title: "Import",
+      icon: <FileUpIcon className="mr-2" />,
+      href: "/import",
+      colors: "from-yellow-500 to-yellow-600",
+    },
+    {
+      title: "Tick Ledger",
+      icon: <ClipboardListIcon className="mr-2" />,
+      href: "/tick-ledger",
+      colors: "from-pink-500 to-pink-600",
+    },
+    {
+      title: "Business Supplies",
+      icon: <ShoppingBagIcon className="mr-2" />,
+      href: "/business-supplies",
+      colors: "from-purple-500 to-purple-600",
+    },
+    {
+      title: "Settings",
+      icon: <SettingsIcon className="mr-2" />,
+      href: "/settings",
+      colors: "from-blue-500 to-blue-600",
+    },
+    {
+      title: "Mates Rates",
+      icon: <Users2 className="h-5 w-5" />,
+      href: "/mates-rates",
+      colors: "from-amber-500 to-orange-600",
+    },
+  ];
+
   return (
     <SidebarComponent
       className={cn(
@@ -50,136 +138,18 @@ const Sidebar = () => {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/")}
-                tooltip="Home"
-                isActive={isActive("/")}
-              >
-                <HomeIcon className="mr-2" />
-                Home
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/dashboard")}
-                tooltip="Dashboard"
-                isActive={isActive("/dashboard")}
-              >
-                <LayoutDashboardIcon className="mr-2" />
-                Dashboard
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/inventory")}
-                tooltip="Inventory"
-                isActive={isActive("/inventory")}
-              >
-                <PackageIcon className="mr-2" />
-                Inventory
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/sales")}
-                tooltip="Sales"
-                isActive={isActive("/sales")}
-              >
-                <DollarSignIcon className="mr-2" />
-                Sales
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/quick-sale")}
-                tooltip="Quick Sale"
-                isActive={isActive("/quick-sale")}
-              >
-                <Brain className="mr-2" />
-                Quick Sale
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/customers")}
-                tooltip="Customers"
-                isActive={isActive("/customers")}
-              >
-                <UsersIcon className="mr-2" />
-                Customers
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/stock")}
-                tooltip="Stock"
-                isActive={isActive("/stock")}
-              >
-                <BoxIcon className="mr-2" />
-                Stock
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/analytics")}
-                tooltip="Analytics"
-                isActive={isActive("/analytics")}
-              >
-                <TrendingUpIcon className="mr-2" />
-                Analytics
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/calendar")}
-                tooltip="Calendar"
-                isActive={isActive("/calendar")}
-              >
-                <CalendarIcon className="mr-2" />
-                Calendar
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/import")}
-                tooltip="Import"
-                isActive={isActive("/import")}
-              >
-                <FileUpIcon className="mr-2" />
-                Import
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/tick-ledger")}
-                tooltip="Tick Ledger"
-                isActive={isActive("/tick-ledger")}
-              >
-                <ClipboardListIcon className="mr-2" />
-                Tick Ledger
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/business-supplies")}
-                tooltip="Business Supplies"
-                isActive={isActive("/business-supplies")}
-              >
-                <ShoppingBagIcon className="mr-2" />
-                Business Supplies
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => navigateTo("/settings")}
-                tooltip="Settings"
-                isActive={isActive("/settings")}
-              >
-                <SettingsIcon className="mr-2" />
-                Settings
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {navigationItems.map((item, index) => (
+              <SidebarMenuItem key={index}>
+                <SidebarMenuButton
+                  onClick={() => navigateTo(item.href)}
+                  tooltip={item.title}
+                  isActive={isActive(item.href)}
+                >
+                  {item.icon}
+                  {item.title}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
