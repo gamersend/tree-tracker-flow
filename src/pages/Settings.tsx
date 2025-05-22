@@ -25,8 +25,9 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Cloud, Lock, Settings2, User, Database, Key, AlertTriangle } from "lucide-react";
+import { Calendar, Cloud, Lock, Settings2, User, Database, Key, AlertTriangle, HardDrive } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import StorageSettingsTab from "@/components/settings/StorageSettingsTab";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -51,6 +52,7 @@ const Settings = () => {
       <Tabs defaultValue="general">
         <TabsList className="mb-6">
           <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="storage">Data Storage</TabsTrigger>
           <TabsTrigger value="accounts">Accounts</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="api">API Keys</TabsTrigger>
@@ -177,6 +179,10 @@ const Settings = () => {
               <Button onClick={handleSaveSettings}>Save Settings</Button>
             </div>
           </div>
+        </TabsContent>
+        
+        <TabsContent value="storage">
+          <StorageSettingsTab />
         </TabsContent>
         
         <TabsContent value="accounts">
