@@ -10,6 +10,7 @@ import {
 import { Bot, Cloud, BrainCircuit } from "lucide-react";
 import LocalLLMSettings from "./LocalLLMSettings";
 import LocalLLMDemo from "../integrations/LocalLLMDemo";
+import LLMFaq from "../ai/LLMFaq";
 
 const AISettingsTab: React.FC = () => {
   return (
@@ -36,7 +37,9 @@ const AISettingsTab: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="border border-slate-800 md:col-span-2">
+        <LLMFaq />
+        
+        <Card className="border border-slate-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BrainCircuit className="h-5 w-5 text-purple-400" />

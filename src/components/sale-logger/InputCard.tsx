@@ -12,6 +12,7 @@ import { SaleTemplates } from "./SaleTemplates";
 import { RecentEntries } from "./RecentEntries";
 import { InputField } from "./InputField";
 import { ActionButtons } from "./ActionButtons";
+import AISaleHelper from "./AISaleHelper";
 
 interface InputCardProps {
   saleText: string;
@@ -83,6 +84,18 @@ export const InputCard: React.FC<InputCardProps> = ({
           isProcessing={isProcessing}
           isInputEmpty={!(saleText && saleText.trim())}
         />
+        
+        {saleText && saleText.trim() && (
+          <AISaleHelper 
+            saleText={saleText} 
+            onProcessedResult={(result) => {
+              const event = {
+                target: { value: result },
+              } as React.ChangeEvent<HTMLTextAreaElement>;
+              onTextChange(event);
+            }} 
+          />
+        )}
         
         <RecentEntries entries={safeRecentEntries} onUseEntry={onUseRecentEntry} />
       </CardContent>

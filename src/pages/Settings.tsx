@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Card,
@@ -24,7 +25,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Cloud, Lock, Settings2, User, Database, Key, AlertTriangle, HardDrive } from "lucide-react";
+import { Calendar, Cloud, Lock, Settings2, User, Database, Key, AlertTriangle, HardDrive, BrainCircuit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import StorageSettingsTab from "@/components/settings/StorageSettingsTab";
 import IntegrationsTab from "@/components/settings/IntegrationsTab";
