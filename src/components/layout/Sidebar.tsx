@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { cn } from "@/lib/utils";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   HomeIcon,
   LayoutDashboardIcon,
@@ -18,13 +19,16 @@ import {
 } from "lucide-react";
 import {
   Sidebar as SidebarComponent,
-  SidebarSection,
-  SidebarItem,
+  SidebarContent,
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
-  const { isMobile } = useMobile();
+  const { isMobile } = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,86 +47,142 @@ const Sidebar = () => {
         isMobile ? "w-[80px]" : "w-[260px]"
       )}
     >
-      <SidebarSection>
-        <SidebarItem
-          icon={<HomeIcon />}
-          label="Home"
-          onClick={() => navigateTo("/")}
-          active={isActive("/")}
-        />
-        <SidebarItem
-          icon={<LayoutDashboardIcon />}
-          label="Dashboard"
-          onClick={() => navigateTo("/dashboard")}
-          active={isActive("/dashboard")}
-        />
-        <SidebarItem
-          icon={<PackageIcon />}
-          label="Inventory"
-          onClick={() => navigateTo("/inventory")}
-          active={isActive("/inventory")}
-        />
-        <SidebarItem
-          icon={<DollarSignIcon />}
-          label="Sales"
-          onClick={() => navigateTo("/sales")}
-          active={isActive("/sales")}
-        />
-        <SidebarItem
-          icon={<Brain />}
-          label="Quick Sale"
-          onClick={() => navigateTo("/quick-sale")}
-          active={isActive("/quick-sale")}
-        />
-        <SidebarItem
-          icon={<UsersIcon />}
-          label="Customers"
-          onClick={() => navigateTo("/customers")}
-          active={isActive("/customers")}
-        />
-        <SidebarItem
-          icon={<BoxIcon />}
-          label="Stock"
-          onClick={() => navigateTo("/stock")}
-          active={isActive("/stock")}
-        />
-        <SidebarItem
-          icon={<TrendingUpIcon />}
-          label="Analytics"
-          onClick={() => navigateTo("/analytics")}
-          active={isActive("/analytics")}
-        />
-        <SidebarItem
-          icon={<CalendarIcon />}
-          label="Calendar"
-          onClick={() => navigateTo("/calendar")}
-          active={isActive("/calendar")}
-        />
-        <SidebarItem
-          icon={<FileUpIcon />}
-          label="Import"
-          onClick={() => navigateTo("/import")}
-          active={isActive("/import")}
-        />
-        <SidebarItem
-          icon={<ClipboardListIcon />}
-          label="Tick Ledger"
-          onClick={() => navigateTo("/tick-ledger")}
-          active={isActive("/tick-ledger")}
-        />
-        <SidebarItem
-          icon={<ShoppingBagIcon />}
-          label="Business Supplies"
-          onClick={() => navigateTo("/business-supplies")}
-          active={isActive("/business-supplies")}
-        />
-        <SidebarItem
-          icon={<SettingsIcon />}
-          label="Settings"
-          onClick={() => navigateTo("/settings")}
-          active={isActive("/settings")}
-        />
-      </SidebarSection>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<HomeIcon />}
+                onClick={() => navigateTo("/")}
+                tooltip="Home"
+                isActive={isActive("/")}
+              >
+                Home
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<LayoutDashboardIcon />}
+                onClick={() => navigateTo("/dashboard")}
+                tooltip="Dashboard"
+                isActive={isActive("/dashboard")}
+              >
+                Dashboard
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<PackageIcon />}
+                onClick={() => navigateTo("/inventory")}
+                tooltip="Inventory"
+                isActive={isActive("/inventory")}
+              >
+                Inventory
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<DollarSignIcon />}
+                onClick={() => navigateTo("/sales")}
+                tooltip="Sales"
+                isActive={isActive("/sales")}
+              >
+                Sales
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<Brain />}
+                onClick={() => navigateTo("/quick-sale")}
+                tooltip="Quick Sale"
+                isActive={isActive("/quick-sale")}
+              >
+                Quick Sale
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<UsersIcon />}
+                onClick={() => navigateTo("/customers")}
+                tooltip="Customers"
+                isActive={isActive("/customers")}
+              >
+                Customers
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<BoxIcon />}
+                onClick={() => navigateTo("/stock")}
+                tooltip="Stock"
+                isActive={isActive("/stock")}
+              >
+                Stock
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<TrendingUpIcon />}
+                onClick={() => navigateTo("/analytics")}
+                tooltip="Analytics"
+                isActive={isActive("/analytics")}
+              >
+                Analytics
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<CalendarIcon />}
+                onClick={() => navigateTo("/calendar")}
+                tooltip="Calendar"
+                isActive={isActive("/calendar")}
+              >
+                Calendar
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<FileUpIcon />}
+                onClick={() => navigateTo("/import")}
+                tooltip="Import"
+                isActive={isActive("/import")}
+              >
+                Import
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<ClipboardListIcon />}
+                onClick={() => navigateTo("/tick-ledger")}
+                tooltip="Tick Ledger"
+                isActive={isActive("/tick-ledger")}
+              >
+                Tick Ledger
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<ShoppingBagIcon />}
+                onClick={() => navigateTo("/business-supplies")}
+                tooltip="Business Supplies"
+                isActive={isActive("/business-supplies")}
+              >
+                Business Supplies
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                icon={<SettingsIcon />}
+                onClick={() => navigateTo("/settings")}
+                tooltip="Settings"
+                isActive={isActive("/settings")}
+              >
+                Settings
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
     </SidebarComponent>
   );
 };
