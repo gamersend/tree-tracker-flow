@@ -9,8 +9,51 @@ export function cn(...inputs: ClassValue[]) {
 // Date utilities
 export const formatDate = (date: Date | string): string => {
   if (!date) return "";
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toISOString().split('T')[0]; // YYYY-MM-DD
+  
+  // First, ensure we have a valid date
+  let dateObj: Date;
+  
+  if (typeof date === 'string') {
+    dateObj = new Date(date);
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return "Invalid date";
+    }
+  } else {
+    dateObj = date;
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return "Invalid date";
+    }
+  }
+  
+  return dateObj.toISOString().split('T')[0]; // YYYY-MM-DD
+};
+
+// Safe date formatter that handles potentially invalid dates
+export const safeFormatDate = (date: Date | string | undefined, formatString: string = "MMM d, yyyy"): string => {
+  if (!date) return "No date";
+  
+  try {
+    let dateObj: Date;
+    if (typeof date === 'string') {
+      dateObj = new Date(date);
+    } else {
+      dateObj = date;
+    }
+    
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return "Invalid date";
+    }
+    
+    // Use date-fns format after ensuring date is valid
+    const { format } = require('date-fns');
+    return format(dateObj, formatString);
+  } catch (error) {
+    console.error("Error formatting date:", error, date);
+    return "Date error";
+  }
 };
 
 // CSV handling utilities

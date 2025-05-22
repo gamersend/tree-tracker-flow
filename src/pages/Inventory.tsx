@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -44,7 +43,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon, Plus, Search, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, safeFormatDate } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -489,7 +488,7 @@ const Inventory = () => {
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{item.strain}</TableCell>
-                    <TableCell>{format(new Date(item.purchaseDate), "MMM d, yyyy")}</TableCell>
+                    <TableCell>{safeFormatDate(item.purchaseDate, "MMM d, yyyy")}</TableCell>
                     <TableCell>{item.quantityUnit}</TableCell>
                     <TableCell className="text-right">${item.totalCost.toFixed(2)}</TableCell>
                     <TableCell className="text-right">${item.pricePerGram.toFixed(2)}</TableCell>
