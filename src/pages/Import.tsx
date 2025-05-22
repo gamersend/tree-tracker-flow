@@ -73,7 +73,7 @@ const Import = () => {
   const [parsedData, setParsedData] = useState<any[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [step, setStep] = useState<"input" | "preview" | "complete">("input");
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const [file, setFile] = useState<File | null>(null);
 
   // Format examples for each import type
