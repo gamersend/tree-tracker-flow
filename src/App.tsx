@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Layout from "@/components/layout/Layout";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { NotesProvider } from "@/contexts/NotesContext";
+import InstallBanner from "@/components/pwa/InstallBanner";
 
 // Import pages
 import Dashboard from "@/pages/Dashboard";
@@ -24,6 +25,7 @@ import Notes from "@/pages/Notes";
 import NaturalLanguageLogger from "@/pages/NaturalLanguageLogger";
 import Api from "@/pages/Api";
 import MatesRatesCalculator from "@/pages/MatesRatesCalculator";
+import Notifications from "@/pages/Notifications";
 
 function App() {
   return (
@@ -48,9 +50,11 @@ function App() {
               <Route path="/quick-sale" element={<Layout><NaturalLanguageLogger /></Layout>} />
               <Route path="/api" element={<Layout><Api /></Layout>} />
               <Route path="/mates-rates" element={<Layout><MatesRatesCalculator /></Layout>} />
+              <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
               <Route path="*" element={<Layout><NotFound /></Layout>} />
             </Routes>
           </SidebarProvider>
+          <InstallBanner />
         </BrowserRouter>
         <Toaster />
       </NotesProvider>

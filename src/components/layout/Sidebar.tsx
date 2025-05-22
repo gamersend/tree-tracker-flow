@@ -1,3 +1,4 @@
+
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -16,6 +17,7 @@ import {
   SettingsIcon,
   Brain,
   Users2,
+  Bell,
 } from "lucide-react";
 import {
   Sidebar as SidebarComponent,
@@ -115,16 +117,22 @@ const Sidebar = () => {
       colors: "from-purple-500 to-purple-600",
     },
     {
-      title: "Settings",
-      icon: <SettingsIcon className="mr-2" />,
-      href: "/settings",
-      colors: "from-blue-500 to-blue-600",
-    },
-    {
       title: "Mates Rates",
       icon: <Users2 className="h-5 w-5" />,
       href: "/mates-rates",
       colors: "from-amber-500 to-orange-600",
+    },
+    {
+      title: "Notifications",
+      icon: <Bell className="mr-2" />,
+      href: "/notifications",
+      colors: "from-green-500 to-teal-600",
+    },
+    {
+      title: "Settings",
+      icon: <SettingsIcon className="mr-2" />,
+      href: "/settings",
+      colors: "from-blue-500 to-blue-600",
     },
   ];
 

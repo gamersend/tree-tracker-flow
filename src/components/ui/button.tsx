@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -5,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation",
   {
     variants: {
       variant: {
@@ -24,6 +25,10 @@ const buttonVariants = cva(
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        // Mobile-optimized sizes
+        "mobile-sm": "h-10 rounded-md px-3",
+        "mobile-default": "h-11 px-4 py-2",
+        "mobile-lg": "h-12 rounded-md px-6",
       },
     },
     defaultVariants: {
@@ -42,9 +47,21 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    
+    // Determine if we're on mobile
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+    
+    // Map standard sizes to mobile sizes when on mobile
+    let mobileOptimizedSize = size;
+    if (isMobile) {
+      if (size === 'sm') mobileOptimizedSize = 'mobile-sm';
+      else if (size === 'default') mobileOptimizedSize = 'mobile-default';
+      else if (size === 'lg') mobileOptimizedSize = 'mobile-lg';
+    }
+    
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size: mobileOptimizedSize, className }))}
         ref={ref}
         {...props}
       />
