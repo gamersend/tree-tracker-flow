@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Layout from "@/components/layout/Layout";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 // Import pages
 import Index from "@/pages/Index";
@@ -27,25 +28,27 @@ function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout><Index /></Layout>} />
-          <Route path="dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="inventory" element={<Layout><Inventory /></Layout>} />
-          <Route path="sales" element={<Layout><Sales /></Layout>} />
-          <Route path="customers" element={<Layout><Customers /></Layout>} />
-          <Route path="stock" element={<Layout><Stock /></Layout>} />
-          <Route path="analytics" element={<Layout><Analytics /></Layout>} />
-          <Route path="calendar" element={<Layout><Calendar /></Layout>} />
-          <Route path="import" element={<Layout><Import /></Layout>} />
-          <Route path="tick-ledger" element={<Layout><TickLedger /></Layout>} />
-          <Route path="business-supplies" element={<Layout><BusinessSupplies /></Layout>} />
-          <Route path="settings" element={<Layout><Settings /></Layout>} />
-          
-          {/* Add our natural language logger route */}
-          <Route path="quick-sale" element={<Layout><NaturalLanguageLogger /></Layout>} />
-          
-          <Route path="*" element={<Layout><NotFound /></Layout>} />
-        </Routes>
+        <SidebarProvider>
+          <Routes>
+            <Route path="/" element={<Layout><Index /></Layout>} />
+            <Route path="dashboard" element={<Layout><Dashboard /></Layout>} />
+            <Route path="inventory" element={<Layout><Inventory /></Layout>} />
+            <Route path="sales" element={<Layout><Sales /></Layout>} />
+            <Route path="customers" element={<Layout><Customers /></Layout>} />
+            <Route path="stock" element={<Layout><Stock /></Layout>} />
+            <Route path="analytics" element={<Layout><Analytics /></Layout>} />
+            <Route path="calendar" element={<Layout><Calendar /></Layout>} />
+            <Route path="import" element={<Layout><Import /></Layout>} />
+            <Route path="tick-ledger" element={<Layout><TickLedger /></Layout>} />
+            <Route path="business-supplies" element={<Layout><BusinessSupplies /></Layout>} />
+            <Route path="settings" element={<Layout><Settings /></Layout>} />
+            
+            {/* Add our natural language logger route */}
+            <Route path="quick-sale" element={<Layout><NaturalLanguageLogger /></Layout>} />
+            
+            <Route path="*" element={<Layout><NotFound /></Layout>} />
+          </Routes>
+        </SidebarProvider>
       </BrowserRouter>
       <Toaster />
     </ThemeProvider>
