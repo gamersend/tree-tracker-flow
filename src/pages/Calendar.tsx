@@ -37,7 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format, isSameDay, parseISO, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
+import { format, isSameDay, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameWeek } from "date-fns";
 import { Plus, Calendar as CalendarIcon, DollarSign, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -180,6 +180,26 @@ const CalendarView = () => {
   const getSalesForSelectedDate = () => {
     if (!selectedDate) return [];
     return sales.filter(sale => isSameDay(sale.date, selectedDate));
+  };
+  
+  // Get events for a specific date
+  const getEventsForDate = (date: Date) => {
+    return events.filter(event => isSameDay(event.date, date));
+  };
+  
+  // Get upcoming 7 days of events
+  const getUpcomingEvents = () => {
+    const today = new Date();
+    const next7Days = Array.from({ length: 7 }, (_, i) => addDays(today, i));
+    
+    return next7Days.map(date => ({
+      date,
+      events: getEventsForDate(date),
+      sales: sales.filter(sale => isSameDay(sale.date, date)),
+      profit: sales
+        .filter(sale => isSameDay(sale.date, date))
+        .reduce((sum, sale) => sum + sale.profit, 0)
+    }));
   };
   
   // Calculate total profit for the selected date
@@ -595,6 +615,93 @@ const CalendarView = () => {
           </Card>
         </motion.div>
       </div>
+
+      {/* Upcoming 7 Days Events Section */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="mt-6"
+      >
+        <Card className="border-tree-gold/30 bg-gradient-to-br from-slate-950 to-slate-900">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <span className="mr-2">🗓️</span> Upcoming 7 Days
+            </CardTitle>
+            <CardDescription>Preview of events and sales for the next week</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {getUpcomingEvents().map((day) => (
+                <motion.div
+                  key={day.date.toISOString()}
+                  whileHover={{ y: -5 }}
+                  className="bg-slate-800/50 border border-slate-700/50 rounded-md p-4 hover:border-tree-gold/50 transition-all"
+                >
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-medium">
+                      {format(day.date, "EEE, MMM d")}
+                    </h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedDate(day.date);
+                        // Scroll to the calendar section
+                        window.scrollTo({
+                          top: 0,
+                          behavior: "smooth",
+                        });
+                      }}
+                      className="text-xs px-2 py-0 h-6 hover:bg-tree-gold/20"
+                    >
+                      View
+                    </Button>
+                  </div>
+                  
+                  {/* Profit indication */}
+                  {day.profit > 0 && (
+                    <div className="mb-2">
+                      <Badge variant="outline" className="bg-tree-green/10 text-tree-green border-tree-green/30">
+                        ${day.profit.toFixed(2)} profit
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  {/* Events summary */}
+                  {day.events.length > 0 ? (
+                    <div className="space-y-2">
+                      {day.events.slice(0, 3).map((event) => (
+                        <div
+                          key={event.id}
+                          className="text-sm flex items-center space-x-2 bg-slate-700/20 rounded p-2"
+                        >
+                          <div className={`w-2 h-2 rounded-full ${
+                            event.type === "Sale" ? "bg-tree-green" :
+                            event.type === "Meeting" ? "bg-tree-purple" :
+                            "bg-tree-gold"
+                          }`}></div>
+                          <div className="truncate flex-1">{event.title}</div>
+                          {event.time && <div className="text-gray-400 text-xs">{event.time}</div>}
+                        </div>
+                      ))}
+                      {day.events.length > 3 && (
+                        <div className="text-xs text-center text-gray-400">
+                          +{day.events.length - 3} more events
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-400 text-center py-2">
+                      No events scheduled
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </motion.div>
   );
 };

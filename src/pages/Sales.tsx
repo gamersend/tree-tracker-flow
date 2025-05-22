@@ -115,6 +115,8 @@ const Sales = () => {
   const [selectedStrain, setSelectedStrain] = useState("");
   const [saleDate, setSaleDate] = useState<Date | undefined>(new Date());
   const [quantity, setQuantity] = useState("");
+  const [quantityOption, setQuantityOption] = useState<string>("3.5");
+  const [customQuantity, setCustomQuantity] = useState("");
   const [customer, setCustomer] = useState("");
   const [salePrice, setSalePrice] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -127,6 +129,17 @@ const Sales = () => {
   const [calcMargin, setCalcMargin] = useState(70);
   const [targetMargin, setTargetMargin] = useState(70);
   const [showSuggestion, setShowSuggestion] = useState(false);
+
+  // Predefined quantity options
+  const quantityOptions = [
+    { label: "3.5g (Eighth)", value: "3.5" },
+    { label: "7g (Quarter)", value: "7" },
+    { label: "14g (Half)", value: "14" },
+    { label: "28g (Ounce)", value: "28" },
+    { label: "42g (1.5 oz)", value: "42" },
+    { label: "56g (2 oz)", value: "56" },
+    { label: "Custom", value: "custom" }
+  ];
 
   // Save to localStorage whenever data changes
   useEffect(() => {
@@ -225,6 +238,19 @@ const Sales = () => {
     
     updateCustomerLoyalty();
   }, [sales]);
+
+  // Handle quantity option change
+  useEffect(() => {
+    if (quantityOption === "custom") {
+      setQuantity(customQuantity);
+    } else {
+      setQuantity(quantityOption);
+      // Update suggestion if strain is selected
+      if (selectedStrain && quantityOption) {
+        setShowSuggestion(true);
+      }
+    }
+  }, [quantityOption, customQuantity, selectedStrain]);
   
   // Sort function
   const handleSort = (column: keyof SaleItem) => {
@@ -341,6 +367,8 @@ const Sales = () => {
     setSelectedStrain("");
     setSaleDate(new Date());
     setQuantity("");
+    setQuantityOption("3.5");
+    setCustomQuantity("");
     setCustomer("");
     setSalePrice("");
     setSelectedImage(null);
@@ -505,22 +533,41 @@ const Sales = () => {
                 </div>
                 
                 <div className="grid gap-2">
-                  <Label htmlFor="quantity">Quantity (grams)</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    step="0.1"
-                    value={quantity}
-                    onChange={(e) => {
-                      setQuantity(e.target.value);
-                      if (selectedStrain && e.target.value) {
-                        setShowSuggestion(true);
-                      } else {
-                        setShowSuggestion(false);
-                      }
+                  <Label htmlFor="quantity">Quantity</Label>
+                  <Select 
+                    value={quantityOption} 
+                    onValueChange={(value) => {
+                      setQuantityOption(value);
                     }}
-                    placeholder="e.g., 3.5"
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select amount" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {quantityOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {quantityOption === "custom" && (
+                    <div className="mt-2">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        placeholder="Enter custom amount (g)"
+                        value={customQuantity}
+                        onChange={(e) => {
+                          setCustomQuantity(e.target.value);
+                          if (selectedStrain && e.target.value) {
+                            setShowSuggestion(true);
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
                 
                 {/* Auto-suggested pricing */}
