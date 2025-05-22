@@ -2,12 +2,12 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { BarChart, Calendar, CheckSquare, DollarSign, TrendingUp } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useNotes } from "@/contexts/NotesContext";
+import { NotesContainer } from "@/components/notes/NotesContainer";
+import { motion } from "framer-motion";
 
 // Mock data for charts and stats
 const profitData = [
@@ -31,6 +31,9 @@ const Dashboard = () => {
   const [notes, setNotes] = React.useState("Meeting with supplier on Friday.\nCheck inventory of OG Kush.");
   const [todos, setTodos] = React.useState(todoItems);
   const [newTodo, setNewTodo] = React.useState("");
+  
+  // Get the notes context
+  const { notes: stickyNotes, addNote, updateNote, deleteNote } = useNotes();
 
   const toggleTodo = (id: string) => {
     setTodos(todos.map(todo => 
@@ -47,6 +50,10 @@ const Dashboard = () => {
       }]);
       setNewTodo("");
     }
+  };
+
+  const handleAddNote = () => {
+    addNote("New note", "yellow");
   };
 
   return (
@@ -192,10 +199,12 @@ const Dashboard = () => {
               <div className="space-y-3">
                 {todos.map((todo) => (
                   <div key={todo.id} className="flex items-center gap-3">
-                    <Checkbox 
+                    <input 
+                      type="checkbox" 
                       id={todo.id} 
                       checked={todo.completed}
-                      onCheckedChange={() => toggleTodo(todo.id)}
+                      onChange={() => toggleTodo(todo.id)}
+                      className="h-4 w-4"
                     />
                     <label
                       htmlFor={todo.id}
@@ -208,11 +217,11 @@ const Dashboard = () => {
                   </div>
                 ))}
                 <div className="flex gap-2 mt-4">
-                  <Input 
+                  <input 
                     value={newTodo}
                     onChange={(e) => setNewTodo(e.target.value)}
                     placeholder="Add new task"
-                    className="bg-slate-800 border-slate-700"
+                    className="rounded-md bg-slate-800 border-slate-700 p-2 text-sm flex-1"
                   />
                   <Button size="sm" onClick={addTodo}>Add</Button>
                 </div>
@@ -221,6 +230,24 @@ const Dashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Add the Sticky Notes section */}
+      <Card className="bg-gradient-to-br from-slate-950 to-slate-900 border-yellow-500/30">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <span className="mr-2">📝</span> Sticky Notes
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NotesContainer
+            notes={stickyNotes}
+            onAddNote={handleAddNote}
+            onUpdateNote={updateNote}
+            onDeleteNote={deleteNote}
+            isMovable={true}
+          />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
@@ -241,7 +268,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-2">
-              {["Inventory", "Sales", "Customers", "Calendar"].map((link) => (
+              {["Notes", "Sales", "Customers", "Calendar"].map((link) => (
                 <Button key={link} variant="outline" className="justify-start">
                   {link}
                 </Button>

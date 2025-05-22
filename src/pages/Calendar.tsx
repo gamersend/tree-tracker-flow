@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -41,6 +40,8 @@ import { format, isSameDay, parseISO, startOfMonth, endOfMonth, eachDayOfInterva
 import { Plus, Calendar as CalendarIcon, DollarSign, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useNotes } from "@/contexts/NotesContext";
+import { NotesContainer } from "@/components/notes/NotesContainer";
 
 // Event types
 type EventType = "Sale" | "Meeting" | "Reminder";
@@ -163,7 +164,7 @@ const CalendarView = () => {
         }
       });
       
-      setProfitData(profitByDate);
+      setProfitData(profitData);
       setMaxProfit(highestProfit > 0 ? highestProfit : 100);
     };
     
@@ -182,63 +183,16 @@ const CalendarView = () => {
     return sales.filter(sale => isSameDay(sale.date, selectedDate));
   };
   
-  // Get events for a specific date
-  const getEventsForDate = (date: Date) => {
-    return events.filter(event => isSameDay(event.date, date));
+  // Format selected date as YYYY-MM-DD for notes filtering
+  const getFormattedSelectedDate = () => {
+    if (!selectedDate) return "";
+    return selectedDate.toISOString().split('T')[0];
   };
   
-  // Get upcoming 7 days of events
-  const getUpcomingEvents = () => {
-    const today = new Date();
-    const next7Days = Array.from({ length: 7 }, (_, i) => addDays(today, i));
-    
-    return next7Days.map(date => ({
-      date,
-      events: getEventsForDate(date),
-      sales: sales.filter(sale => isSameDay(sale.date, date)),
-      profit: sales
-        .filter(sale => isSameDay(sale.date, date))
-        .reduce((sum, sale) => sum + sale.profit, 0)
-    }));
-  };
-  
-  // Calculate total profit for the selected date
-  const getTotalProfitForSelectedDate = () => {
-    return getSalesForSelectedDate().reduce((sum, sale) => sum + sale.profit, 0);
-  };
-  
-  // Handle adding a new event
-  const handleAddEvent = () => {
-    if (!newEvent.title || !newEvent.type || !selectedDate) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-    
-    const eventToAdd: Event = {
-      id: `event${Date.now()}`,
-      title: newEvent.title || "",
-      date: selectedDate,
-      type: newEvent.type as EventType,
-      customer: newEvent.customer,
-      strain: newEvent.strain,
-      quantity: newEvent.quantity,
-      notes: newEvent.notes,
-      time: newEvent.time,
-    };
-    
-    setEvents([...events, eventToAdd]);
-    
-    toast.success("Event added successfully");
-    
-    // Reset form
-    setNewEvent({
-      title: "",
-      type: "Sale",
-      date: selectedDate,
-      time: "",
-    });
-    
-    setIsAddEventOpen(false);
+  // Handle adding a new note for this date
+  const handleAddNoteForDate = () => {
+    if (!selectedDate) return;
+    addNote("", "yellow", getFormattedSelectedDate());
   };
   
   // Get badge color based on event type
@@ -275,6 +229,8 @@ const CalendarView = () => {
     );
   };
 
+  const { notes, addNote, updateNote, deleteNote, getNotesByDate } = useNotes();
+  
   return (
     <motion.div 
       className="space-y-6"
@@ -576,40 +532,14 @@ const CalendarView = () => {
               </div>
               
               <div className="border-t border-slate-800 pt-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-medium text-lg flex items-center">
-                    <span className="mr-2">💰</span> Sales Summary
-                  </h3>
-                  <div className="flex items-center text-tree-green">
-                    <DollarSign className="h-4 w-4 mr-1" />
-                    ${getTotalProfitForSelectedDate().toFixed(2)}
-                  </div>
-                </div>
-                
-                {getSalesForSelectedDate().length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Strain</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {getSalesForSelectedDate().map((sale) => (
-                        <TableRow key={sale.id}>
-                          <TableCell>{sale.customer}</TableCell>
-                          <TableCell>{sale.strain}</TableCell>
-                          <TableCell className="text-right">${sale.salePrice.toFixed(2)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground bg-slate-800/20 rounded-md">
-                    No sales recorded for this day
-                  </div>
-                )}
+                <NotesContainer
+                  notes={notes}
+                  onAddNote={handleAddNoteForDate}
+                  onUpdateNote={updateNote}
+                  onDeleteNote={deleteNote}
+                  dateFilter={getFormattedSelectedDate()}
+                  className="mt-4"
+                />
               </div>
             </CardContent>
           </Card>
