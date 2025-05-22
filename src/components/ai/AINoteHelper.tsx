@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useLocalLLM } from "@/hooks/useLocalLLM";
-import { Sparkles, Loader2, Bot, Settings2 } from "lucide-react";
+import { useAI } from "@/hooks/useAI";
+import { Sparkles, Loader2, Bot, Settings2, Cloud } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -18,10 +18,11 @@ const AINoteHelper: React.FC<AINoteHelperProps> = ({
   disabled = false
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { generateText, getActiveModel } = useLocalLLM();
+  const { generateText, checkAIAvailability, getActiveProvider } = useAI();
   const navigate = useNavigate();
   
-  const activeModel = getActiveModel();
+  const { available, provider } = checkAIAvailability();
+  const activeProvider = getActiveProvider();
   
   const handleNavigateToSettings = () => {
     navigate('/settings');
@@ -57,13 +58,13 @@ const AINoteHelper: React.FC<AINoteHelperProps> = ({
       }
     } catch (error) {
       console.error("Error improving note:", error);
-      toast.error("Failed to improve note. Is your LLM server running?");
+      toast.error(`Failed to improve note. ${activeProvider === "local" ? "Is your LLM server running?" : "Check OpenAI API connection."}`);
     } finally {
       setIsLoading(false);
     }
   };
   
-  if (!activeModel) {
+  if (!available) {
     return (
       <Button
         size="sm"
@@ -92,7 +93,11 @@ const AINoteHelper: React.FC<AINoteHelperProps> = ({
         </>
       ) : (
         <>
-          <Bot className="h-3 w-3 mr-1" />
+          {activeProvider === "openai" ? (
+            <Cloud className="h-3 w-3 mr-1" />
+          ) : (
+            <Bot className="h-3 w-3 mr-1" />
+          )}
           <span>Improve with AI</span>
         </>
       )}

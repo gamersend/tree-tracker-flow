@@ -1,9 +1,10 @@
 
-import { useLocalLLM } from "./useLocalLLM";
+import { useAI } from "./useAI";
 import { toast } from "sonner";
 
 export const useAiPrompts = () => {
-  const { generateText, getActiveModel, isLoading } = useLocalLLM();
+  const { generateText, checkAIAvailability, isLoading, getActiveProvider } = useAI();
+  const activeProvider = getActiveProvider();
   
   const summarizeText = async (text: string, maxLength: number = 100): Promise<string | null> => {
     if (!text.trim()) return null;
@@ -62,9 +63,9 @@ export const useAiPrompts = () => {
   };
   
   const checkAiAvailability = () => {
-    const activeModel = getActiveModel();
-    if (!activeModel) {
-      toast.error("No active LLM model. Please configure one in Settings.");
+    const { available } = checkAIAvailability();
+    if (!available) {
+      toast.error(`No AI model configured. Please configure ${activeProvider === "openai" ? "OpenAI" : "Local LLM"} in Settings.`);
       return false;
     }
     return true;
@@ -76,6 +77,7 @@ export const useAiPrompts = () => {
     enhanceSaleDescription,
     checkAiAvailability,
     isAiLoading: isLoading,
-    hasActiveModel: !!getActiveModel()
+    hasActiveModel: checkAIAvailability().available,
+    activeProvider
   };
 };

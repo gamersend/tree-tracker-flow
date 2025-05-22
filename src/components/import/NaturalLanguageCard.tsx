@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Card,
@@ -10,8 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Bot, AlertCircle, Loader2, BrainCircuit } from "lucide-react";
-import { useLocalLLM } from "@/hooks/useLocalLLM";
+import { Sparkles, Bot, AlertCircle, Loader2, BrainCircuit, Cloud } from "lucide-react";
+import { useAI } from "@/hooks/useAI";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -19,10 +20,11 @@ const NaturalLanguageCard: React.FC = () => {
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const { generateText, getActiveModel } = useLocalLLM();
+  const { generateText, checkAIAvailability, getActiveProvider } = useAI();
   const navigate = useNavigate();
   
-  const activeModel = getActiveModel();
+  const { available } = checkAIAvailability();
+  const activeProvider = getActiveProvider();
 
   const handleNavigateToSettings = () => {
     navigate('/settings');
@@ -64,13 +66,13 @@ const NaturalLanguageCard: React.FC = () => {
       }
     } catch (error) {
       console.error("Error converting to CSV:", error);
-      toast.error("Failed to convert text. Is your LLM server running?");
+      toast.error(`Failed to convert text. ${activeProvider === "local" ? "Is your LLM server running?" : "Check OpenAI API connection."}`);
     } finally {
       setIsProcessing(false);
     }
   };
   
-  if (!activeModel) {
+  if (!available) {
     return (
       <Card className="mt-6 border-tree-purple border-2">
         <CardHeader>
@@ -88,7 +90,7 @@ const NaturalLanguageCard: React.FC = () => {
             <div className="flex items-center gap-2 mb-4 text-amber-400">
               <AlertCircle className="h-4 w-4" />
               <p className="text-sm">
-                This feature requires a Local LLM. Please set one up in Settings to enable this functionality.
+                This feature requires AI configuration. Please set it up in Settings to enable this functionality.
               </p>
             </div>
             <div className="space-y-4 opacity-75 pointer-events-none">
@@ -108,7 +110,7 @@ const NaturalLanguageCard: React.FC = () => {
                 className="flex items-center gap-2"
               >
                 <BrainCircuit className="h-4 w-4" />
-                Configure LLM Settings
+                Configure AI Settings
               </Button>
             </div>
           </div>
@@ -121,7 +123,11 @@ const NaturalLanguageCard: React.FC = () => {
     <Card className="mt-6 border-tree-purple border-2">
       <CardHeader>
         <CardTitle className="flex items-center">
-          <Bot className="mr-2 h-5 w-5" />
+          {activeProvider === "openai" ? (
+            <Cloud className="mr-2 h-5 w-5 text-sky-400" />
+          ) : (
+            <Bot className="mr-2 h-5 w-5 text-tree-purple" />
+          )}
           <span>Natural Language to CSV Converter</span>
           <span className="ml-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">Active</span>
         </CardTitle>
@@ -155,8 +161,12 @@ const NaturalLanguageCard: React.FC = () => {
       </CardContent>
       <CardFooter className="flex justify-between">
         <div className="text-xs text-muted-foreground flex items-center gap-1">
-          <BrainCircuit className="h-3 w-3" />
-          Using {activeModel.name}
+          {activeProvider === "openai" ? (
+            <Cloud className="h-3 w-3 text-sky-400" />
+          ) : (
+            <Bot className="h-3 w-3 text-tree-purple" />
+          )}
+          Using {activeProvider === "openai" ? "OpenAI" : "Local LLM"}
         </div>
         <Button 
           onClick={handleConvert} 

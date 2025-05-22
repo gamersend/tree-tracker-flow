@@ -1,9 +1,9 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Bot } from "lucide-react";
+import { Sparkles, Bot, Cloud } from "lucide-react";
 import LocalLLMDialog from "@/components/integrations/LocalLLMDialog";
-import { useLocalLLM } from "@/hooks/useLocalLLM";
+import { useAI } from "@/hooks/useAI";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -21,9 +21,10 @@ const AIAssistantButton: React.FC<AIAssistantButtonProps> = ({
   buttonText = "AI Assistant"
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { getActiveModel, activateFirstModelIfNeeded } = useLocalLLM();
+  const { checkAIAvailability, autoSelectProvider } = useAI();
   const navigate = useNavigate();
-  const activeModel = getActiveModel();
+  
+  const { available, provider } = checkAIAvailability();
 
   const handleNavigateToSettings = () => {
     navigate('/settings');
@@ -37,16 +38,21 @@ const AIAssistantButton: React.FC<AIAssistantButtonProps> = ({
   };
 
   const handleOpenAssistant = () => {
-    // Try to activate the first model if none are active
-    if (!activeModel) {
-      const activated = activateFirstModelIfNeeded();
-      if (!activated) {
-        toast.error("No active LLM model configured. Please set up a model in Settings.");
+    // Try to auto-select an available provider if none is working
+    if (!available) {
+      const selectedProvider = autoSelectProvider();
+      if (!selectedProvider) {
+        toast.error("No AI model configured. Please set up a model in Settings.");
         handleNavigateToSettings();
         return;
       }
     }
     setDialogOpen(true);
+  };
+
+  const getIcon = () => {
+    if (!available) return <Sparkles className="h-4 w-4" />;
+    return provider === "openai" ? <Cloud className="h-4 w-4" /> : <Bot className="h-4 w-4" />;
   };
 
   return (
@@ -57,7 +63,7 @@ const AIAssistantButton: React.FC<AIAssistantButtonProps> = ({
         className={`flex items-center gap-2 ${className}`}
         onClick={handleOpenAssistant}
       >
-        <Sparkles className="h-4 w-4" />
+        {getIcon()}
         {buttonText}
       </Button>
       

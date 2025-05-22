@@ -1,15 +1,16 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit } from "lucide-react";
-import { useLocalLLM } from "@/hooks/useLocalLLM";
+import { BrainCircuit, Bot, Cloud } from "lucide-react";
+import { useAI } from "@/hooks/useAI";
 import AIAssistantButton from "./AIAssistantButton";
 
 const AIHeaderButton: React.FC = () => {
-  const { getActiveModel } = useLocalLLM();
-  const activeModel = getActiveModel();
+  const { checkAIAvailability, getActiveProvider } = useAI();
+  const { available } = checkAIAvailability();
+  const activeProvider = getActiveProvider();
 
-  if (!activeModel) {
+  if (!available) {
     return (
       <Button
         variant="ghost"
@@ -31,7 +32,11 @@ const AIHeaderButton: React.FC = () => {
       size="sm" 
       buttonText={
         <span className="flex items-center gap-1">
-          <BrainCircuit className="h-4 w-4 text-tree-purple" />
+          {activeProvider === "openai" ? (
+            <Cloud className="h-4 w-4 text-sky-400" />
+          ) : (
+            <Bot className="h-4 w-4 text-tree-purple" />
+          )}
           <span className="hidden md:inline">AI Assistant</span>
         </span>
       }

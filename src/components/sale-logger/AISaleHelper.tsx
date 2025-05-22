@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLocalLLM } from "@/hooks/useLocalLLM";
-import { Sparkles, Bot, AlertCircle, Loader2 } from "lucide-react";
+import { useAI } from "@/hooks/useAI";
+import { Sparkles, Bot, AlertCircle, Loader2, Cloud } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -15,10 +15,11 @@ interface AISaleHelperProps {
 const AISaleHelper: React.FC<AISaleHelperProps> = ({ saleText, onProcessedResult }) => {
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const { generateText, getActiveModel } = useLocalLLM();
+  const { generateText, checkAIAvailability, getActiveProvider } = useAI();
   const navigate = useNavigate();
 
-  const activeModel = getActiveModel();
+  const { available } = checkAIAvailability();
+  const activeProvider = getActiveProvider();
   
   const handleNavigateToSettings = () => {
     navigate('/settings');
@@ -37,8 +38,8 @@ const AISaleHelper: React.FC<AISaleHelperProps> = ({ saleText, onProcessedResult
       return;
     }
     
-    if (!activeModel) {
-      toast.error("No active LLM model configured. Please set up in Settings.");
+    if (!available) {
+      toast.error(`No AI model configured. Please configure ${activeProvider === "openai" ? "OpenAI" : "Local LLM"} in Settings.`);
       return;
     }
     
@@ -61,19 +62,19 @@ const AISaleHelper: React.FC<AISaleHelperProps> = ({ saleText, onProcessedResult
       }
     } catch (error) {
       console.error("Error improving text:", error);
-      toast.error("Failed to improve text. Is your LLM server running?");
+      toast.error(`Failed to improve text. ${activeProvider === "local" ? "Is your LLM server running?" : "Check OpenAI API connection."}`);
     } finally {
       setLoading(false);
     }
   };
   
-  if (!activeModel) {
+  if (!available) {
     return (
       <Card className="mt-2 border border-amber-500/30 bg-amber-500/5">
         <CardContent className="pt-4">
           <div className="flex gap-2 items-center text-amber-400">
             <AlertCircle className="h-4 w-4" />
-            <p className="text-sm">AI features are available when you set up a Local LLM in Settings.</p>
+            <p className="text-sm">AI features are available when you set up AI in Settings.</p>
           </div>
           <div className="mt-3">
             <Button
@@ -82,8 +83,12 @@ const AISaleHelper: React.FC<AISaleHelperProps> = ({ saleText, onProcessedResult
               onClick={handleNavigateToSettings}
               className="flex items-center gap-1"
             >
-              <Bot className="h-3 w-3" />
-              Configure LLM
+              {activeProvider === "openai" ? (
+                <Cloud className="h-3 w-3" />
+              ) : (
+                <Bot className="h-3 w-3" />
+              )}
+              Configure AI
             </Button>
           </div>
         </CardContent>
@@ -91,14 +96,28 @@ const AISaleHelper: React.FC<AISaleHelperProps> = ({ saleText, onProcessedResult
     );
   }
   
+  const getProviderIcon = () => {
+    return activeProvider === "openai" ? (
+      <Cloud className="h-4 w-4 text-sky-400" />
+    ) : (
+      <Bot className="h-4 w-4 text-tree-purple" />
+    );
+  };
+
+  const getProviderClass = () => {
+    return activeProvider === "openai" 
+      ? "border-sky-400/30 bg-sky-400/5" 
+      : "border-tree-purple/30 bg-tree-purple/5";
+  };
+  
   return (
-    <Card className="mt-2 border border-tree-purple/30 bg-tree-purple/5">
+    <Card className={`mt-2 border ${getProviderClass()}`}>
       <CardHeader className="py-3">
         <CardTitle className="text-sm flex items-center gap-2">
-          <Bot className="h-4 w-4 text-tree-purple" />
+          {getProviderIcon()}
           <span>AI Sale Entry Helper</span>
           <span className="text-xs bg-tree-purple text-white px-1.5 py-0.5 rounded-full ml-auto">
-            {activeModel.name}
+            {activeProvider === "openai" ? "OpenAI" : "Local LLM"}
           </span>
         </CardTitle>
       </CardHeader>
@@ -151,7 +170,11 @@ const AISaleHelper: React.FC<AISaleHelperProps> = ({ saleText, onProcessedResult
               });
           }}
         >
-          <Bot className="h-3 w-3 mr-1" />
+          {activeProvider === "openai" ? (
+            <Cloud className="h-3 w-3 mr-1" />
+          ) : (
+            <Bot className="h-3 w-3 mr-1" />
+          )}
           Structure Sale
         </Button>
       </CardFooter>
