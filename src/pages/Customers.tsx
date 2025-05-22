@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -58,7 +57,8 @@ import {
   Mail, 
   MessageSquare,
   Filter,
-  SortAscending,
+  ArrowDownAZ,
+  ArrowUpAZ,
   Award,
   PieChart,
   Calendar
@@ -477,9 +477,9 @@ const Customers = () => {
                           className="ml-auto"
                         >
                           {sortOrder === "asc" ? (
-                            <SortAscending className="h-4 w-4" />
+                            <ArrowDownAZ className="h-4 w-4" />
                           ) : (
-                            <SortAscending className="h-4 w-4 rotate-180" />
+                            <ArrowUpAZ className="h-4 w-4" />
                           )}
                         </Button>
                       </div>
@@ -522,7 +522,7 @@ const Customers = () => {
                     {customerEmojis.map((emoji) => (
                       <button
                         key={emoji}
-                        className={`text-2xl h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 ${
+                        className={`text-2xl h-10 w-10 rounded-full flex items-center justify-center bg-gradient-to-br ${
                           newCustomer.emoji === emoji 
                             ? "bg-primary text-primary-foreground scale-110" 
                             : "hover:bg-muted"
