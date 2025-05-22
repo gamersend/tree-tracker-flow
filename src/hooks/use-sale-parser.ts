@@ -12,7 +12,7 @@ export function useSaleParser() {
   // Parse the natural language sale text into structured data
   const parseSaleText = (text: string): ParsedSale => {
     // Normalize text for consistent parsing
-    const normalizedText = text.trim().toLowerCase();
+    const normalizedText = text ? text.trim().toLowerCase() : '';
     
     try {
       // Initialize confidence levels for each field
@@ -34,13 +34,13 @@ export function useSaleParser() {
       confidence.customer = customerConfidence;
       
       // Extract strain name
-      const { strain: initialStrain, confidence: strainConfidence } = findBestStrain(text);
+      const { strain: initialStrain, confidence: strainConfidence } = findBestStrain(text || '');
       confidence.strain = strainConfidence;
       
       // If no strain found, try additional patterns
       let detectedStrain = initialStrain;
       
-      if (!detectedStrain) {
+      if (!detectedStrain && normalizedText) {
         // Pattern 1: After "of" and before "to" (e.g., "3.5g of Blue Dream to Tom")
         const strainMatch1 = normalizedText.match(/(?:of|got)\s+([^,]+?)(?=\s+(?:to|for|from|on|at|-))/i);
         
@@ -92,27 +92,45 @@ export function useSaleParser() {
       // Extract paid so far amount for ticks
       const { paidSoFar } = parsePaidAmount(normalizedText, isTick);
       
-      // Return the parsed sale 
+      // Return the parsed sale with default values for undefined fields
       return {
-        customer,
-        strain: detectedStrain,
-        date,
-        quantity,
-        salePrice,
-        profit,
-        isTick,
-        paidSoFar,
+        customer: customer || '',
+        strain: detectedStrain || '',
+        date: date || new Date(),
+        quantity: quantity || 0,
+        salePrice: salePrice || 0,
+        profit: profit || 0,
+        isTick: isTick || false,
+        paidSoFar: paidSoFar || 0,
         confidence
       };
     } catch (error) {
       console.error("Error parsing sale text:", error);
-      throw new Error("Failed to parse sale text. Please check your input format.");
+      // Return a default safe object if parsing fails
+      return {
+        customer: '',
+        strain: '',
+        date: new Date(),
+        quantity: 0,
+        salePrice: 0,
+        profit: 0,
+        isTick: false,
+        paidSoFar: 0,
+        confidence: {
+          customer: 0,
+          strain: 0,
+          date: 0,
+          quantity: 0,
+          salePrice: 0,
+          profit: 0
+        }
+      };
     }
   };
 
   // Get suggestions for common strains
   const getStrainSuggestions = () => {
-    return COMMON_STRAINS;
+    return COMMON_STRAINS || [];
   };
   
   return { parseSaleText, getStrainSuggestions };

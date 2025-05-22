@@ -44,10 +44,13 @@ export const InputCard: React.FC<InputCardProps> = ({
     } as React.ChangeEvent<HTMLTextAreaElement>;
     onTextChange(event);
     setShowExamples(false);
-    if (textareaRef.current) {
+    if (textareaRef?.current) {
       textareaRef.current.focus();
     }
   };
+
+  // Ensure recent entries is an array
+  const safeRecentEntries = Array.isArray(recentEntries) ? recentEntries : [];
 
   return (
     <Card className="border-tree-purple/20 bg-gradient-to-br from-slate-950 to-slate-900">
@@ -61,7 +64,7 @@ export const InputCard: React.FC<InputCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <InputField
-          value={saleText}
+          value={saleText || ''}
           onChange={onTextChange}
           onKeyDown={handleKeyDown}
           textareaRef={textareaRef}
@@ -78,10 +81,10 @@ export const InputCard: React.FC<InputCardProps> = ({
           onClearAll={onClearAll}
           onProcessText={onProcessText}
           isProcessing={isProcessing}
-          isInputEmpty={!saleText.trim()}
+          isInputEmpty={!(saleText && saleText.trim())}
         />
         
-        <RecentEntries entries={recentEntries} onUseEntry={onUseRecentEntry} />
+        <RecentEntries entries={safeRecentEntries} onUseEntry={onUseRecentEntry} />
       </CardContent>
     </Card>
   );
