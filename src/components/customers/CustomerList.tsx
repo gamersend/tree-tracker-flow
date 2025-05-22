@@ -29,7 +29,7 @@ const CustomerList: React.FC<CustomerListProps> = ({
   return (
     <ScrollArea className="h-[calc(100vh-300px)] pr-4">
       <div className="space-y-2">
-        {customers.length > 0 ? (
+        {Array.isArray(customers) && customers.length > 0 ? (
           customers.map((customer) => (
             <div 
               key={customer.id} 

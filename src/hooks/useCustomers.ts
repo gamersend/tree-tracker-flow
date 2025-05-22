@@ -1,7 +1,8 @@
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { CustomerType, PurchaseType } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
+import { loadFromStorage, saveToStorage } from '@/utils/inventory-utils';
 
 // Mock data with added emojis and last purchase dates
 const mockCustomers: CustomerType[] = [
@@ -113,8 +114,13 @@ export const customerEmojis = [
 ];
 
 export const useCustomers = () => {
-  const [customers, setCustomers] = useState<CustomerType[]>(mockCustomers);
-  const [purchases, setPurchases] = useState<PurchaseType[]>(mockPurchases);
+  // Load customers from storage or use mock data if none exists
+  const loadCustomers = () => {
+    return loadFromStorage<CustomerType[]>('customers', mockCustomers);
+  };
+
+  const [customers, setCustomers] = useState<CustomerType[]>(loadCustomers);
+  const [purchases, setPurchases] = useState<PurchaseType[]>(loadFromStorage<PurchaseType[]>('purchases', mockPurchases));
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerType | null>(null);
   const [customerDetailTab, setCustomerDetailTab] = useState("info");
@@ -122,13 +128,23 @@ export const useCustomers = () => {
   const [sortBy, setSortBy] = useState<"name" | "spent" | "orders">("name");
   const [filterTrusted, setFilterTrusted] = useState<boolean | null>(null);
   const { toast } = useToast();
+  
+  // Ensure we persist customers to storage when they change
+  useEffect(() => {
+    saveToStorage('customers', customers);
+  }, [customers]);
+
+  // Ensure we persist purchases to storage when they change
+  useEffect(() => {
+    saveToStorage('purchases', purchases);
+  }, [purchases]);
 
   // Filtered customers
   const filteredCustomers = useMemo(() => {
     return customers
       .filter(customer => 
         (customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.alias.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        (customer.alias && customer.alias.toLowerCase().includes(searchQuery.toLowerCase()))) &&
         (filterTrusted === null || customer.trustedBuyer === filterTrusted)
       )
       .sort((a, b) => {
