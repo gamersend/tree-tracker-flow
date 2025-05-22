@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const Header = () => {
+interface HeaderProps {
+  children?: React.ReactNode;
+}
+
+const Header: React.FC<HeaderProps> = ({ children }) => {
   const isMobile = useIsMobile();
   
   return (
@@ -39,6 +43,8 @@ const Header = () => {
         <div className="h-8 w-8 rounded-full bg-tree-purple flex items-center justify-center text-white font-medium">
           U
         </div>
+
+        {children}
       </div>
     </header>
   );

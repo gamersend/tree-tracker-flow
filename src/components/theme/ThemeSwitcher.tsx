@@ -11,7 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function ThemeSwitcher() {
+interface ThemeSwitcherProps {
+  variant?: "default" | "icon";
+}
+
+export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -38,7 +42,7 @@ export function ThemeSwitcher() {
         <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
           <Button 
             variant="ghost" 
-            size="icon" 
+            size={variant === "icon" ? "icon" : "default"}
             className={
               theme === "psychedelic" 
                 ? "bg-gradient-to-r from-purple-500 via-pink-500 to-green-400 text-white" 
@@ -49,6 +53,7 @@ export function ThemeSwitcher() {
           >
             <span className="sr-only">Toggle theme</span>
             {themeIcon[theme]}
+            {variant === "default" && <span className="ml-2">{theme.charAt(0).toUpperCase() + theme.slice(1)}</span>}
           </Button>
         </motion.div>
       </DropdownMenuTrigger>

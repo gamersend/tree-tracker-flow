@@ -29,12 +29,12 @@ const AIHeaderButton: React.FC = () => {
     <AIAssistantButton 
       variant="ghost" 
       size="sm" 
-      buttonText={<>
+      buttonText={
         <span className="flex items-center gap-1">
           <BrainCircuit className="h-4 w-4 text-tree-purple" />
           <span className="hidden md:inline">AI Assistant</span>
         </span>
-      </>}
+      }
       className="relative"
     />
   );

@@ -10,7 +10,7 @@ interface AIAssistantButtonProps {
   variant?: "default" | "outline" | "ghost";
   size?: "default" | "sm" | "lg";
   className?: string;
-  buttonText?: string;
+  buttonText?: React.ReactNode;
 }
 
 const AIAssistantButton: React.FC<AIAssistantButtonProps> = ({
