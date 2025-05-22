@@ -5,6 +5,7 @@ import { Sparkles, Bot } from "lucide-react";
 import LocalLLMDialog from "@/components/integrations/LocalLLMDialog";
 import { useLocalLLM } from "@/hooks/useLocalLLM";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface AIAssistantButtonProps {
   variant?: "default" | "outline" | "ghost";
@@ -20,13 +21,30 @@ const AIAssistantButton: React.FC<AIAssistantButtonProps> = ({
   buttonText = "AI Assistant"
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { getActiveModel } = useLocalLLM();
+  const { getActiveModel, activateFirstModelIfNeeded } = useLocalLLM();
+  const navigate = useNavigate();
   const activeModel = getActiveModel();
 
+  const handleNavigateToSettings = () => {
+    navigate('/settings');
+    // Use setTimeout to ensure the page loads before we try to select the tab
+    setTimeout(() => {
+      const aiTab = document.querySelector('[data-value="ai"]') as HTMLElement;
+      if (aiTab) {
+        aiTab.click();
+      }
+    }, 100);
+  };
+
   const handleOpenAssistant = () => {
+    // Try to activate the first model if none are active
     if (!activeModel) {
-      toast.error("No active LLM model configured. Please set up a model in Settings.");
-      return;
+      const activated = activateFirstModelIfNeeded();
+      if (!activated) {
+        toast.error("No active LLM model configured. Please set up a model in Settings.");
+        handleNavigateToSettings();
+        return;
+      }
     }
     setDialogOpen(true);
   };

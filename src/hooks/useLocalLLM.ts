@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 interface LocalLLMModel {
@@ -20,6 +20,40 @@ interface LLMRequestOptions {
 export const useLocalLLM = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [models, setModels] = useState<LocalLLMModel[]>([]);
+
+  // Initialize models from localStorage
+  useEffect(() => {
+    const savedModels = localStorage.getItem('local-llm-models');
+    if (savedModels) {
+      try {
+        const parsedModels: LocalLLMModel[] = JSON.parse(savedModels);
+        setModels(parsedModels);
+        
+        // Automatically activate the first model if none are active
+        const hasActiveModel = parsedModels.some(model => model.active);
+        if (!hasActiveModel && parsedModels.length > 0) {
+          const updatedModels = [...parsedModels];
+          updatedModels[0].active = true;
+          localStorage.setItem('local-llm-models', JSON.stringify(updatedModels));
+          setModels(updatedModels);
+          toast.info(`Model "${updatedModels[0].name}" automatically activated`);
+        }
+      } catch (err) {
+        console.error("Error parsing saved models:", err);
+      }
+    } else {
+      // Initialize with default model if none exist
+      const defaultModel: LocalLLMModel = {
+        name: "Default LLM",
+        description: "Default localhost Ollama model",
+        endpoint: "http://localhost:11434/api/generate",
+        active: true
+      };
+      localStorage.setItem('local-llm-models', JSON.stringify([defaultModel]));
+      setModels([defaultModel]);
+    }
+  }, []);
 
   const getActiveModel = useCallback((): LocalLLMModel | null => {
     try {
@@ -168,11 +202,36 @@ export const useLocalLLM = () => {
     }
   }, [getActiveModel]);
 
+  const activateFirstModelIfNeeded = useCallback(() => {
+    try {
+      const savedModels = localStorage.getItem('local-llm-models');
+      if (!savedModels) return false;
+      
+      const models: LocalLLMModel[] = JSON.parse(savedModels);
+      const hasActiveModel = models.some(model => model.active);
+      
+      // If no model is active and there's at least one model, activate the first one
+      if (!hasActiveModel && models.length > 0) {
+        models[0].active = true;
+        localStorage.setItem('local-llm-models', JSON.stringify(models));
+        toast.success(`Model "${models[0].name}" has been activated`);
+        return true;
+      }
+      
+      return hasActiveModel;
+    } catch (err) {
+      console.error("Error activating first model:", err);
+      return false;
+    }
+  }, []);
+
   return {
     generateText,
     checkLLMAvailability,
     getActiveModel,
+    activateFirstModelIfNeeded,
     isLoading,
-    error
+    error,
+    models
   };
 };

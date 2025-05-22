@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useLocalLLM } from "@/hooks/useLocalLLM";
 import { Sparkles, Bot, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface AISaleHelperProps {
   saleText: string;
@@ -15,8 +16,20 @@ const AISaleHelper: React.FC<AISaleHelperProps> = ({ saleText, onProcessedResult
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const { generateText, getActiveModel } = useLocalLLM();
+  const navigate = useNavigate();
 
   const activeModel = getActiveModel();
+  
+  const handleNavigateToSettings = () => {
+    navigate('/settings');
+    // Use setTimeout to ensure the page loads before we try to select the tab
+    setTimeout(() => {
+      const aiTab = document.querySelector('[data-value="ai"]') as HTMLElement;
+      if (aiTab) {
+        aiTab.click();
+      }
+    }, 100);
+  };
   
   const handleImproveText = async () => {
     if (!saleText.trim()) {
@@ -61,6 +74,17 @@ const AISaleHelper: React.FC<AISaleHelperProps> = ({ saleText, onProcessedResult
           <div className="flex gap-2 items-center text-amber-400">
             <AlertCircle className="h-4 w-4" />
             <p className="text-sm">AI features are available when you set up a Local LLM in Settings.</p>
+          </div>
+          <div className="mt-3">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleNavigateToSettings}
+              className="flex items-center gap-1"
+            >
+              <Bot className="h-3 w-3" />
+              Configure LLM
+            </Button>
           </div>
         </CardContent>
       </Card>

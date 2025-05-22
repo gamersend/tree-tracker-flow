@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLocalLLM } from "@/hooks/useLocalLLM";
-import { Sparkles, Loader2, Bot } from "lucide-react";
+import { Sparkles, Loader2, Bot, Settings2 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface AINoteHelperProps {
   content?: string;
@@ -18,8 +19,20 @@ const AINoteHelper: React.FC<AINoteHelperProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { generateText, getActiveModel } = useLocalLLM();
+  const navigate = useNavigate();
   
   const activeModel = getActiveModel();
+  
+  const handleNavigateToSettings = () => {
+    navigate('/settings');
+    // Use setTimeout to ensure the page loads before we try to select the tab
+    setTimeout(() => {
+      const aiTab = document.querySelector('[data-value="ai"]') as HTMLElement;
+      if (aiTab) {
+        aiTab.click();
+      }
+    }, 100);
+  };
   
   const handleImproveNote = async () => {
     if (!content.trim()) {
@@ -51,7 +64,17 @@ const AINoteHelper: React.FC<AINoteHelperProps> = ({
   };
   
   if (!activeModel) {
-    return null;
+    return (
+      <Button
+        size="sm"
+        variant="outline"
+        className="flex items-center gap-1 text-amber-400 border-amber-400/30"
+        onClick={handleNavigateToSettings}
+      >
+        <Settings2 className="h-3 w-3 mr-1" />
+        <span>Setup AI</span>
+      </Button>
+    );
   }
   
   return (

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -14,14 +13,27 @@ import { Label } from "@/components/ui/label";
 import { Sparkles, Bot, AlertCircle, Loader2, BrainCircuit } from "lucide-react";
 import { useLocalLLM } from "@/hooks/useLocalLLM";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const NaturalLanguageCard: React.FC = () => {
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const { generateText, getActiveModel } = useLocalLLM();
+  const navigate = useNavigate();
   
   const activeModel = getActiveModel();
+
+  const handleNavigateToSettings = () => {
+    navigate('/settings');
+    // Use setTimeout to ensure the page loads before we try to select the tab
+    setTimeout(() => {
+      const aiTab = document.querySelector('[data-value="ai"]') as HTMLElement;
+      if (aiTab) {
+        aiTab.click();
+      }
+    }, 100);
+  };
   
   const handleConvert = async () => {
     if (!inputText.trim()) {
@@ -88,6 +100,16 @@ const NaturalLanguageCard: React.FC = () => {
                 disabled
               />
               <Button disabled>Convert to CSV</Button>
+            </div>
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                onClick={handleNavigateToSettings}
+                className="flex items-center gap-2"
+              >
+                <BrainCircuit className="h-4 w-4" />
+                Configure LLM Settings
+              </Button>
             </div>
           </div>
         </CardContent>

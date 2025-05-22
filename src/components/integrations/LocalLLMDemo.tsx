@@ -12,11 +12,13 @@ import { Bot, Loader2, Sparkles } from "lucide-react";
 import { useLocalLLM } from "@/hooks/useLocalLLM";
 import LocalLLMDialog from "./LocalLLMDialog";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const LocalLLMDemo: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const { checkLLMAvailability, getActiveModel } = useLocalLLM();
+  const navigate = useNavigate();
   
   const activeModel = getActiveModel();
 
@@ -32,6 +34,17 @@ const LocalLLMDemo: React.FC = () => {
     } finally {
       setIsChecking(false);
     }
+  };
+
+  const handleNavigateToSettings = () => {
+    navigate('/settings');
+    // Use setTimeout to ensure the page loads before we try to select the tab
+    setTimeout(() => {
+      const aiTab = document.querySelector('[data-value="ai"]') as HTMLElement;
+      if (aiTab) {
+        aiTab.click();
+      }
+    }, 100);
   };
 
   return (
@@ -84,9 +97,7 @@ const LocalLLMDemo: React.FC = () => {
                   </p>
                   <Button 
                     variant="outline" 
-                    onClick={() => {
-                      window.location.href = '/settings';
-                    }}
+                    onClick={handleNavigateToSettings}
                   >
                     Configure LLM
                   </Button>

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -11,8 +11,16 @@ import { Bot, Cloud, BrainCircuit } from "lucide-react";
 import LocalLLMSettings from "./LocalLLMSettings";
 import LocalLLMDemo from "../integrations/LocalLLMDemo";
 import LLMFaq from "../ai/LLMFaq";
+import { useLocalLLM } from "@/hooks/useLocalLLM";
 
 const AISettingsTab: React.FC = () => {
+  const { activateFirstModelIfNeeded } = useLocalLLM();
+
+  // When the AI tab is opened, make sure a model is active
+  useEffect(() => {
+    activateFirstModelIfNeeded();
+  }, [activateFirstModelIfNeeded]);
+  
   return (
     <div className="space-y-6">
       <LocalLLMSettings />
