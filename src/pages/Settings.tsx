@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Card,
@@ -28,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Cloud, Lock, Settings2, User, Database, Key, AlertTriangle, HardDrive } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import StorageSettingsTab from "@/components/settings/StorageSettingsTab";
+import IntegrationsTab from "@/components/settings/IntegrationsTab";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -269,78 +269,7 @@ const Settings = () => {
         </TabsContent>
         
         <TabsContent value="integrations">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Integrations</CardTitle>
-                <CardDescription>
-                  Connect with external services and APIs
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-slate-800/50 rounded-lg gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center">
-                      <Database className="h-5 w-5 text-blue-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Database Connection</h3>
-                      <p className="text-sm text-gray-400">Cloud database for data storage</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="gap-1 border-amber-500 text-amber-400">
-                    <AlertTriangle className="h-3 w-3" />
-                    Not Connected
-                  </Badge>
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-slate-800/50 rounded-lg gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-rose-900 flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-rose-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Google Calendar</h3>
-                      <p className="text-sm text-gray-400">Sync events with Google Calendar</p>
-                    </div>
-                  </div>
-                  <Button variant="outline">
-                    Connect
-                  </Button>
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-slate-800/50 rounded-lg gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-sky-900 flex items-center justify-center">
-                      <Cloud className="h-5 w-5 text-sky-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Weather API</h3>
-                      <p className="text-sm text-gray-400">Connect to OpenWeatherAPI</p>
-                    </div>
-                  </div>
-                  <Button variant="outline">
-                    Connect
-                  </Button>
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-slate-800/50 rounded-lg gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-green-900 flex items-center justify-center">
-                      <Settings2 className="h-5 w-5 text-green-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Zapier</h3>
-                      <p className="text-sm text-gray-400">Automate workflows with 3000+ apps</p>
-                    </div>
-                  </div>
-                  <Button variant="outline">
-                    Connect
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <IntegrationsTab />
         </TabsContent>
         
         <TabsContent value="api">
