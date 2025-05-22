@@ -5,14 +5,15 @@ import Header from "./Header";
 
 interface LayoutProps {
   children: React.ReactNode;
+  headerComponent?: React.ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children, headerComponent }) => {
   return (
     <div className="flex min-h-screen cannabis-bg">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        <Header />
+        {headerComponent || <Header />}
         <main className="flex-1 p-6 overflow-y-auto">
           {children}
         </main>
