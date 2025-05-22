@@ -28,7 +28,7 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
-  const { isMobile } = useIsMobile();
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -52,131 +52,131 @@ const Sidebar = () => {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<HomeIcon />}
                 onClick={() => navigateTo("/")}
                 tooltip="Home"
                 isActive={isActive("/")}
               >
+                <HomeIcon className="mr-2" />
                 Home
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<LayoutDashboardIcon />}
                 onClick={() => navigateTo("/dashboard")}
                 tooltip="Dashboard"
                 isActive={isActive("/dashboard")}
               >
+                <LayoutDashboardIcon className="mr-2" />
                 Dashboard
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<PackageIcon />}
                 onClick={() => navigateTo("/inventory")}
                 tooltip="Inventory"
                 isActive={isActive("/inventory")}
               >
+                <PackageIcon className="mr-2" />
                 Inventory
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<DollarSignIcon />}
                 onClick={() => navigateTo("/sales")}
                 tooltip="Sales"
                 isActive={isActive("/sales")}
               >
+                <DollarSignIcon className="mr-2" />
                 Sales
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<Brain />}
                 onClick={() => navigateTo("/quick-sale")}
                 tooltip="Quick Sale"
                 isActive={isActive("/quick-sale")}
               >
+                <Brain className="mr-2" />
                 Quick Sale
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<UsersIcon />}
                 onClick={() => navigateTo("/customers")}
                 tooltip="Customers"
                 isActive={isActive("/customers")}
               >
+                <UsersIcon className="mr-2" />
                 Customers
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<BoxIcon />}
                 onClick={() => navigateTo("/stock")}
                 tooltip="Stock"
                 isActive={isActive("/stock")}
               >
+                <BoxIcon className="mr-2" />
                 Stock
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<TrendingUpIcon />}
                 onClick={() => navigateTo("/analytics")}
                 tooltip="Analytics"
                 isActive={isActive("/analytics")}
               >
+                <TrendingUpIcon className="mr-2" />
                 Analytics
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<CalendarIcon />}
                 onClick={() => navigateTo("/calendar")}
                 tooltip="Calendar"
                 isActive={isActive("/calendar")}
               >
+                <CalendarIcon className="mr-2" />
                 Calendar
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<FileUpIcon />}
                 onClick={() => navigateTo("/import")}
                 tooltip="Import"
                 isActive={isActive("/import")}
               >
+                <FileUpIcon className="mr-2" />
                 Import
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<ClipboardListIcon />}
                 onClick={() => navigateTo("/tick-ledger")}
                 tooltip="Tick Ledger"
                 isActive={isActive("/tick-ledger")}
               >
+                <ClipboardListIcon className="mr-2" />
                 Tick Ledger
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<ShoppingBagIcon />}
                 onClick={() => navigateTo("/business-supplies")}
                 tooltip="Business Supplies"
                 isActive={isActive("/business-supplies")}
               >
+                <ShoppingBagIcon className="mr-2" />
                 Business Supplies
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                icon={<SettingsIcon />}
                 onClick={() => navigateTo("/settings")}
                 tooltip="Settings"
                 isActive={isActive("/settings")}
               >
+                <SettingsIcon className="mr-2" />
                 Settings
               </SidebarMenuButton>
             </SidebarMenuItem>
