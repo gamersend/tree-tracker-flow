@@ -17,6 +17,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import BusinessSupplies from "./pages/BusinessSupplies";
+import TickLedger from "./pages/TickLedger";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/import" element={<LayoutWrapper><Import /></LayoutWrapper>} />
             <Route path="/settings" element={<LayoutWrapper><Settings /></LayoutWrapper>} />
             <Route path="/business-supplies" element={<LayoutWrapper><BusinessSupplies /></LayoutWrapper>} />
+            <Route path="/tick-ledger" element={<LayoutWrapper><TickLedger /></LayoutWrapper>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
