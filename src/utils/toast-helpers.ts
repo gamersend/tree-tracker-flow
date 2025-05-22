@@ -1,7 +1,7 @@
 
 import { toast } from "sonner";
 import { AlertCircle, Check, X } from "lucide-react";
-import { ParsedSale } from "@/components/sale-logger/types";
+import { ParsedSale } from "@/hooks/sale-parser/types";
 
 export const showParsingResultToast = (parsedSale: ParsedSale) => {
   // Check confidence levels and show appropriate notifications

@@ -3,10 +3,11 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/utils";
 import { useSaleParser } from "@/hooks/use-sale-parser";
-import { ParsedSale } from "@/components/sale-logger/types";
+import { ParsedSale } from "@/hooks/sale-parser/types";
 import { InputCard } from "@/components/sale-logger/InputCard";
 import { PreviewCard } from "@/components/sale-logger/PreviewCard";
 import { AlertCircle } from "lucide-react";
+import { showParsingResultToast, showSaleAddedToast, showErrorToast } from "@/utils/toast-helpers";
 
 const NaturalLanguageLogger = () => {
   const [saleText, setSaleText] = useState("");
@@ -67,25 +68,10 @@ const NaturalLanguageLogger = () => {
       setEditableSale(newParsedSale);
       saveRecentEntry(saleText);
       
-      // Check confidence levels and show appropriate notifications
-      const { confidence } = result;
-      
-      if (confidence && 
-         (confidence.strain < 0.5 || 
-          confidence.customer < 0.5 || 
-          confidence.quantity < 0.5 || 
-          confidence.salePrice < 0.5)) {
-        toast("Some fields may need review", {
-          description: "I wasn't 100% confident about some details. Please check before saving.",
-          icon: <AlertCircle className="h-4 w-4" />
-        });
-      } else {
-        toast.success("Sale parsed successfully!");
-      }
+      showParsingResultToast(newParsedSale);
       
     } catch (error) {
-      toast.error("Failed to parse sale text. Please check the format.");
-      console.error("Parsing error:", error);
+      showErrorToast(error, "Failed to parse sale text. Please check the format.");
     } finally {
       setIsProcessing(false);
     }
@@ -131,9 +117,7 @@ const NaturalLanguageLogger = () => {
         
         saveToLocalStorage("tickLedger", [...tickLedger, newTick]);
         
-        toast.success("Added to both Sales and Tick Ledger", {
-          description: `${editableSale.customer} has been added to the tick ledger with $${newTick.remaining.toFixed(2)} remaining.`
-        });
+        showSaleAddedToast(editableSale);
       } else {
         toast.success("Sale added successfully!");
       }
@@ -149,8 +133,7 @@ const NaturalLanguageLogger = () => {
         textareaRef.current.focus();
       }
     } catch (error) {
-      toast.error("Failed to add sale. Please try again.");
-      console.error("Add sale error:", error);
+      showErrorToast(error, "Failed to add sale. Please try again.");
     }
   };
 
