@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -272,6 +273,14 @@ const Inventory = () => {
     return totalQuantity > 0 ? totalCost / totalQuantity : 0;
   };
   
+  // Safe formatter helper for numbers to prevent the toFixed error
+  const safeFormatNumber = (value: number | undefined | null) => {
+    if (value === undefined || value === null) {
+      return "0.00";
+    }
+    return value.toFixed(2);
+  };
+  
   return (
     <motion.div 
       className="space-y-6"
@@ -442,7 +451,7 @@ const Inventory = () => {
                     <div className="text-gray-400">Cost per Gram:</div>
                     <div className="font-medium">
                       {totalCost && quantity
-                        ? `$${calculatePricePerGram(parseFloat(totalCost), getQuantityInGrams(quantity)).toFixed(2)}`
+                        ? `$${safeFormatNumber(calculatePricePerGram(parseFloat(totalCost), getQuantityInGrams(quantity)))}`
                         : "$0.00"}
                     </div>
                   </div>
@@ -500,9 +509,9 @@ const Inventory = () => {
                     <TableCell className="font-medium">{item.strain}</TableCell>
                     <TableCell>{safeFormatDate(item.purchaseDate, "MMM d, yyyy")}</TableCell>
                     <TableCell>{item.quantityUnit}</TableCell>
-                    <TableCell className="text-right">${item.totalCost.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${item.pricePerGram.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${item.costPerOunce.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">${safeFormatNumber(item.totalCost)}</TableCell>
+                    <TableCell className="text-right">${safeFormatNumber(item.pricePerGram)}</TableCell>
+                    <TableCell className="text-right">${safeFormatNumber(item.costPerOunce)}</TableCell>
                     <TableCell className="max-w-[200px] truncate">{item.notes}</TableCell>
                   </TableRow>
                 ))
@@ -567,7 +576,7 @@ const Inventory = () => {
             >
               <h3 className="text-sm text-muted-foreground">Total Investment</h3>
               <p className="text-2xl font-bold mt-1">
-                ${inventory.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2)}
+                ${safeFormatNumber(inventory.reduce((sum, item) => sum + item.totalCost, 0))}
               </p>
             </motion.div>
             
@@ -578,7 +587,7 @@ const Inventory = () => {
             >
               <h3 className="text-sm text-muted-foreground">Average Cost/g</h3>
               <p className="text-2xl font-bold mt-1">
-                ${calculateAverageCostPerGram().toFixed(2)}
+                ${safeFormatNumber(calculateAverageCostPerGram())}
               </p>
             </motion.div>
           </div>
