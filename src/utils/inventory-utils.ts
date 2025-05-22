@@ -12,6 +12,15 @@ export const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   }
 };
 
+// Save to localStorage helper
+export const saveToStorage = <T,>(key: string, data: T): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error(`Error saving ${key} to localStorage:`, error);
+  }
+};
+
 // Calculate derived values
 export const calculatePricePerGram = (cost: number, quantityValue: number): number => {
   return cost / quantityValue;
