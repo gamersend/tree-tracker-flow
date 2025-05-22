@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -227,6 +228,59 @@ const CalendarView = () => {
         ))}
       </div>
     );
+  };
+
+  // Add the missing handleAddEvent function
+  const handleAddEvent = () => {
+    if (!selectedDate || !newEvent.title || !newEvent.type) return;
+    
+    const event: Event = {
+      id: `event-${Date.now()}`,
+      title: newEvent.title || "",
+      date: selectedDate,
+      type: newEvent.type as EventType,
+      time: newEvent.time,
+      customer: newEvent.customer,
+      strain: newEvent.strain,
+      quantity: newEvent.quantity,
+      notes: newEvent.notes
+    };
+    
+    const updatedEvents = [...events, event];
+    setEvents(updatedEvents);
+    
+    // Reset form and close dialog
+    setNewEvent({
+      title: "",
+      type: "Sale",
+      date: selectedDate,
+      time: ""
+    });
+    setIsAddEventOpen(false);
+    toast.success("Event added successfully!");
+  };
+  
+  // Add the missing getUpcomingEvents function
+  const getUpcomingEvents = () => {
+    const today = new Date();
+    const nextWeek = addDays(today, 7);
+    
+    // Create array of days for the next week
+    const days = eachDayOfInterval({ start: today, end: nextWeek });
+    
+    return days.map(day => {
+      const dayEvents = events.filter(event => isSameDay(event.date, day));
+      const daySales = sales.filter(sale => isSameDay(sale.date, day));
+      
+      // Calculate profit for this day
+      const profit = daySales.reduce((total, sale) => total + sale.profit, 0);
+      
+      return {
+        date: day,
+        events: dayEvents,
+        profit
+      };
+    });
   };
 
   const { notes, addNote, updateNote, deleteNote, getNotesByDate } = useNotes();
