@@ -11,7 +11,8 @@ import {
   BarChart, 
   Calendar, 
   Upload, 
-  Settings 
+  Settings,
+  Package 
 } from "lucide-react";
 
 type NavItemProps = {
@@ -49,6 +50,7 @@ const Sidebar = () => {
     { icon: LayoutDashboard, label: "Dashboard", href: "/" },
     { icon: Layers, label: "Inventory", href: "/inventory" },
     { icon: PackageOpen, label: "Current Stock", href: "/stock" },
+    { icon: Package, label: "Business Supplies", href: "/business-supplies" },
     { icon: DollarSign, label: "Sales", href: "/sales" },
     { icon: Users, label: "Customers", href: "/customers" },
     { icon: BarChart, label: "Analytics", href: "/analytics" },

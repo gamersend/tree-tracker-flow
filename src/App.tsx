@@ -16,6 +16,7 @@ import Import from "./pages/Import";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
+import BusinessSupplies from "./pages/BusinessSupplies";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/calendar" element={<LayoutWrapper><CalendarView /></LayoutWrapper>} />
             <Route path="/import" element={<LayoutWrapper><Import /></LayoutWrapper>} />
             <Route path="/settings" element={<LayoutWrapper><Settings /></LayoutWrapper>} />
+            <Route path="/business-supplies" element={<LayoutWrapper><BusinessSupplies /></LayoutWrapper>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
