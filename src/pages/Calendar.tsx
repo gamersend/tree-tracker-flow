@@ -375,10 +375,10 @@ const CalendarView = () => {
               onSelect={setSelectedDate}
               className="rounded-md border w-full"
               components={{
-                DayContent: ({ day }) => (
+                DayContent: ({ date }) => (
                   <div className="w-full h-full flex flex-col items-center">
-                    <span>{format(day, "d")}</span>
-                    {renderCalendarCellContent(day)}
+                    <span>{format(date, "d")}</span>
+                    {renderCalendarCellContent(date)}
                   </div>
                 ),
               }}
