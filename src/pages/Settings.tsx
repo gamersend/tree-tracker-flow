@@ -16,9 +16,11 @@ import GeneralSettingsTab from "@/components/settings/GeneralSettingsTab";
 import AccountsSettingsTab from "@/components/settings/AccountsSettingsTab";
 import ApiKeysSettingsTab from "@/components/settings/ApiKeysSettingsTab";
 import ThemeChooser from "@/components/settings/ThemeChooser";
+import { useI18n } from "@/hooks/useI18n";
 
 const Settings = () => {
   const { toast } = useToast();
+  const { t } = useI18n();
   
   // Mock save settings
   const handleSaveSettings = () => {
@@ -32,7 +34,7 @@ const Settings = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t("settings.title")}</h1>
           <p className="text-muted-foreground">Configure your Tree Tracker application</p>
         </div>
       </div>
@@ -61,7 +63,7 @@ const Settings = () => {
         <TabsContent value="general">
           <GeneralSettingsTab onSave={handleSaveSettings} />
           <div className="flex justify-end mt-6">
-            <Button onClick={handleSaveSettings}>Save Settings</Button>
+            <Button onClick={handleSaveSettings}>{t("settings.save")}</Button>
           </div>
         </TabsContent>
         

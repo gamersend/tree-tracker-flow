@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Sun, Moon, Sparkles, Leaf } from "lucide-react";
 import { motion } from "framer-motion";
+import { useI18n } from "@/hooks/useI18n";
 
 const themeIcons = {
   light: <Sun className="h-5 w-5 text-amber-500" />,
@@ -23,6 +24,11 @@ const themeNames = {
 
 const ThemeChooser = () => {
   const { theme, setTheme } = useTheme();
+  const { t } = useI18n();
+
+  // Add debug console logs to help with troubleshooting
+  console.log("Current theme:", theme);
+  console.log("Theme options:", ["dark", "light", "synthwave", "forest"]);
 
   return (
     <Card>
