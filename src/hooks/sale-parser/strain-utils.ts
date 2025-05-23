@@ -35,7 +35,8 @@ export const findBestStrain = (text: string): StrainMatch => {
     if (!word || word.length < 3 || /^(to|for|on|at|the|and|with|from)$/i.test(word)) continue;
     
     // Check if the word might be a strain name (capitalized word not following common patterns)
-    if (/^[A-Z][a-z]+$/.test(word) && !/(sold|paid|gave|got|made|profit|tick|front)/i.test(word)) {
+    // Only test regex on non-null, non-undefined words
+    if (word && /^[A-Z][a-z]+$/.test(word) && !/(sold|paid|gave|got|made|profit|tick|front)/i.test(word)) {
       return { strain: word, confidence: 0.5 };
     }
   }
