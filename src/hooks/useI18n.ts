@@ -10,6 +10,11 @@ export const useI18n = () => {
   
   // Create a safe getString function that handles undefined keys
   const safeGetString = (key: string): string => {
+    if (!key) {
+      console.warn('useI18n called with empty key');
+      return '';
+    }
+    
     try {
       return getString(key) || key;
     } catch (error) {
