@@ -37,6 +37,10 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
   handleEditableChange,
 }) => {
   const navigate = useNavigate();
+  
+  // Ensure parsedSale and editableSale are valid objects before rendering
+  const isValidSale = parsedSale && typeof parsedSale === 'object';
+  const isValidEditableSale = editableSale && typeof editableSale === 'object';
 
   return (
     <Card className="border-tree-green/20 bg-gradient-to-br from-slate-950 to-slate-900">
@@ -45,14 +49,14 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
           <span className="mr-2">🔍</span> Parsed Result
         </CardTitle>
         <CardDescription>
-          {parsedSale ? 
+          {isValidSale ? 
             "Preview and edit before adding to your records" :
             "Preview of structured data extracted from your text"}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <AnimatePresence mode="wait">
-          {parsedSale && editableSale ? (
+          {isValidSale && isValidEditableSale ? (
             <motion.div
               key="parsed-result"
               initial={{ opacity: 0, y: 20 }}
@@ -106,7 +110,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
                 )}
               </div>
               
-              {parsedSale.isTick && (
+              {parsedSale?.isTick && (
                 <div className="bg-yellow-900/30 border border-yellow-700/30 rounded-md p-3 text-sm">
                   <div className="font-medium text-yellow-500 mb-1">📝 Tick Sale Detected</div>
                   <p className="text-yellow-300/70">

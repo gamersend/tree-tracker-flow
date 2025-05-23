@@ -12,6 +12,11 @@ import { StrainMatch } from "./types";
 
 // Function to find the best matching strain from text
 export const findBestStrain = (text: string): StrainMatch => {
+  // Handle null or undefined text
+  if (!text) {
+    return { strain: "", confidence: 0 };
+  }
+  
   // Normalize input text
   const normalizedText = text.toLowerCase();
   
@@ -27,7 +32,7 @@ export const findBestStrain = (text: string): StrainMatch => {
   const words = normalizedText.split(/\s+/);
   for (const word of words) {
     // Skip common words like "to", "for", "on", etc.
-    if (word.length < 3 || /^(to|for|on|at|the|and|with|from)$/i.test(word)) continue;
+    if (!word || word.length < 3 || /^(to|for|on|at|the|and|with|from)$/i.test(word)) continue;
     
     // Check if the word might be a strain name (capitalized word not following common patterns)
     if (/^[A-Z][a-z]+$/.test(word) && !/(sold|paid|gave|got|made|profit|tick|front)/i.test(word)) {

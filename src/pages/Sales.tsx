@@ -45,7 +45,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Search, Plus, ArrowUpDown, Trash2, HelpCircle, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -90,6 +90,20 @@ const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   } catch (error) {
     console.error(`Error loading ${key} from localStorage:`, error);
     return defaultValue;
+  }
+};
+
+// Format date safely
+const formatDateSafe = (date: Date | string | null | undefined): string => {
+  if (!date) return "—";
+  
+  try {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    if (!isValid(dateObj)) return "Invalid Date";
+    return format(dateObj, "MMM d, yyyy");
+  } catch (error) {
+    console.error("Date formatting error:", error, date);
+    return "—";
   }
 };
 
@@ -265,8 +279,8 @@ const Sales = () => {
   // Sort and filter sales
   const sortedAndFilteredSales = [...sales]
     .filter(sale => 
-      sale.strain.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sale.customer.toLowerCase().includes(searchQuery.toLowerCase())
+      (sale.strain?.toLowerCase() || "").includes((searchQuery || "").toLowerCase()) ||
+      (sale.customer?.toLowerCase() || "").includes((searchQuery || "").toLowerCase())
     )
     .sort((a, b) => {
       if (!sortColumn) return 0;
@@ -517,7 +531,7 @@ const Sales = () => {
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {saleDate ? format(saleDate, "PPP") : <span>Pick a date</span>}
+                        {saleDate ? formatDateSafe(saleDate) : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -1012,12 +1026,12 @@ const Sales = () => {
                         />
                       ) : (
                         <div className="h-8 w-8 rounded-full bg-tree-purple/20 flex items-center justify-center text-xs">
-                          {sale.strain.substring(0, 2)}
+                          {sale.strain?.substring(0, 2) || ""}
                         </div>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{sale.strain}</TableCell>
-                    <TableCell>{format(new Date(sale.date), "MMM d, yyyy")}</TableCell>
+                    <TableCell>{formatDateSafe(sale.date)}</TableCell>
                     <TableCell className="text-right">{sale.quantity}</TableCell>
                     <TableCell>
                       <div className="flex items-center">

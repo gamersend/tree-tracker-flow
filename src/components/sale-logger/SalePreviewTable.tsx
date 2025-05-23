@@ -15,6 +15,20 @@ interface SalePreviewTableProps {
 }
 
 export const SalePreviewTable: React.FC<SalePreviewTableProps> = ({ parsedSale }) => {
+  // Add safe formatting for dates
+  const formatDate = (date: any): string => {
+    if (!date) return "—";
+    try {
+      if (date instanceof Date) {
+        return date.toLocaleDateString();
+      }
+      return String(date);
+    } catch (error) {
+      console.error("Error formatting date:", error, date);
+      return "—";
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -39,9 +53,7 @@ export const SalePreviewTable: React.FC<SalePreviewTableProps> = ({ parsedSale }
             {parsedSale.confidence && <ConfidenceIndicator score={parsedSale.confidence.strain} />}
           </TableCell>
           <TableCell>
-            {parsedSale.date instanceof Date 
-              ? parsedSale.date.toLocaleDateString()
-              : parsedSale.date || "—"}
+            {formatDate(parsedSale.date)}
             {parsedSale.confidence && <ConfidenceIndicator score={parsedSale.confidence.date} />}
           </TableCell>
           <TableCell>
@@ -49,11 +61,11 @@ export const SalePreviewTable: React.FC<SalePreviewTableProps> = ({ parsedSale }
             {parsedSale.confidence && <ConfidenceIndicator score={parsedSale.confidence.quantity} />}
           </TableCell>
           <TableCell>
-            ${parsedSale.salePrice.toFixed(2)}
+            ${parsedSale.salePrice?.toFixed(2) || "0.00"}
             {parsedSale.confidence && <ConfidenceIndicator score={parsedSale.confidence.salePrice} />}
           </TableCell>
           <TableCell>
-            ${parsedSale.profit.toFixed(2)}
+            ${parsedSale.profit?.toFixed(2) || "0.00"}
             {parsedSale.confidence && <ConfidenceIndicator score={parsedSale.confidence.profit} />}
           </TableCell>
           <TableCell>{parsedSale.isTick ? 

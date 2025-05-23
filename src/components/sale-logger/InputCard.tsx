@@ -82,7 +82,7 @@ export const InputCard: React.FC<InputCardProps> = ({
           onClearAll={onClearAll}
           onProcessText={onProcessText}
           isProcessing={isProcessing}
-          isInputEmpty={!(saleText && saleText.trim())}
+          isInputEmpty={!saleText || !saleText.trim()}
         />
         
         {saleText && saleText.trim() && (
