@@ -2,7 +2,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { motion } from "framer-motion";
 
-export type Theme = "dark" | "light" | "psychedelic";
+export type Theme = "dark" | "light" | "synthwave" | "forest";
 
 type ThemeContextType = {
   theme: Theme;
@@ -17,7 +17,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Load theme from localStorage on mount
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme") as Theme | null;
-    if (storedTheme) {
+    if (storedTheme && ["dark", "light", "synthwave", "forest"].includes(storedTheme)) {
       setTheme(storedTheme);
     }
   }, []);
@@ -27,7 +27,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("theme", theme);
     
     // Update document class for theme
-    document.body.classList.remove("theme-dark", "theme-light", "theme-psychedelic");
+    document.body.classList.remove("theme-dark", "theme-light", "theme-synthwave", "theme-forest");
     document.body.classList.add(`theme-${theme}`);
     
     // Update data-theme attribute for shadcn components
@@ -36,82 +36,66 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
-      {/* Add psychedelic mode animations when active */}
-      {theme === "psychedelic" && (
+      {/* Theme-specific background effects */}
+      {theme === "synthwave" && (
         <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-pink-800/30 to-green-900/30 animate-pulse"></div>
-          {/* Floating cannabis leaves */}
-          {Array.from({ length: 10 }).map((_, i) => (
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-pink-800/30 to-indigo-900/30 animate-pulse-subtle"></div>
+          {Array.from({ length: 8 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute"
-              initial={{
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
-                scale: Math.random() * 0.5 + 0.5,
-                rotate: Math.random() * 360,
+              className="absolute w-[1px] h-[40vh] bg-gradient-to-b from-transparent via-pink-500/30 to-transparent"
+              style={{
+                left: `${(i * 12) + Math.random() * 5}%`,
+                top: '-20%',
+                opacity: 0.4 + (Math.random() * 0.4)
               }}
               animate={{
-                x: [
-                  Math.random() * window.innerWidth,
-                  Math.random() * window.innerWidth,
-                  Math.random() * window.innerWidth,
-                ],
-                y: [
-                  Math.random() * window.innerHeight,
-                  Math.random() * window.innerHeight,
-                  Math.random() * window.innerHeight,
-                ],
-                rotate: [0, 180, 360],
+                y: ["0%", "120%"],
+                opacity: [0.2, 0.8, 0.2],
               }}
               transition={{
-                duration: 15 + Math.random() * 20,
+                duration: 8 + (Math.random() * 15),
                 repeat: Infinity,
-                repeatType: "reverse",
+                delay: i * 0.3,
+                ease: "linear"
               }}
-            >
-              <svg
-                width="40"
-                height="40"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="opacity-30"
-              >
-                <path
-                  d="M12 2C7.58172 2 4 5.58172 4 10C4 14.4183 7.58172 18 12 18C16.4183 18 20 14.4183 20 10C20 5.58172 16.4183 2 12 2Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="stroke-green-500"
-                />
-                <path
-                  d="M12 18V22"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="stroke-green-500"
-                />
-                <path
-                  d="M8 10C8 10 9 12 12 12C15 12 16 10 16 10"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="stroke-green-500"
-                />
-                <path
-                  d="M12 6C10.8954 6 10 6.89543 10 8C10 9.10457 10.8954 10 12 10C13.1046 10 14 9.10457 14 8C14 6.89543 13.1046 6 12 6Z"
-                  fill="currentColor"
-                  className="fill-green-500"
-                />
-              </svg>
-            </motion.div>
+            />
           ))}
         </div>
       )}
+      
+      {theme === "forest" && (
+        <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+          <div className="absolute inset-0 bg-[url('/forest-bg.jpg')] bg-cover bg-center opacity-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-green-900/5 to-green-700/5"></div>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute"
+              style={{
+                width: 8 + Math.random() * 10,
+                height: 8 + Math.random() * 10,
+                borderRadius: '50%',
+                background: 'rgba(121, 182, 121, 0.1)',
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                filter: 'blur(1px)',
+              }}
+              animate={{
+                y: [0, -20, 0],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: 20 + (Math.random() * 10),
+                repeat: Infinity,
+                delay: i * 0.5,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+        </div>
+      )}
+      
       {children}
     </ThemeContext.Provider>
   );

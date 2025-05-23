@@ -70,6 +70,20 @@ export default {
 					gold: '#FFD700',
 					dark: '#1A1A2E',
 					light: '#F5F5F9',
+				},
+				// Synthwave Theme Colors
+				synthwave: {
+					pink: '#ff79c6',
+					purple: '#bd93f9',
+					cyan: '#8be9fd',
+					background: '#1e1b2e',
+				},
+				// Forest Theme Colors
+				forest: {
+					green: '#2e4f3e',
+					light: '#d9ead3',
+					brown: '#5d4037',
+					accent: '#81c784',
 				}
 			},
 			borderRadius: {
@@ -129,6 +143,14 @@ export default {
 					'0%': { boxShadow: '0 0 0px rgba(138, 51, 253, 0.8)', opacity: '1' },
 					'100%': { boxShadow: '0 0 20px 10px rgba(138, 51, 253, 0)', opacity: '0' }
 				},
+				'synthwave-glow': {
+					'0%, 100%': { boxShadow: '0 0 5px rgba(255, 121, 198, 0.5)' },
+					'50%': { boxShadow: '0 0 20px rgba(255, 121, 198, 0.8), 0 0 30px rgba(189, 147, 249, 0.5)' }
+				},
+				'forest-sway': {
+					'0%, 100%': { transform: 'rotate(-1deg)' },
+					'50%': { transform: 'rotate(1deg)' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -141,11 +163,15 @@ export default {
 				'bounce-subtle': 'bounce-subtle 2s infinite ease-in-out',
 				'glow': 'glow 2s infinite ease-in-out',
 				'ripple': 'ripple 1.5s linear',
+				'synthwave-glow': 'synthwave-glow 3s infinite ease-in-out',
+				'forest-sway': 'forest-sway 5s infinite ease-in-out',
 			},
 			backgroundImage: {
 				'cannabis-pattern': "url('/cannabis-pattern.svg')",
 				'gradient-purple': 'linear-gradient(135deg, #24243e 0%, #302b63 50%, #0f0c29 100%)',
 				'psychedelic-gradient': 'linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc, #ff00cc)',
+				'synthwave-grid': "linear-gradient(180deg, rgba(30, 27, 46, 0) 0%, rgba(30, 27, 46, 0.3) 100%), url('/synthwave-grid.png')",
+				'forest-texture': "url('/forest-bg.jpg')",
 			}
 		}
 	},

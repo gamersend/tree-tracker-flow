@@ -16,6 +16,11 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        // Theme-specific variants
+        synthwave:
+          "border-transparent bg-[#ff79c6] text-white hover:bg-opacity-80 shadow-[0_0_5px_rgba(255,121,198,0.5)]",
+        forest:
+          "border-transparent bg-[#2e4f3e] text-[#d9ead3] hover:bg-opacity-80",
       },
     },
     defaultVariants: {
