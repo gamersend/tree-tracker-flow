@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Search, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useStrings } from "@/components/theme/StringProvider";
 
 type InventoryHeaderProps = {
   searchQuery: string;
@@ -16,6 +17,8 @@ const InventoryHeader: React.FC<InventoryHeaderProps> = ({
   setSearchQuery,
   openAddInventoryDialog
 }) => {
+  const { getString } = useStrings();
+  
   return (
     <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
       <div>
@@ -41,7 +44,7 @@ const InventoryHeader: React.FC<InventoryHeaderProps> = ({
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search strains..."
+            placeholder={`Search ${getString("inventory.strain").toLowerCase()}...`}
             className="pl-8 w-full"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -51,7 +54,7 @@ const InventoryHeader: React.FC<InventoryHeaderProps> = ({
           className="whitespace-nowrap bg-tree-purple hover:bg-tree-purple/80"
           onClick={openAddInventoryDialog}
         >
-          <Plus className="mr-2 h-4 w-4" /> Add Inventory
+          <Plus className="mr-2 h-4 w-4" /> {getString("inventory.add")}
         </Button>
       </div>
     </div>

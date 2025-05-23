@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { StonerToggle } from "@/components/ui/stoner-toggle";
+import { Badge } from "@/components/ui/badge";
+import { useStrings } from "@/components/theme/StringProvider";
 import {
   Select,
   SelectContent,
@@ -18,17 +21,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
 
 interface GeneralSettingsTabProps {
   onSave: () => void;
 }
 
 const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({ onSave }) => {
+  const { getString, isStonerMode, toggleStonerMode, stonerModeWithIcon } = useStrings();
+  
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Application Settings</CardTitle>
+          <CardTitle>{getString("settings.title")}</CardTitle>
           <CardDescription>
             Configure general application preferences
           </CardDescription>
@@ -41,7 +53,7 @@ const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({ onSave }) => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
+              <Label htmlFor="currency">{getString("settings.currency")}</Label>
               <Select defaultValue="usd">
                 <SelectTrigger>
                   <SelectValue placeholder="Select currency" />
@@ -56,7 +68,7 @@ const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({ onSave }) => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="timezone">Timezone</Label>
+              <Label htmlFor="timezone">{getString("settings.timezone")}</Label>
               <Select defaultValue="america/los_angeles">
                 <SelectTrigger>
                   <SelectValue placeholder="Select timezone" />
@@ -85,6 +97,54 @@ const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({ onSave }) => {
             </div>
           </div>
           
+          {/* Language and Text Settings */}
+          <div className="border-t border-slate-800 pt-6">
+            <h3 className="text-lg font-medium mb-4">Language & Text</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="stoner-mode" className="block mb-1">
+                    {stonerModeWithIcon}
+                  </Label>
+                  <p className="text-sm text-gray-400">{getString("settings.stoner_description")}</p>
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <StonerToggle 
+                          id="stoner-mode" 
+                          checked={isStonerMode} 
+                          onCheckedChange={toggleStonerMode}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>For legends only 💨😎</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              
+              {/* Show a preview of stoner mode */}
+              {isStonerMode && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-slate-800/30 p-3 rounded-md border border-purple-500/20"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="stoner">Active</Badge>
+                    <span className="text-sm text-gray-300">Stoner mode engaged</span>
+                  </div>
+                  <p className="text-sm italic text-gray-400">
+                    App labels, buttons and text are now in stoner slang mode
+                  </p>
+                </motion.div>
+              )}
+            </div>
+          </div>
+          
           <div className="border-t border-slate-800 pt-6">
             <h3 className="text-lg font-medium mb-4">Notifications</h3>
             <div className="space-y-4">
@@ -106,7 +166,7 @@ const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({ onSave }) => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="low-inventory" className="block mb-1">Low Inventory Alerts</Label>
+                  <Label htmlFor="low-inventory" className="block mb-1">{getString("settings.low_inventory")}</Label>
                   <p className="text-sm text-gray-400">Be notified when inventory is running low</p>
                 </div>
                 <Switch id="low-inventory" />
@@ -124,7 +184,7 @@ const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({ onSave }) => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="default-quantity">Default Purchase Quantity</Label>
+                <Label htmlFor="default-quantity">{getString("settings.default_quantity")}</Label>
                 <Select defaultValue="112g">
                   <SelectTrigger>
                     <SelectValue placeholder="Select quantity" />

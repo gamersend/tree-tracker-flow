@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -212,6 +211,47 @@
     --shadow-sm: 0 2px 4px rgba(46, 79, 62, 0.07);
     --shadow-md: 0 4px 8px rgba(46, 79, 62, 0.1);
     --shadow-lg: 0 8px 16px rgba(46, 79, 62, 0.12);
+  }
+
+  /* Stoner Mode Animations */
+  .stoner-mode-active .card {
+    transition: all 0.3s ease;
+  }
+
+  .stoner-mode-active .card:hover {
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+  }
+
+  .stoner-mode-active button {
+    transition: all 0.2s ease;
+  }
+
+  .stoner-mode-active button:active {
+    transform: scale(0.97);
+  }
+
+  @keyframes floatingLeaf {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.8;  
+    }
+    90% {
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(-100px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  .stoner-leaf-animation {
+    animation: floatingLeaf 8s ease-in-out infinite;
+    position: fixed;
+    z-index: -1;
+    pointer-events: none;
   }
 
   /* Theme specific animation keyframes */
