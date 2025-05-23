@@ -1,9 +1,10 @@
 
 import React from "react";
-import { Bell, Search, Cloud } from "lucide-react";
+import { Search, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import NotificationsDropdown from "@/components/notifications/NotificationsDropdown";
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -33,12 +34,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           </div>
         )}
         
-        <Button variant="outline" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-tree-green flex items-center justify-center text-[10px] text-white font-medium">
-            3
-          </span>
-        </Button>
+        <NotificationsDropdown />
         
         <div className="h-8 w-8 rounded-full bg-tree-purple flex items-center justify-center text-white font-medium">
           U

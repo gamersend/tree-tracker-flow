@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useNotes } from "@/contexts/NotesContext";
 import { NotesContainer } from "@/components/notes/NotesContainer";
 import { motion } from "framer-motion";
+import { useNotificationsContext } from "@/contexts/NotificationsContext";
+import TodoItem from "@/components/dashboard/TodoItem";
+import { Input } from "@/components/ui/input";
 
 // Mock data for charts and stats
 const profitData = [
@@ -21,40 +23,123 @@ const profitData = [
   { name: "Sun", value: 470 },
 ];
 
-const todoItems = [
-  { id: "t1", label: "Order new inventory", completed: false },
-  { id: "t2", label: "Contact supplier about Purple Haze", completed: true },
-  { id: "t3", label: "Update customer records", completed: false },
-  { id: "t4", label: "Prepare for weekend sales", completed: false },
-];
-
 const Dashboard = () => {
   const [notes, setNotes] = React.useState("Meeting with supplier on Friday.\nCheck inventory of OG Kush.");
-  const [todos, setTodos] = React.useState(todoItems);
+  const [todos, setTodos] = React.useState([
+    { id: "t1", label: "Order new inventory", completed: false },
+    { id: "t2", label: "Contact supplier about Purple Haze", completed: true },
+    { id: "t3", label: "Update customer records", completed: false },
+    { id: "t4", label: "Prepare for weekend sales", completed: false },
+  ]);
   const [newTodo, setNewTodo] = React.useState("");
   
   // Get the notes context
   const { notes: stickyNotes, addNote, updateNote, deleteNote } = useNotes();
+  
+  // Get the notifications context
+  const { addNotification } = useNotificationsContext();
+
+  // Add some demo notifications when the dashboard loads
+  useEffect(() => {
+    // Check local storage for a flag to prevent showing these notifications more than once per session
+    const notificationsShown = sessionStorage.getItem("demo-notifications-shown");
+    
+    if (!notificationsShown) {
+      // Add sample notifications with a small delay
+      setTimeout(() => {
+        addNotification({
+          title: "Low Stock Alert",
+          message: "You're running low on OG Kush. Consider restocking soon.",
+          priority: "high",
+          type: "alert",
+          link: "/inventory"
+        });
+        
+        setTimeout(() => {
+          addNotification({
+            title: "New Order",
+            message: "You have received a new order from John Smith.",
+            priority: "medium",
+            type: "info",
+            link: "/sales"
+          });
+        }, 2000);
+        
+        setTimeout(() => {
+          addNotification({
+            title: "Upcoming Payment",
+            message: "Payment from Regular Customer due tomorrow.",
+            priority: "low",
+            type: "reminder",
+            link: "/customers"
+          });
+        }, 4000);
+      }, 1000);
+      
+      // Set the flag to prevent showing these notifications again
+      sessionStorage.setItem("demo-notifications-shown", "true");
+    }
+  }, [addNotification]);
 
   const toggleTodo = (id: string) => {
     setTodos(todos.map(todo => 
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
+    
+    // Generate a notification when a todo is completed
+    const completedTodo = todos.find(todo => todo.id === id);
+    if (completedTodo && !completedTodo.completed) {
+      addNotification({
+        title: "Task Completed",
+        message: `You've completed: ${completedTodo.label}`,
+        priority: "low",
+        type: "info"
+      });
+    }
   };
 
   const addTodo = () => {
     if (newTodo.trim()) {
-      setTodos([...todos, { 
+      const newTodoItem = { 
         id: `t${Date.now()}`, 
         label: newTodo.trim(), 
         completed: false 
-      }]);
+      };
+      
+      setTodos([...todos, newTodoItem]);
       setNewTodo("");
+      
+      // Generate a notification for a new todo
+      addNotification({
+        title: "New Task Added",
+        message: `Added task: ${newTodo.trim()}`,
+        priority: "low",
+        type: "info"
+      });
     }
+  };
+  
+  const editTodo = (id: string, newLabel: string) => {
+    setTodos(todos.map(todo => 
+      todo.id === id ? { ...todo, label: newLabel } : todo
+    ));
+  };
+  
+  const deleteTodo = (id: string) => {
+    setTodos(todos.filter(todo => todo.id !== id));
   };
 
   const handleAddNote = () => {
-    addNote("New note", "yellow");
+    const newNote = addNote("New note", "yellow");
+    
+    // Generate a notification for new note
+    addNotification({
+      title: "New Note Created",
+      message: "You created a new note",
+      priority: "low",
+      type: "info",
+      link: "/notes"
+    });
   };
 
   return (
@@ -199,30 +284,27 @@ const Dashboard = () => {
             <CardContent>
               <div className="space-y-3">
                 {todos.map((todo) => (
-                  <div key={todo.id} className="flex items-center gap-3">
-                    <input 
-                      type="checkbox" 
-                      id={todo.id} 
-                      checked={todo.completed}
-                      onChange={() => toggleTodo(todo.id)}
-                      className="h-4 w-4"
-                    />
-                    <label
-                      htmlFor={todo.id}
-                      className={`text-sm ${
-                        todo.completed ? "line-through text-gray-500" : "text-white"
-                      }`}
-                    >
-                      {todo.label}
-                    </label>
-                  </div>
+                  <TodoItem
+                    key={todo.id}
+                    id={todo.id}
+                    label={todo.label}
+                    completed={todo.completed}
+                    onToggle={toggleTodo}
+                    onEdit={editTodo}
+                    onDelete={deleteTodo}
+                  />
                 ))}
                 <div className="flex gap-2 mt-4">
-                  <input 
+                  <Input 
                     value={newTodo}
                     onChange={(e) => setNewTodo(e.target.value)}
                     placeholder="Add new task"
                     className="rounded-md bg-slate-800 border-slate-700 p-2 text-sm flex-1"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newTodo.trim()) {
+                        addTodo();
+                      }
+                    }}
                   />
                   <Button size="sm" onClick={addTodo}>Add</Button>
                 </div>
@@ -232,7 +314,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Add the Sticky Notes section */}
       <Card className="bg-gradient-to-br from-slate-950 to-slate-900 border-yellow-500/30">
         <CardHeader>
           <CardTitle className="flex items-center">

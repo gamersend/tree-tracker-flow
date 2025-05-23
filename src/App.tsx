@@ -7,6 +7,7 @@ import Layout from "@/components/layout/Layout";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { NotesProvider } from "@/contexts/NotesContext";
 import InstallBanner from "@/components/pwa/InstallBanner";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
 
 // Import pages
 import Dashboard from "@/pages/Dashboard";
@@ -30,34 +31,36 @@ import Notifications from "@/pages/Notifications";
 function App() {
   return (
     <ThemeProvider>
-      <NotesProvider>
-        <BrowserRouter>
-          <SidebarProvider>
-            <Routes>
-              <Route path="/" element={<Layout><Dashboard /></Layout>} />
-              <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-              <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
-              <Route path="/sales" element={<Layout><Sales /></Layout>} />
-              <Route path="/customers" element={<Layout><Customers /></Layout>} />
-              <Route path="/stock" element={<Layout><Stock /></Layout>} />
-              <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
-              <Route path="/calendar" element={<Layout><Calendar /></Layout>} />
-              <Route path="/import" element={<Layout><Import /></Layout>} />
-              <Route path="/tick-ledger" element={<Layout><TickLedger /></Layout>} />
-              <Route path="/business-supplies" element={<Layout><BusinessSupplies /></Layout>} />
-              <Route path="/settings" element={<Layout><Settings /></Layout>} />
-              <Route path="/notes" element={<Layout><Notes /></Layout>} />
-              <Route path="/quick-sale" element={<Layout><NaturalLanguageLogger /></Layout>} />
-              <Route path="/api" element={<Layout><Api /></Layout>} />
-              <Route path="/mates-rates" element={<Layout><MatesRatesCalculator /></Layout>} />
-              <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
-              <Route path="*" element={<Layout><NotFound /></Layout>} />
-            </Routes>
-          </SidebarProvider>
-          <InstallBanner />
-        </BrowserRouter>
-        <Toaster />
-      </NotesProvider>
+      <NotificationsProvider>
+        <NotesProvider>
+          <BrowserRouter>
+            <SidebarProvider>
+              <Routes>
+                <Route path="/" element={<Layout><Dashboard /></Layout>} />
+                <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+                <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
+                <Route path="/sales" element={<Layout><Sales /></Layout>} />
+                <Route path="/customers" element={<Layout><Customers /></Layout>} />
+                <Route path="/stock" element={<Layout><Stock /></Layout>} />
+                <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+                <Route path="/calendar" element={<Layout><Calendar /></Layout>} />
+                <Route path="/import" element={<Layout><Import /></Layout>} />
+                <Route path="/tick-ledger" element={<Layout><TickLedger /></Layout>} />
+                <Route path="/business-supplies" element={<Layout><BusinessSupplies /></Layout>} />
+                <Route path="/settings" element={<Layout><Settings /></Layout>} />
+                <Route path="/notes" element={<Layout><Notes /></Layout>} />
+                <Route path="/quick-sale" element={<Layout><NaturalLanguageLogger /></Layout>} />
+                <Route path="/api" element={<Layout><Api /></Layout>} />
+                <Route path="/mates-rates" element={<Layout><MatesRatesCalculator /></Layout>} />
+                <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
+                <Route path="*" element={<Layout><NotFound /></Layout>} />
+              </Routes>
+            </SidebarProvider>
+            <InstallBanner />
+          </BrowserRouter>
+          <Toaster />
+        </NotesProvider>
+      </NotificationsProvider>
     </ThemeProvider>
   );
 }

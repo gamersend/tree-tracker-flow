@@ -9,6 +9,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +39,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(note.content);
   const [isResizing, setIsResizing] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const noteRef = useRef<HTMLDivElement>(null);
 
@@ -65,6 +76,11 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
     onUpdate(note.id, { 
       date: date ? date.toISOString().split('T')[0] : undefined 
     });
+  };
+  
+  const handleDelete = () => {
+    setShowDeleteDialog(false);
+    onDelete(note.id);
   };
 
   const colors: NoteColor[] = ["yellow", "green", "blue", "pink", "purple"];
@@ -140,7 +156,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
             variant="ghost"
             size="icon"
             className="h-6 w-6 hover:text-red-600"
-            onClick={() => onDelete(note.id)}
+            onClick={() => setShowDeleteDialog(true)}
           >
             <Trash className="h-3 w-3" />
           </Button>
@@ -237,6 +253,24 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
           <CornerRightDown size={12} className="absolute bottom-0 right-0 text-gray-600" />
         </div>
       )}
+      
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This note will be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 };
