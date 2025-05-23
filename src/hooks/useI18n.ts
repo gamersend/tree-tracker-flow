@@ -8,9 +8,19 @@ import { useStrings } from "@/components/theme/StringProvider";
 export const useI18n = () => {
   const { getString, isStonerMode, toggleStonerMode, stonerModeWithIcon } = useStrings();
   
+  // Create a safe getString function that handles undefined keys
+  const safeGetString = (key: string): string => {
+    try {
+      return getString(key) || key;
+    } catch (error) {
+      console.warn(`Error getting string for key: ${key}`, error);
+      return key;
+    }
+  };
+  
   return {
-    t: getString,  // shorthand for translate
-    getString,     // full function name
+    t: safeGetString,  // shorthand for translate
+    getString: safeGetString,  // full function name
     isStonerMode,  // current mode
     toggleStonerMode,  // function to toggle mode
     stonerModeWithIcon // pre-formatted component with icon

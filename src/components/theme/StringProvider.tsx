@@ -287,13 +287,26 @@ export const StringProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  // Get the appropriate string based on current mode
+  // Get the appropriate string based on current mode with safety checks
   const getString = (key: string): string => {
+    if (!key) {
+      console.warn('Trying to get string with undefined or empty key');
+      return '';
+    }
+    
     if (!stringDictionary[key]) {
       console.warn(`String key not found: ${key}`);
       return key;
     }
-    return isStonerMode ? stringDictionary[key].stoner : stringDictionary[key].default;
+    
+    try {
+      return isStonerMode 
+        ? (stringDictionary[key].stoner || stringDictionary[key].default || key) 
+        : (stringDictionary[key].default || key);
+    } catch (error) {
+      console.error(`Error accessing string for key: ${key}`, error);
+      return key;
+    }
   };
 
   // Special element with icon for stoner mode label
