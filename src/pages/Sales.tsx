@@ -9,6 +9,7 @@ import { AddSaleDialog } from "@/components/sales/AddSaleDialog";
 import { SalesTable } from "@/components/sales/SalesTable";
 import { SalesSummary } from "@/components/sales/SalesSummary";
 import { useState } from "react";
+import { getLoyaltyTagColor } from "@/components/sales/utils";
 
 const Sales = () => {
   const { sales, loading, addSale } = useSupabaseSales();
@@ -69,7 +70,7 @@ const Sales = () => {
     sale.customer.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Map loyalty tags according to CustomerInfo type
+  // Map loyalty tags according to CustomerInfo type - ensure it always returns a valid loyalty tag
   const mapLoyaltyTag = (trusted: boolean, totalOrders: number): "🆕 New" | "🌀 Regular" | "🔥 VIP" | "👻 Ghosted" => {
     if (totalOrders === 0) return "🆕 New";
     if (trusted && totalOrders > 10) return "🔥 VIP";

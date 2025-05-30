@@ -15,8 +15,9 @@ export const formatDateSafe = (date: Date | string | null | undefined): string =
   }
 };
 
-// Helper function to get loyalty tag badge color
-export const getLoyaltyTagColor = (tag: string) => {
+// Helper function to get loyalty tag badge color - with safe undefined handling
+export const getLoyaltyTagColor = (tag: string | undefined) => {
+  if (!tag) return "bg-slate-600 text-white"; // Default fallback for undefined
   if (tag.includes("🆕")) return "bg-blue-500 text-white";
   if (tag.includes("🌀")) return "bg-green-500 text-white";
   if (tag.includes("🔥")) return "bg-orange-500 text-white";
