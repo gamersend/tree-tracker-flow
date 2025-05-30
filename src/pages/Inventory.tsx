@@ -1,7 +1,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { useInventory } from "@/hooks/useInventory";
+import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
 import { useAddInventoryForm } from "@/hooks/useAddInventoryForm";
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import AddInventoryDialog from "@/components/inventory/AddInventoryDialog";
@@ -12,11 +12,12 @@ const Inventory = () => {
   const {
     inventory,
     strains,
+    loading,
     searchQuery,
     setSearchQuery,
     filteredInventory,
     addInventoryItem
-  } = useInventory();
+  } = useSupabaseInventory();
 
   const {
     isDialogOpen,
@@ -36,8 +37,16 @@ const Inventory = () => {
     handleImageUpload,
     handleAddInventory
   } = useAddInventoryForm((strain, purchaseDate, quantity, totalCost, notes, image) => 
-    addInventoryItem(strain, purchaseDate, quantity, totalCost, notes, image)
+    addInventoryItem(strain, purchaseDate, quantity, parseFloat(totalCost), notes, image)
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tree-green"></div>
+      </div>
+    );
+  }
   
   return (
     <motion.div 

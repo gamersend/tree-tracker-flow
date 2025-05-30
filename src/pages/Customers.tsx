@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -12,31 +11,30 @@ import CustomerDetails from "@/components/customers/CustomerDetails";
 import CustomerHeader from "@/components/customers/CustomerHeader";
 import CustomerFormDialog from "@/components/customers/CustomerFormDialog";
 import CustomerDeleteDialog from "@/components/customers/CustomerDeleteDialog";
-import { useCustomers, customerEmojis, platforms } from "@/hooks/useCustomers";
-import { CustomerFormData, CustomerType } from "@/types/customer";
+import { useSupabaseCustomers } from "@/hooks/useSupabaseCustomers";
+import { customerEmojis, platforms } from "@/hooks/useCustomers";
+import { CustomerFormData } from "@/types/customer";
 
 const Customers = () => {
   const {
-    filteredCustomers,
-    selectedCustomer,
-    purchases,
+    customers,
+    loading,
     searchQuery,
     setSearchQuery,
-    customerDetailTab,
-    setCustomerDetailTab,
-    sortOrder,
-    setSortOrder,
     sortBy,
     setSortBy,
+    sortOrder,
+    setSortOrder,
     filterTrusted,
     setFilterTrusted,
+    filteredCustomers,
     addCustomer,
     updateCustomer,
-    deleteCustomer,
-    selectCustomer,
-    setSelectedCustomer
-  } = useCustomers();
+    deleteCustomer
+  } = useSupabaseCustomers();
 
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customerDetailTab, setCustomerDetailTab] = useState("info");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -48,9 +46,17 @@ const Customers = () => {
     platform: "",
     alias: "",
     notes: "",
-    trustedBuyer: false,
+    trusted_buyer: false,
     emoji: customerEmojis[Math.floor(Math.random() * customerEmojis.length)],
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tree-green"></div>
+      </div>
+    );
+  }
 
   // Handle opening the add dialog
   const handleOpenAddDialog = () => {
@@ -59,52 +65,69 @@ const Customers = () => {
       platform: "",
       alias: "",
       notes: "",
-      trustedBuyer: false,
+      trusted_buyer: false,
       emoji: customerEmojis[Math.floor(Math.random() * customerEmojis.length)],
     });
     setIsAddDialogOpen(true);
   };
 
   // Handle new customer form submission
-  const handleAddCustomer = () => {
-    const success = addCustomer(newCustomer);
+  const handleAddCustomer = async () => {
+    const success = await addCustomer({
+      name: newCustomer.name,
+      platform: newCustomer.platform,
+      alias: newCustomer.alias,
+      notes: newCustomer.notes,
+      trusted_buyer: newCustomer.trusted_buyer,
+      emoji: newCustomer.emoji,
+    });
     if (success) {
       setIsAddDialogOpen(false);
     }
   };
 
   // Handle selecting a customer for editing
-  const handleEditCustomer = (customer: CustomerType) => {
+  const handleEditCustomer = (customer) => {
     setSelectedCustomer(customer);
     setIsEditDialogOpen(true);
   };
 
   // Handle customer edit form submission
-  const handleUpdateCustomer = () => {
+  const handleUpdateCustomer = async () => {
     if (!selectedCustomer) return;
-    updateCustomer(selectedCustomer);
-    setIsEditDialogOpen(false);
+    const success = await updateCustomer(selectedCustomer.id, {
+      name: selectedCustomer.name,
+      platform: selectedCustomer.platform,
+      alias: selectedCustomer.alias,
+      notes: selectedCustomer.notes,
+      trusted_buyer: selectedCustomer.trusted_buyer,
+      emoji: selectedCustomer.emoji,
+    });
+    if (success) {
+      setIsEditDialogOpen(false);
+    }
   };
 
   // Handle deleting a customer
-  const handleDeletePrompt = (customerId: string) => {
+  const handleDeletePrompt = (customerId) => {
     setDeleteCustomerId(customerId);
     setShowConfirmDelete(true);
   };
 
-  const confirmDeleteCustomer = () => {
-    deleteCustomer(deleteCustomerId);
-    setShowConfirmDelete(false);
+  const confirmDeleteCustomer = async () => {
+    if (deleteCustomerId) {
+      await deleteCustomer(deleteCustomerId);
+      setShowConfirmDelete(false);
+    }
   };
 
   // Handle selecting a customer for viewing details
-  const handleViewCustomer = (customer: CustomerType) => {
-    selectCustomer(customer);
+  const handleViewCustomer = (customer) => {
+    setSelectedCustomer(customer);
   };
 
   return (
     <div className="space-y-6">
-      {/* Header section with title and controls */}
       <CustomerHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -114,12 +137,10 @@ const Customers = () => {
         setSortBy={setSortBy}
         sortOrder={sortOrder}
         setSortOrder={setSortOrder}
-        onAddCustomer={handleOpenAddDialog}
+        onAddCustomer={() => setIsAddDialogOpen(true)}
       />
 
-      {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Customer list card */}
         <Card className="lg:col-span-1 overflow-hidden border-slate-700/50 dashboard-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -132,21 +153,32 @@ const Customers = () => {
           <CardContent>
             <CustomerList
               customers={filteredCustomers}
-              onViewCustomer={handleViewCustomer}
-              onEditCustomer={handleEditCustomer}
-              onDeleteCustomer={handleDeletePrompt}
+              onViewCustomer={setSelectedCustomer}
+              onEditCustomer={(customer) => {
+                setSelectedCustomer(customer);
+                setIsEditDialogOpen(true);
+              }}
+              onDeleteCustomer={(customerId) => {
+                setDeleteCustomerId(customerId);
+                setShowConfirmDelete(true);
+              }}
             />
           </CardContent>
         </Card>
 
-        {/* Customer details card */}
         <Card className="lg:col-span-2 border-slate-700/50 dashboard-card animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <CardHeader>
             <CustomerDetails
               customer={selectedCustomer}
-              purchases={purchases}
-              onEditCustomer={handleEditCustomer}
-              onDeleteCustomer={handleDeletePrompt}
+              purchases={[]} // This would need to be implemented with sales data
+              onEditCustomer={(customer) => {
+                setSelectedCustomer(customer);
+                setIsEditDialogOpen(true);
+              }}
+              onDeleteCustomer={(customerId) => {
+                setDeleteCustomerId(customerId);
+                setShowConfirmDelete(true);
+              }}
               activeTab={customerDetailTab}
               onTabChange={setCustomerDetailTab}
             />
@@ -180,7 +212,7 @@ const Customers = () => {
             platform: selectedCustomer.platform,
             alias: selectedCustomer.alias,
             notes: selectedCustomer.notes,
-            trustedBuyer: selectedCustomer.trustedBuyer,
+            trustedBuyer: selectedCustomer.trusted_buyer,
             emoji: selectedCustomer.emoji || "🌿",
           }}
           onFormDataChange={(data) =>
