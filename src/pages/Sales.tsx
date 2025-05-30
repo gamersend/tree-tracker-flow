@@ -68,24 +68,33 @@ const Sales = () => {
     sale.customer.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Format customers for AddSaleDialog
+  // Map loyalty tags according to CustomerInfo type
+  const mapLoyaltyTag = (trusted: boolean, totalOrders: number): "🆕 New" | "🌀 Regular" | "🔥 VIP" | "👻 Ghosted" => {
+    if (totalOrders === 0) return "🆕 New";
+    if (trusted && totalOrders > 10) return "🔥 VIP";
+    if (totalOrders > 5) return "🌀 Regular";
+    return "👻 Ghosted";
+  };
+
+  // Format customers for AddSaleDialog - with correct CustomerInfo type
   const formattedCustomers = customers.map(c => ({
     id: c.id,
     name: c.name,
-    loyaltyTag: c.trusted_buyer ? "Trusted" : "Regular",
+    loyaltyTag: mapLoyaltyTag(c.trusted_buyer, c.total_orders || 0),
     orderCount: c.total_orders || 0,
-    lastOrderDate: c.last_purchase ? new Date(c.last_purchase) : undefined,
+    lastOrderDate: c.last_purchase ? new Date(c.last_purchase) : null,
     totalSpent: c.total_spent || 0
   }));
 
-  // Format customers for SalesTable
-  const customersForTable = customers.reduce((acc, customer) => {
-    acc[customer.id] = {
-      name: customer.name,
-      trusted: customer.trusted_buyer
-    };
-    return acc;
-  }, {} as Record<string, { name: string; trusted: boolean }>);
+  // Format customers for SalesTable - as array not Record
+  const customersForTable = customers.map(customer => ({
+    id: customer.id,
+    name: customer.name,
+    loyaltyTag: mapLoyaltyTag(customer.trusted_buyer, customer.total_orders || 0),
+    orderCount: customer.total_orders || 0,
+    lastOrderDate: customer.last_purchase ? new Date(customer.last_purchase) : null,
+    totalSpent: customer.total_spent || 0
+  }));
 
   return (
     <motion.div 
@@ -116,9 +125,9 @@ const Sales = () => {
       <SalesTable 
         sales={filteredSales}
         customers={customersForTable}
-        sortColumn={sortColumn}
+        sortColumn={sortColumn as keyof typeof formattedSales[0]}
         sortDirection={sortDirection}
-        handleSort={handleSort}
+        handleSort={(column) => handleSort(column as string)}
         handleDeleteSale={handleDeleteSale}
       />
       

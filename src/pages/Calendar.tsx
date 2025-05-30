@@ -157,7 +157,7 @@ const Calendar = () => {
                           key={note.id}
                           className="text-xs bg-amber-500/20 text-amber-400 px-1 py-0.5 rounded truncate"
                         >
-                          📝 {note.title}
+                          📝 Note
                         </div>
                       ))}
                       {dayEvents.length + dayNotes.length > 3 && (
@@ -199,7 +199,7 @@ const Calendar = () => {
                 {selectedDateNotes.map(note => (
                   <div key={note.id} className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">📝 {note.title}</h4>
+                      <h4 className="font-medium">📝 Note</h4>
                       <Badge variant="outline" className="border-amber-500 text-amber-400">
                         note
                       </Badge>
@@ -228,7 +228,7 @@ const Calendar = () => {
                     <div className="font-medium text-sm">{event.title}</div>
                     <div className="text-xs text-gray-400">{format(event.date, 'MMM d')}</div>
                   </div>
-                  <Badge variant="outline" size="sm">
+                  <Badge variant="outline">
                     {event.type}
                   </Badge>
                 </div>
