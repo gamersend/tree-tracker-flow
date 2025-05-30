@@ -1,83 +1,81 @@
 
-import React, { createContext, useState, useEffect, useContext } from "react";
-import { Note, NoteColor } from "@/types/note";
-import { loadNotes, saveNotes } from "@/utils/note-helpers";
-import { toast } from "sonner";
+import React, { createContext, useContext } from "react";
+import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
 
-interface NotesContextProps {
-  notes: Note[];
-  addNote: (content: string, color?: NoteColor, date?: string) => void;
-  updateNote: (id: string, updates: Partial<Note>) => void;
-  deleteNote: (id: string) => void;
-  getNotesByDate: (date: string) => Note[];
+interface NotesContextType {
+  notes: any[];
+  addNote: (title: string, color: string) => Promise<void>;
+  updateNote: (id: string, updates: any) => Promise<void>;
+  deleteNote: (id: string) => Promise<void>;
+  loading: boolean;
 }
 
-const NotesContext = createContext<NotesContextProps | undefined>(undefined);
+const NotesContext = createContext<NotesContextType | undefined>(undefined);
 
 export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const { notes, addNote: supabaseAddNote, updateNote: supabaseUpdateNote, deleteNote: supabaseDeleteNote, loading } = useSupabaseNotes();
 
-  // Load notes from localStorage on component mount
-  useEffect(() => {
-    setNotes(loadNotes());
-  }, []);
-
-  const addNote = (content: string, color: NoteColor = "yellow", date?: string) => {
-    const newNote: Note = {
-      id: `note-${Date.now()}`,
-      content,
+  const addNote = async (title: string, color: string) => {
+    await supabaseAddNote({
+      title,
+      content: "",
       color,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      date,
-      position: { x: 20, y: 20 },
-      size: { width: 220, height: 200 },
-    };
+      position_x: Math.floor(Math.random() * 300),
+      position_y: Math.floor(Math.random() * 200),
+      width: 200,
+      height: 150,
+      is_pinned: false
+    });
+  };
+
+  const updateNote = async (id: string, updates: any) => {
+    const supabaseUpdates: any = {};
+    if (updates.title !== undefined) supabaseUpdates.title = updates.title;
+    if (updates.content !== undefined) supabaseUpdates.content = updates.content;
+    if (updates.color !== undefined) supabaseUpdates.color = updates.color;
+    if (updates.x !== undefined) supabaseUpdates.position_x = updates.x;
+    if (updates.y !== undefined) supabaseUpdates.position_y = updates.y;
+    if (updates.width !== undefined) supabaseUpdates.width = updates.width;
+    if (updates.height !== undefined) supabaseUpdates.height = updates.height;
+    if (updates.isPinned !== undefined) supabaseUpdates.is_pinned = updates.isPinned;
     
-    const updatedNotes = [...notes, newNote];
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
-    toast.success("Note added");
-    
-    return newNote;
+    await supabaseUpdateNote(id, supabaseUpdates);
   };
 
-  const updateNote = (id: string, updates: Partial<Note>) => {
-    const updatedNotes = notes.map(note => 
-      note.id === id 
-        ? { ...note, ...updates, updatedAt: new Date().toISOString() } 
-        : note
-    );
-    
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
+  const deleteNote = async (id: string) => {
+    await supabaseDeleteNote(id);
   };
 
-  const deleteNote = (id: string) => {
-    const updatedNotes = notes.filter(note => note.id !== id);
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
-    toast.success("Note deleted");
-  };
+  // Convert Supabase notes to component format
+  const formattedNotes = notes.map(note => ({
+    id: note.id,
+    title: note.title,
+    content: note.content || "",
+    color: note.color,
+    x: note.position_x,
+    y: note.position_y,
+    width: note.width,
+    height: note.height,
+    isPinned: note.is_pinned,
+    date: note.created_at
+  }));
 
-  const getNotesByDate = (date: string) => {
-    return notes.filter(note => note.date === date);
-  };
-
-  const value = {
-    notes,
-    addNote,
-    updateNote,
-    deleteNote,
-    getNotesByDate,
-  };
-
-  return <NotesContext.Provider value={value}>{children}</NotesContext.Provider>;
+  return (
+    <NotesContext.Provider value={{
+      notes: formattedNotes,
+      addNote,
+      updateNote,
+      deleteNote,
+      loading
+    }}>
+      {children}
+    </NotesContext.Provider>
+  );
 };
 
 export const useNotes = () => {
   const context = useContext(NotesContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error("useNotes must be used within a NotesProvider");
   }
   return context;

@@ -36,9 +36,10 @@ const Inventory = () => {
     setSelectedImage,
     handleImageUpload,
     handleAddInventory
-  } = useAddInventoryForm((strain, purchaseDate, quantity, totalCost, notes, image) => 
-    addInventoryItem(strain, purchaseDate, quantity, parseFloat(totalCost), notes, image)
-  );
+  } = useAddInventoryForm(async (strain, purchaseDate, quantity, totalCost, notes, image) => {
+    const success = await addInventoryItem(strain, purchaseDate, quantity, parseFloat(totalCost), notes, image);
+    return success;
+  });
 
   if (loading) {
     return (
@@ -47,6 +48,39 @@ const Inventory = () => {
       </div>
     );
   }
+
+  // Convert Supabase data to component format
+  const formattedStrains = strains.map(strain => ({
+    name: strain.name,
+    costPerGram: strain.cost_per_gram,
+    image: strain.image_url
+  }));
+
+  const formattedInventory = inventory.map(item => ({
+    id: item.id,
+    strain: item.strain_name,
+    purchaseDate: new Date(item.purchase_date),
+    quantity: item.quantity,
+    quantityUnit: item.quantity_unit as "112g" | "224g" | "448g",
+    totalCost: item.total_cost,
+    pricePerGram: item.price_per_gram,
+    costPerOunce: item.cost_per_ounce,
+    notes: item.notes,
+    image: item.image_url
+  }));
+
+  const formattedFilteredInventory = filteredInventory.map(item => ({
+    id: item.id,
+    strain: item.strain_name,
+    purchaseDate: new Date(item.purchase_date),
+    quantity: item.quantity,
+    quantityUnit: item.quantity_unit as "112g" | "224g" | "448g",
+    totalCost: item.total_cost,
+    pricePerGram: item.price_per_gram,
+    costPerOunce: item.cost_per_ounce,
+    notes: item.notes,
+    image: item.image_url
+  }));
   
   return (
     <motion.div 
@@ -78,15 +112,15 @@ const Inventory = () => {
         setSelectedImage={setSelectedImage}
         handleImageUpload={handleImageUpload}
         handleAddInventory={handleAddInventory}
-        strains={strains}
+        strains={formattedStrains}
       />
       
       <InventoryTable 
-        inventoryItems={filteredInventory}
+        inventoryItems={formattedFilteredInventory}
         searchQuery={searchQuery}
       />
       
-      <InventorySummary inventoryItems={inventory} />
+      <InventorySummary inventoryItems={formattedInventory} />
     </motion.div>
   );
 };

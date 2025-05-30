@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Card,
@@ -13,7 +14,15 @@ import CustomerFormDialog from "@/components/customers/CustomerFormDialog";
 import CustomerDeleteDialog from "@/components/customers/CustomerDeleteDialog";
 import { useSupabaseCustomers } from "@/hooks/useSupabaseCustomers";
 import { customerEmojis, platforms } from "@/hooks/useCustomers";
-import { CustomerFormData } from "@/types/customer";
+
+interface CustomerFormData {
+  name: string;
+  platform: string;
+  alias: string;
+  notes: string;
+  trustedBuyer: boolean;
+  emoji: string;
+}
 
 const Customers = () => {
   const {
@@ -46,7 +55,7 @@ const Customers = () => {
     platform: "",
     alias: "",
     notes: "",
-    trusted_buyer: false,
+    trustedBuyer: false,
     emoji: customerEmojis[Math.floor(Math.random() * customerEmojis.length)],
   });
 
@@ -65,7 +74,7 @@ const Customers = () => {
       platform: "",
       alias: "",
       notes: "",
-      trusted_buyer: false,
+      trustedBuyer: false,
       emoji: customerEmojis[Math.floor(Math.random() * customerEmojis.length)],
     });
     setIsAddDialogOpen(true);
@@ -78,7 +87,7 @@ const Customers = () => {
       platform: newCustomer.platform,
       alias: newCustomer.alias,
       notes: newCustomer.notes,
-      trusted_buyer: newCustomer.trusted_buyer,
+      trusted_buyer: newCustomer.trustedBuyer,
       emoji: newCustomer.emoji,
     });
     if (success) {
@@ -126,6 +135,21 @@ const Customers = () => {
     setSelectedCustomer(customer);
   };
 
+  // Convert Supabase customer format to component format
+  const formattedCustomers = filteredCustomers.map(customer => ({
+    id: customer.id,
+    name: customer.name,
+    platform: customer.platform,
+    alias: customer.alias,
+    notes: customer.notes,
+    trustedBuyer: customer.trusted_buyer,
+    totalOrders: customer.total_orders,
+    totalSpent: customer.total_spent,
+    totalProfit: customer.total_profit,
+    lastPurchase: customer.last_purchase ? new Date(customer.last_purchase) : undefined,
+    emoji: customer.emoji,
+  }));
+
   return (
     <div className="space-y-6">
       <CustomerHeader
@@ -147,12 +171,12 @@ const Customers = () => {
               <span className="text-tree-purple">👥</span> Customers
             </CardTitle>
             <CardDescription>
-              {filteredCustomers.length} customers in your list
+              {formattedCustomers.length} customers in your list
             </CardDescription>
           </CardHeader>
           <CardContent>
             <CustomerList
-              customers={filteredCustomers}
+              customers={formattedCustomers}
               onViewCustomer={setSelectedCustomer}
               onEditCustomer={(customer) => {
                 setSelectedCustomer(customer);

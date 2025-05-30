@@ -2,14 +2,51 @@
 import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { NotesContainer } from "@/components/notes/NotesContainer";
-import { useNotes } from "@/contexts/NotesContext";
+import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
 import { motion } from "framer-motion";
 
 const Notes = () => {
-  const { notes, addNote, updateNote, deleteNote } = useNotes();
+  const { notes, addNote, updateNote, deleteNote } = useSupabaseNotes();
 
-  const handleAddNote = () => {
-    addNote("New note", "yellow");
+  const handleAddNote = async () => {
+    await addNote({
+      title: "New note",
+      content: "",
+      color: "#fbbf24",
+      position_x: 0,
+      position_y: 0,
+      width: 200,
+      height: 150,
+      is_pinned: false
+    });
+  };
+
+  // Convert Supabase notes to component format
+  const formattedNotes = notes.map(note => ({
+    id: note.id,
+    title: note.title,
+    content: note.content || "",
+    color: note.color,
+    x: note.position_x,
+    y: note.position_y,
+    width: note.width,
+    height: note.height,
+    isPinned: note.is_pinned,
+    date: note.created_at
+  }));
+
+  const handleUpdateNote = async (id: string, updates: any) => {
+    const supabaseUpdates: any = {};
+    if (updates.title !== undefined) supabaseUpdates.title = updates.title;
+    if (updates.content !== undefined) supabaseUpdates.content = updates.content;
+    if (updates.color !== undefined) supabaseUpdates.color = updates.color;
+    if (updates.x !== undefined) supabaseUpdates.position_x = updates.x;
+    if (updates.y !== undefined) supabaseUpdates.position_y = updates.y;
+    if (updates.width !== undefined) supabaseUpdates.width = updates.width;
+    if (updates.height !== undefined) supabaseUpdates.height = updates.height;
+    if (updates.isPinned !== undefined) supabaseUpdates.is_pinned = updates.isPinned;
+    
+    await updateNote(id, supabaseUpdates);
   };
 
   return (
@@ -46,9 +83,9 @@ const Notes = () => {
         </CardHeader>
         <CardContent>
           <NotesContainer
-            notes={notes}
+            notes={formattedNotes}
             onAddNote={handleAddNote}
-            onUpdateNote={updateNote}
+            onUpdateNote={handleUpdateNote}
             onDeleteNote={deleteNote}
             isMovable={false}
           />
@@ -64,9 +101,9 @@ const Notes = () => {
             Freely arrange your notes on this board. Drag to move, use the corner to resize.
           </p>
           <NotesContainer
-            notes={notes}
+            notes={formattedNotes}
             onAddNote={handleAddNote}
-            onUpdateNote={updateNote}
+            onUpdateNote={handleUpdateNote}
             onDeleteNote={deleteNote}
             isMovable={true}
           />
