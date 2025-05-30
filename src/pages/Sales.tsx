@@ -18,6 +18,7 @@ const Sales = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortColumn, setSortColumn] = useState<string>("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [targetMargin, setTargetMargin] = useState(70);
 
   if (loading) {
     return (
@@ -111,15 +112,17 @@ const Sales = () => {
       
       <AddSaleDialog
         isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onAddSale={handleAddSale}
-        customers={formattedCustomers}
-        strains={strains.map(s => ({
+        setIsOpen={setIsDialogOpen}
+        availableStrains={strains.map(s => ({
           id: s.id,
           name: s.name,
           costPerGram: s.cost_per_gram,
           image: s.image_url
         }))}
+        customers={formattedCustomers}
+        addSale={handleAddSale}
+        targetMargin={targetMargin}
+        setTargetMargin={setTargetMargin}
       />
       
       <SalesTable 
