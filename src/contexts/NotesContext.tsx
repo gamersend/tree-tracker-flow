@@ -1,9 +1,10 @@
 
 import React, { createContext, useContext } from "react";
 import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
+import { Note } from "@/types/note";
 
 interface NotesContextType {
-  notes: any[];
+  notes: Note[];
   addNote: (title: string, color: string) => Promise<void>;
   updateNote: (id: string, updates: any) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
@@ -47,7 +48,7 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Convert Supabase notes to component format
-  const formattedNotes = notes.map(note => ({
+  const formattedNotes: Note[] = notes.map(note => ({
     id: note.id,
     title: note.title,
     content: note.content || "",
@@ -57,7 +58,9 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     width: note.width,
     height: note.height,
     isPinned: note.is_pinned,
-    date: note.created_at
+    date: note.created_at,
+    createdAt: note.created_at,
+    updatedAt: note.updated_at
   }));
 
   return (

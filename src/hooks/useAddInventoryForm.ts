@@ -1,30 +1,27 @@
 
-import { useState } from "react";
+import { useState } from 'react';
 
-export const useAddInventoryForm = (addInventoryCallback: (
-  strain: string,
-  purchaseDate: Date | undefined,
-  quantity: "112g" | "224g" | "448g",
-  totalCost: string,
-  notes: string,
-  image?: string | null
-) => boolean) => {
+export const useAddInventoryForm = (
+  addInventoryFunction: (
+    strain: string,
+    purchaseDate: Date,
+    quantity: '112g' | '224g' | '448g',
+    totalCost: string,
+    notes: string,
+    image?: string
+  ) => Promise<boolean>
+) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newStrain, setNewStrain] = useState("");
+  const [newStrain, setNewStrain] = useState('');
   const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(new Date());
-  const [quantity, setQuantity] = useState<"112g" | "224g" | "448g">("112g");
-  const [totalCost, setTotalCost] = useState("");
-  const [notes, setNotes] = useState("");
+  const [quantity, setQuantity] = useState<'112g' | '224g' | '448g'>('112g');
+  const [totalCost, setTotalCost] = useState('');
+  const [notes, setNotes] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    if (!file.type.startsWith('image/')) {
-      return;
-    }
     
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -35,31 +32,32 @@ export const useAddInventoryForm = (addInventoryCallback: (
     reader.readAsDataURL(file);
   };
 
-  // Handle form submission
-  const handleAddInventory = () => {
-    const success = addInventoryCallback(
+  const handleAddInventory = async () => {
+    if (!newStrain || !purchaseDate || !totalCost) {
+      return false;
+    }
+
+    const success = await addInventoryFunction(
       newStrain,
       purchaseDate,
       quantity,
       totalCost,
       notes,
-      selectedImage
+      selectedImage || undefined
     );
 
     if (success) {
-      resetForm();
+      // Reset form
+      setNewStrain('');
+      setPurchaseDate(new Date());
+      setQuantity('112g');
+      setTotalCost('');
+      setNotes('');
+      setSelectedImage(null);
       setIsDialogOpen(false);
     }
-  };
 
-  // Reset form fields
-  const resetForm = () => {
-    setNewStrain("");
-    setPurchaseDate(new Date());
-    setQuantity("112g");
-    setTotalCost("");
-    setNotes("");
-    setSelectedImage(null);
+    return success;
   };
 
   return {
@@ -78,7 +76,6 @@ export const useAddInventoryForm = (addInventoryCallback: (
     selectedImage,
     setSelectedImage,
     handleImageUpload,
-    handleAddInventory,
-    resetForm
+    handleAddInventory
   };
 };

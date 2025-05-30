@@ -4,10 +4,10 @@ import { motion } from "framer-motion";
 import { useSupabaseSales } from "@/hooks/useSupabaseSales";
 import { useSupabaseCustomers } from "@/hooks/useSupabaseCustomers";
 import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
-import SalesHeader from "@/components/sales/SalesHeader";
-import AddSaleDialog from "@/components/sales/AddSaleDialog";
-import SalesTable from "@/components/sales/SalesTable";
-import SalesSummary from "@/components/sales/SalesSummary";
+import { SalesHeader } from "@/components/sales/SalesHeader";
+import { AddSaleDialog } from "@/components/sales/AddSaleDialog";
+import { SalesTable } from "@/components/sales/SalesTable";
+import { SalesSummary } from "@/components/sales/SalesSummary";
 import { useState } from "react";
 
 const Sales = () => {
@@ -15,6 +15,7 @@ const Sales = () => {
   const { customers } = useSupabaseCustomers();
   const { strains } = useSupabaseInventory();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   if (loading) {
     return (
@@ -32,6 +33,25 @@ const Sales = () => {
     return success;
   };
 
+  // Format sales data for components
+  const formattedSales = sales.map(sale => ({
+    id: sale.id,
+    strain: sale.strain_name || "Unknown",
+    date: new Date(sale.date),
+    quantity: sale.quantity,
+    customer: sale.customer_name || "Walk-in",
+    salePrice: sale.sale_price,
+    costPerGram: sale.cost_per_gram,
+    profit: sale.profit,
+    image: sale.image_url
+  }));
+
+  // Filter sales based on search query
+  const filteredSales = formattedSales.filter(sale =>
+    sale.strain.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    sale.customer.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <motion.div 
       className="space-y-6"
@@ -39,19 +59,32 @@ const Sales = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <SalesHeader onAddSale={() => setIsDialogOpen(true)} />
+      <SalesHeader 
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        setIsDialogOpen={setIsDialogOpen}
+      />
       
       <AddSaleDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onAddSale={handleAddSale}
-        customers={customers}
-        strains={strains}
+        customers={customers.map(c => ({
+          id: c.id,
+          name: c.name,
+          loyaltyTag: c.trusted_buyer ? "Trusted" : "Regular"
+        }))}
+        strains={strains.map(s => ({
+          id: s.id,
+          name: s.name,
+          costPerGram: s.cost_per_gram,
+          image: s.image_url
+        }))}
       />
       
-      <SalesTable sales={sales} />
+      <SalesTable sales={filteredSales} />
       
-      <SalesSummary sales={sales} />
+      <SalesSummary sales={filteredSales} />
     </motion.div>
   );
 };
