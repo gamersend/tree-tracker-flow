@@ -1,292 +1,71 @@
 
-import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Calendar as CalendarIcon, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { format, isSameDay, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameWeek } from "date-fns";
-import { Plus, Calendar as CalendarIcon, DollarSign, Clock } from "lucide-react";
-import { motion } from "framer-motion";
-import { toast } from "sonner";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths } from "date-fns";
 import { useNotes } from "@/contexts/NotesContext";
-import { NotesContainer } from "@/components/notes/NotesContainer";
 
-// Event types
-type EventType = "Sale" | "Meeting" | "Reminder";
-
-type Event = {
+interface CalendarEvent {
   id: string;
   title: string;
   date: Date;
-  type: EventType;
-  customer?: string;
-  strain?: string;
-  quantity?: number;
-  notes?: string;
-  time?: string;
-};
+  type: 'appointment' | 'reminder' | 'note';
+  color?: string;
+}
 
-type Sale = {
-  id: string;
-  strain: string;
-  date: Date;
-  quantity: number;
-  customer: string;
-  salePrice: number;
-  costPerGram: number;
-  profit: number;
-};
+const Calendar = () => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const { notes } = useNotes();
 
-const CalendarView = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [events, setEvents] = useState<Event[]>([]);
-  const [sales, setSales] = useState<Sale[]>([]);
-  const [isAddEventOpen, setIsAddEventOpen] = useState(false);
-  const [profitData, setProfitData] = useState<{[key: string]: number}>({});
-  const [maxProfit, setMaxProfit] = useState(100);
-  const [isChangingMonth, setIsChangingMonth] = useState(false);
-  
-  // New event form state
-  const [newEvent, setNewEvent] = useState<Partial<Event>>({
-    title: "",
-    type: "Sale",
-    date: new Date(),
-    time: "",
-  });
-  
-  // Mock customers for select dropdown
-  const mockCustomers = [
-    "John Doe",
-    "Jane Smith",
-    "Alex Johnson",
-    "Sam Williams",
-  ];
-
-  // Mock strains for select dropdown
-  const mockStrains = [
-    "OG Kush",
-    "Blue Dream",
-    "Sour Diesel",
-    "Purple Haze",
-    "White Widow",
-  ];
-
-  // Load data from localStorage
-  useEffect(() => {
-    const loadEvents = () => {
-      try {
-        const storedEvents = localStorage.getItem('events');
-        if (storedEvents) {
-          // Convert date strings back to Date objects
-          const parsedEvents = JSON.parse(storedEvents).map((event: any) => ({
-            ...event,
-            date: new Date(event.date)
-          }));
-          setEvents(parsedEvents);
-        }
-      } catch (error) {
-        console.error("Error loading events:", error);
-      }
-    };
-
-    const loadSales = () => {
-      try {
-        const storedSales = localStorage.getItem('sales');
-        if (storedSales) {
-          // Convert date strings back to Date objects
-          const parsedSales = JSON.parse(storedSales).map((sale: any) => ({
-            ...sale,
-            date: new Date(sale.date)
-          }));
-          setSales(parsedSales);
-        }
-      } catch (error) {
-        console.error("Error loading sales:", error);
-      }
-    };
-
-    loadEvents();
-    loadSales();
-  }, []);
-
-  // Save data to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('events', JSON.stringify(events));
-  }, [events]);
-
-  // Calculate profit data for calendar heatmap
-  useEffect(() => {
-    const calculateProfitData = () => {
-      const profitByDate: {[key: string]: number} = {};
-      let highestProfit = 0;
-      
-      sales.forEach(sale => {
-        const dateKey = sale.date.toISOString().split('T')[0];
-        if (!profitByDate[dateKey]) {
-          profitByDate[dateKey] = 0;
-        }
-        profitByDate[dateKey] += sale.profit;
-        
-        if (profitByDate[dateKey] > highestProfit) {
-          highestProfit = profitByDate[dateKey];
-        }
-      });
-      
-      setProfitData(profitData);
-      setMaxProfit(highestProfit > 0 ? highestProfit : 100);
-    };
-    
-    calculateProfitData();
-  }, [sales]);
-  
-  // Get events for the selected date
-  const getEventsForSelectedDate = () => {
-    if (!selectedDate) return [];
-    return events.filter(event => isSameDay(event.date, selectedDate));
-  };
-  
-  // Get sales for the selected date
-  const getSalesForSelectedDate = () => {
-    if (!selectedDate) return [];
-    return sales.filter(sale => isSameDay(sale.date, selectedDate));
-  };
-  
-  // Format selected date as YYYY-MM-DD for notes filtering
-  const getFormattedSelectedDate = () => {
-    if (!selectedDate) return "";
-    return selectedDate.toISOString().split('T')[0];
-  };
-  
-  // Handle adding a new note for this date
-  const handleAddNoteForDate = () => {
-    if (!selectedDate) return;
-    addNote("", "yellow", getFormattedSelectedDate());
-  };
-  
-  // Get badge color based on event type
-  const getEventBadgeColor = (type: EventType) => {
-    switch(type) {
-      case "Sale": return "bg-tree-green text-white";
-      case "Meeting": return "bg-tree-purple text-white";
-      case "Reminder": return "bg-tree-gold text-black";
-      default: return "bg-slate-600 text-white";
+  // Mock events for demonstration
+  const [events] = useState<CalendarEvent[]>([
+    {
+      id: '1',
+      title: 'Restock Blue Dream',
+      date: new Date(2024, 2, 15),
+      type: 'reminder'
+    },
+    {
+      id: '2',
+      title: 'Customer pickup - John',
+      date: new Date(2024, 2, 18),
+      type: 'appointment'
+    },
+    {
+      id: '3',
+      title: 'Inventory check',
+      date: new Date(2024, 2, 25),
+      type: 'reminder'
     }
-  };
-  
-  // Render badge for calendar day cell
-  const renderCalendarCellContent = (date: Date) => {
-    const eventsOnDate = events.filter(event => isSameDay(event.date, date));
-    
-    if (eventsOnDate.length === 0) return null;
-    
-    const eventTypes = [...new Set(eventsOnDate.map(event => event.type))];
-    
-    return (
-      <div className="flex flex-wrap gap-1 mt-1 justify-center">
-        {eventTypes.map((type, index) => (
-          <div 
-            key={index} 
-            className={`w-2 h-2 rounded-full ${
-              type === "Sale" ? "bg-tree-green" :
-              type === "Meeting" ? "bg-tree-purple" :
-              "bg-tree-gold"
-            }`}
-          />
-        ))}
-      </div>
-    );
+  ]);
+
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+
+  const getEventsForDate = (date: Date) => {
+    return events.filter(event => isSameDay(event.date, date));
   };
 
-  // Add the missing handleAddEvent function
-  const handleAddEvent = () => {
-    if (!selectedDate || !newEvent.title || !newEvent.type) return;
-    
-    const event: Event = {
-      id: `event-${Date.now()}`,
-      title: newEvent.title || "",
-      date: selectedDate,
-      type: newEvent.type as EventType,
-      time: newEvent.time,
-      customer: newEvent.customer,
-      strain: newEvent.strain,
-      quantity: newEvent.quantity,
-      notes: newEvent.notes
-    };
-    
-    const updatedEvents = [...events, event];
-    setEvents(updatedEvents);
-    
-    // Reset form and close dialog
-    setNewEvent({
-      title: "",
-      type: "Sale",
-      date: selectedDate,
-      time: ""
-    });
-    setIsAddEventOpen(false);
-    toast.success("Event added successfully!");
-  };
-  
-  // Add the missing getUpcomingEvents function
-  const getUpcomingEvents = () => {
-    const today = new Date();
-    const nextWeek = addDays(today, 7);
-    
-    // Create array of days for the next week
-    const days = eachDayOfInterval({ start: today, end: nextWeek });
-    
-    return days.map(day => {
-      const dayEvents = events.filter(event => isSameDay(event.date, day));
-      const daySales = sales.filter(sale => isSameDay(sale.date, day));
-      
-      // Calculate profit for this day
-      const profit = daySales.reduce((total, sale) => total + sale.profit, 0);
-      
-      return {
-        date: day,
-        events: dayEvents,
-        profit
-      };
+  const getNotesForDate = (date: Date) => {
+    return notes.filter(note => {
+      const noteDate = new Date(note.createdAt);
+      return isSameDay(noteDate, date);
     });
   };
 
-  const { notes, addNote, updateNote, deleteNote, getNotesByDate } = useNotes();
-  
+  const selectedDateEvents = selectedDate ? getEventsForDate(selectedDate) : [];
+  const selectedDateNotes = selectedDate ? getNotesForDate(selectedDate) : [];
+
   return (
-    <motion.div 
+    <motion.div
       className="space-y-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -294,400 +73,172 @@ const CalendarView = () => {
     >
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div>
-          <motion.h1 
+          <motion.h1
             className="text-3xl font-bold text-white"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
-            <span className="mr-2">📆</span> Calendar
+            <CalendarIcon className="mr-2 inline" size={32} />
+            Calendar
           </motion.h1>
-          <motion.p 
+          <motion.p
             className="text-gray-400"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Schedule events and track profit by day
+            Schedule and track your cannabis business events
           </motion.p>
         </div>
-        <Dialog open={isAddEventOpen} onOpenChange={setIsAddEventOpen}>
-          <DialogTrigger asChild>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button className="bg-tree-green hover:bg-tree-green/80 text-white">
-                <Plus className="mr-2 h-4 w-4" /> Add Event
-              </Button>
-            </motion.div>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Add New Event</DialogTitle>
-              <DialogDescription>
-                Create a new event on {selectedDate ? format(selectedDate, "MMMM d, yyyy") : ""}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Event Title</Label>
-                <Input
-                  id="title"
-                  value={newEvent.title}
-                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                  placeholder="e.g., Customer Meeting"
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="type">Event Type</Label>
-                <Select 
-                  value={newEvent.type} 
-                  onValueChange={(value: EventType) => setNewEvent({ ...newEvent, type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Sale">Sale</SelectItem>
-                    <SelectItem value="Meeting">Meeting</SelectItem>
-                    <SelectItem value="Reminder">Reminder</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="time">Time</Label>
-                <Input
-                  id="time"
-                  type="time"
-                  value={newEvent.time}
-                  onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
-                />
-              </div>
-              
-              {newEvent.type === "Sale" && (
-                <>
-                  <div className="grid gap-2">
-                    <Label htmlFor="customer">Customer</Label>
-                    <Select 
-                      value={newEvent.customer} 
-                      onValueChange={(value) => setNewEvent({ ...newEvent, customer: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select customer" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockCustomers.map((customer) => (
-                          <SelectItem key={customer} value={customer}>{customer}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="strain">Strain</Label>
-                      <Select 
-                        value={newEvent.strain} 
-                        onValueChange={(value) => setNewEvent({ ...newEvent, strain: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select strain" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {mockStrains.map((strain) => (
-                            <SelectItem key={strain} value={strain}>{strain}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="grid gap-2">
-                      <Label htmlFor="quantity">Quantity (g)</Label>
-                      <Input
-                        id="quantity"
-                        type="number"
-                        value={newEvent.quantity?.toString() || ""}
-                        onChange={(e) => setNewEvent({ 
-                          ...newEvent, 
-                          quantity: e.target.value ? parseFloat(e.target.value) : undefined 
-                        })}
-                        placeholder="e.g., 7"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-              
-              <div className="grid gap-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={newEvent.notes || ""}
-                  onChange={(e) => setNewEvent({ ...newEvent, notes: e.target.value })}
-                  placeholder="Additional details..."
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddEventOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddEvent}>Add Event</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button className="bg-tree-green hover:bg-tree-green/80">
+          <Plus className="mr-2" size={16} />
+          Add Event
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div 
-          className="lg:col-span-2"
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="overflow-hidden border-tree-green/30 bg-gradient-to-br from-slate-950 to-slate-900">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <span className="mr-2">🗓️</span> Profit Heatmap Calendar
-              </CardTitle>
-              <CardDescription>See your daily profits at a glance with color coding</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <motion.div 
-                key={selectedDate?.getMonth()} 
-                initial={{ opacity: isChangingMonth ? 0 : 1 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-red-400 rounded-sm"></div>
-                    <span className="text-xs">$0</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-yellow-400 rounded-sm"></div>
-                    <span className="text-xs">~${(maxProfit/2).toFixed(0)}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-400 rounded-sm"></div>
-                    <span className="text-xs">${maxProfit.toFixed(0)}+</span>
-                  </div>
-                </div>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="rounded-md border w-full bg-card"
-                  profitData={profitData}
-                  maxProfit={maxProfit}
-                  onMonthChange={() => {
-                    setIsChangingMonth(true);
-                    setTimeout(() => setIsChangingMonth(false), 500);
-                  }}
-                />
-              </motion.div>
-            </CardContent>
-          </Card>
-        </motion.div>
-        
-        <motion.div
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="border-tree-purple/30 bg-gradient-to-br from-slate-950 to-slate-900">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <span className="mr-2">📋</span>
-                  {selectedDate ? format(selectedDate, "MMMM d, yyyy") : "Select a Date"}
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setSelectedDate(new Date())}
-                  className="hover:bg-tree-purple/20"
-                >
-                  Today
-                </Button>
-              </CardTitle>
-              <CardDescription>
-                Events and sales for selected day
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-medium text-lg flex items-center">
-                    <span className="mr-2">📝</span> Events
-                  </h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setIsAddEventOpen(true)}
-                    className="hover:bg-tree-purple/20"
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Add
-                  </Button>
-                </div>
-                
-                {getEventsForSelectedDate().length > 0 ? (
-                  <div className="space-y-3">
-                    {getEventsForSelectedDate().map((event) => (
-                      <motion.div 
-                        key={event.id} 
-                        className="bg-slate-800/50 border border-slate-700/50 rounded-md p-3 hover:border-tree-purple/50 transition-colors duration-200"
-                        whileHover={{ scale: 1.02 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <Badge className={getEventBadgeColor(event.type)}>
-                            {event.type}
-                          </Badge>
-                          {event.time && (
-                            <div className="text-sm text-gray-400 flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
-                              {event.time}
-                            </div>
-                          )}
-                        </div>
-                        <h4 className="font-medium mb-1">{event.title}</h4>
-                        
-                        {event.customer && (
-                          <div className="text-sm text-gray-300 mb-1">
-                            <span className="text-gray-400">Customer:</span> {event.customer}
-                          </div>
-                        )}
-                        
-                        {event.strain && (
-                          <div className="text-sm text-gray-300 mb-1">
-                            <span className="text-gray-400">Strain:</span> {event.strain}
-                            {event.quantity && ` (${event.quantity}g)`}
-                          </div>
-                        )}
-                        
-                        {event.notes && (
-                          <div className="text-sm text-gray-400 mt-2">
-                            {event.notes}
-                          </div>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground bg-slate-800/20 rounded-md">
-                    No events scheduled for this day
-                  </div>
-                )}
-              </div>
-              
-              <div className="border-t border-slate-800 pt-4">
-                <NotesContainer
-                  notes={notes}
-                  onAddNote={handleAddNoteForDate}
-                  onUpdateNote={updateNote}
-                  onDeleteNote={deleteNote}
-                  dateFilter={getFormattedSelectedDate()}
-                  className="mt-4"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Upcoming 7 Days Events Section */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="mt-6"
-      >
-        <Card className="border-tree-gold/30 bg-gradient-to-br from-slate-950 to-slate-900">
+        <Card className="lg:col-span-2 bg-gradient-to-br from-slate-950 to-slate-900 border-tree-green/30">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <span className="mr-2">🗓️</span> Upcoming 7 Days
-            </CardTitle>
-            <CardDescription>Preview of events and sales for the next week</CardDescription>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                {format(currentDate, 'MMMM yyyy')}
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={prevMonth}>
+                  <ChevronLeft size={16} />
+                </Button>
+                <Button variant="outline" size="sm" onClick={nextMonth}>
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {getUpcomingEvents().map((day) => (
-                <motion.div
-                  key={day.date.toISOString()}
-                  whileHover={{ y: -5 }}
-                  className="bg-slate-800/50 border border-slate-700/50 rounded-md p-4 hover:border-tree-gold/50 transition-all"
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-medium">
-                      {format(day.date, "EEE, MMM d")}
-                    </h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedDate(day.date);
-                        // Scroll to the calendar section
-                        window.scrollTo({
-                          top: 0,
-                          behavior: "smooth",
-                        });
-                      }}
-                      className="text-xs px-2 py-0 h-6 hover:bg-tree-gold/20"
-                    >
-                      View
-                    </Button>
-                  </div>
-                  
-                  {/* Profit indication */}
-                  {day.profit > 0 && (
-                    <div className="mb-2">
-                      <Badge variant="outline" className="bg-tree-green/10 text-tree-green border-tree-green/30">
-                        ${day.profit.toFixed(2)} profit
-                      </Badge>
+            <div className="grid grid-cols-7 gap-2 mb-4">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                <div key={day} className="text-center text-sm font-medium text-gray-400 p-2">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-2">
+              {daysInMonth.map((day) => {
+                const dayEvents = getEventsForDate(day);
+                const dayNotes = getNotesForDate(day);
+                const isSelected = selectedDate && isSameDay(day, selectedDate);
+                
+                return (
+                  <div
+                    key={day.toISOString()}
+                    className={`
+                      p-2 min-h-[60px] border border-slate-700 rounded-md cursor-pointer
+                      transition-all duration-200 hover:bg-slate-800
+                      ${isSelected ? 'bg-tree-green/20 border-tree-green' : ''}
+                      ${!isSameMonth(day, currentDate) ? 'opacity-50' : ''}
+                      ${isToday(day) ? 'bg-tree-purple/20 border-tree-purple' : ''}
+                    `}
+                    onClick={() => setSelectedDate(day)}
+                  >
+                    <div className="text-sm font-medium">
+                      {format(day, 'd')}
                     </div>
-                  )}
-                  
-                  {/* Events summary */}
-                  {day.events.length > 0 ? (
-                    <div className="space-y-2">
-                      {day.events.slice(0, 3).map((event) => (
+                    <div className="space-y-1 mt-1">
+                      {dayEvents.slice(0, 2).map(event => (
                         <div
                           key={event.id}
-                          className="text-sm flex items-center space-x-2 bg-slate-700/20 rounded p-2"
+                          className="text-xs bg-tree-green/20 text-tree-green px-1 py-0.5 rounded truncate"
                         >
-                          <div className={`w-2 h-2 rounded-full ${
-                            event.type === "Sale" ? "bg-tree-green" :
-                            event.type === "Meeting" ? "bg-tree-purple" :
-                            "bg-tree-gold"
-                          }`}></div>
-                          <div className="truncate flex-1">{event.title}</div>
-                          {event.time && <div className="text-gray-400 text-xs">{event.time}</div>}
+                          {event.title}
                         </div>
                       ))}
-                      {day.events.length > 3 && (
-                        <div className="text-xs text-center text-gray-400">
-                          +{day.events.length - 3} more events
+                      {dayNotes.slice(0, 1).map(note => (
+                        <div
+                          key={note.id}
+                          className="text-xs bg-amber-500/20 text-amber-400 px-1 py-0.5 rounded truncate"
+                        >
+                          📝 {note.title}
+                        </div>
+                      ))}
+                      {dayEvents.length + dayNotes.length > 3 && (
+                        <div className="text-xs text-gray-400">
+                          +{dayEvents.length + dayNotes.length - 3} more
                         </div>
                       )}
                     </div>
-                  ) : (
-                    <div className="text-sm text-gray-400 text-center py-2">
-                      No events scheduled
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+
+        <div className="space-y-6">
+          {selectedDate && (
+            <Card className="bg-gradient-to-br from-slate-950 to-slate-900 border-tree-purple/30">
+              <CardHeader>
+                <CardTitle className="text-lg">
+                  {format(selectedDate, 'EEEE, MMMM d')}
+                </CardTitle>
+                <CardDescription>
+                  {selectedDateEvents.length + selectedDateNotes.length} items
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {selectedDateEvents.map(event => (
+                  <div key={event.id} className="p-3 bg-tree-green/10 border border-tree-green/30 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">{event.title}</h4>
+                      <Badge variant="outline" className="border-tree-green text-tree-green">
+                        {event.type}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+                
+                {selectedDateNotes.map(note => (
+                  <div key={note.id} className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">📝 {note.title}</h4>
+                      <Badge variant="outline" className="border-amber-500 text-amber-400">
+                        note
+                      </Badge>
+                    </div>
+                    {note.content && (
+                      <p className="text-sm text-gray-400 truncate">{note.content}</p>
+                    )}
+                  </div>
+                ))}
+                
+                {selectedDateEvents.length === 0 && selectedDateNotes.length === 0 && (
+                  <p className="text-gray-400 text-center py-4">No events or notes for this date</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          <Card className="bg-gradient-to-br from-slate-950 to-slate-900 border-slate-800">
+            <CardHeader>
+              <CardTitle className="text-lg">Upcoming Events</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {events.slice(0, 5).map(event => (
+                <div key={event.id} className="flex items-center justify-between p-2 bg-slate-800/50 rounded">
+                  <div>
+                    <div className="font-medium text-sm">{event.title}</div>
+                    <div className="text-xs text-gray-400">{format(event.date, 'MMM d')}</div>
+                  </div>
+                  <Badge variant="outline" size="sm">
+                    {event.type}
+                  </Badge>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </motion.div>
   );
 };
 
-export default CalendarView;
+export default Calendar;

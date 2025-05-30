@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Cannabis } from 'lucide-react';
+import { Loader2, Cannabis, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -17,6 +17,8 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [firstName, setFirstName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
   if (loading) {
     return (
@@ -33,19 +35,47 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (!user) {
     const handleSignIn = async (e: React.FormEvent) => {
       e.preventDefault();
+      if (!email || !password) {
+        toast.error('Please fill in all fields');
+        return;
+      }
       setIsSubmitting(true);
-      await signIn(email, password);
+      const success = await signIn(email, password);
+      if (success) {
+        // Reset form on success
+        setEmail('');
+        setPassword('');
+      }
       setIsSubmitting(false);
     };
 
     const handleSignUp = async (e: React.FormEvent) => {
       e.preventDefault();
+      if (!email || !password || !confirmPassword) {
+        toast.error('Please fill in all fields');
+        return;
+      }
       if (password !== confirmPassword) {
         toast.error('Passwords do not match');
         return;
       }
+      if (password.length < 6) {
+        toast.error('Password must be at least 6 characters long');
+        return;
+      }
       setIsSubmitting(true);
-      await signUp(email, password, { first_name: firstName, last_name: lastName });
+      const success = await signUp(email, password, { 
+        first_name: firstName, 
+        last_name: lastName 
+      });
+      if (success) {
+        // Reset form on success
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setFirstName('');
+        setLastName('');
+      }
       setIsSubmitting(false);
     };
 
@@ -78,23 +108,40 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="bg-slate-700 border-slate-600"
+                      placeholder="Enter your email"
+                      className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="bg-slate-700 border-slate-600"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="Enter your password"
+                        className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full"
+                    className="w-full bg-tree-green hover:bg-tree-green/80"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
@@ -118,7 +165,8 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         id="firstName"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="bg-slate-700 border-slate-600"
+                        placeholder="First name"
+                        className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
                       />
                     </div>
                     <div className="space-y-2">
@@ -127,7 +175,8 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         id="lastName"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="bg-slate-700 border-slate-600"
+                        placeholder="Last name"
+                        className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
                       />
                     </div>
                   </div>
@@ -139,34 +188,67 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="bg-slate-700 border-slate-600"
+                      placeholder="Enter your email"
+                      className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signupPassword">Password</Label>
-                    <Input
-                      id="signupPassword"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="bg-slate-700 border-slate-600"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="signupPassword"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="Create a password (min 6 characters)"
+                        className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      className="bg-slate-700 border-slate-600"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        placeholder="Confirm your password"
+                        className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full"
+                    className="w-full bg-tree-green hover:bg-tree-green/80"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

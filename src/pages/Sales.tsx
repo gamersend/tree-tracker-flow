@@ -16,6 +16,8 @@ const Sales = () => {
   const { strains } = useSupabaseInventory();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortColumn, setSortColumn] = useState<string>("date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   if (loading) {
     return (
@@ -31,6 +33,20 @@ const Sales = () => {
       setIsDialogOpen(false);
     }
     return success;
+  };
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const handleDeleteSale = async (saleId: string) => {
+    // TODO: Implement delete functionality
+    console.log("Delete sale:", saleId);
   };
 
   // Format sales data for components
@@ -52,6 +68,25 @@ const Sales = () => {
     sale.customer.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Format customers for AddSaleDialog
+  const formattedCustomers = customers.map(c => ({
+    id: c.id,
+    name: c.name,
+    loyaltyTag: c.trusted_buyer ? "Trusted" : "Regular",
+    orderCount: c.total_orders || 0,
+    lastOrderDate: c.last_purchase ? new Date(c.last_purchase) : undefined,
+    totalSpent: c.total_spent || 0
+  }));
+
+  // Format customers for SalesTable
+  const customersForTable = customers.reduce((acc, customer) => {
+    acc[customer.id] = {
+      name: customer.name,
+      trusted: customer.trusted_buyer
+    };
+    return acc;
+  }, {} as Record<string, { name: string; trusted: boolean }>);
+
   return (
     <motion.div 
       className="space-y-6"
@@ -69,11 +104,7 @@ const Sales = () => {
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onAddSale={handleAddSale}
-        customers={customers.map(c => ({
-          id: c.id,
-          name: c.name,
-          loyaltyTag: c.trusted_buyer ? "Trusted" : "Regular"
-        }))}
+        customers={formattedCustomers}
         strains={strains.map(s => ({
           id: s.id,
           name: s.name,
@@ -82,7 +113,14 @@ const Sales = () => {
         }))}
       />
       
-      <SalesTable sales={filteredSales} />
+      <SalesTable 
+        sales={filteredSales}
+        customers={customersForTable}
+        sortColumn={sortColumn}
+        sortDirection={sortDirection}
+        handleSort={handleSort}
+        handleDeleteSale={handleDeleteSale}
+      />
       
       <SalesSummary sales={filteredSales} />
     </motion.div>
