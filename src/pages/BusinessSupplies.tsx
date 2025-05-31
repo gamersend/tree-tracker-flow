@@ -5,8 +5,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSupabaseBusinessSupplies } from "@/hooks/useSupabaseBusinessSupplies";
 import BusinessSuppliesHeader from "@/components/business-supplies/BusinessSuppliesHeader";
 import BusinessSuppliesTable from "@/components/business-supplies/BusinessSuppliesTable";
+import AddBusinessSupplyDialog from "@/components/business-supplies/AddBusinessSupplyDialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
+import { BusinessSupply } from "@/hooks/useSupabaseBusinessSupplies";
 
 const BusinessSupplies = () => {
   const { user, loading: authLoading } = useAuth();
@@ -19,11 +21,12 @@ const BusinessSupplies = () => {
     setSearchQuery,
     categoryFilter,
     setCategoryFilter,
+    addSupply,
     updateSupply,
     deleteSupply
   } = useSupabaseBusinessSupplies();
 
-  const [selectedSupply, setSelectedSupply] = useState(null);
+  const [editingSupply, setEditingSupply] = useState<BusinessSupply | null>(null);
 
   // Show loading state while checking authentication
   if (authLoading || loading) {
@@ -43,15 +46,21 @@ const BusinessSupplies = () => {
     );
   }
 
-  const handleAddSupply = () => {
-    // This would open a dialog to add a new supply
-    console.log("Add supply clicked");
+  const handleAddSupply = async (supplyData: Omit<BusinessSupply, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    return await addSupply(supplyData);
   };
 
-  const handleEditSupply = (supply) => {
-    setSelectedSupply(supply);
-    // This would open an edit dialog
-    console.log("Edit supply:", supply);
+  const handleEditSupply = (supply: BusinessSupply) => {
+    setEditingSupply(supply);
+  };
+
+  const handleUpdateSupply = async (supplyData: Omit<BusinessSupply, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!editingSupply) return false;
+    return await updateSupply(editingSupply.id, supplyData);
+  };
+
+  const handleEditComplete = () => {
+    setEditingSupply(null);
   };
 
   const handleDeleteSupply = async (id: string) => {
@@ -73,7 +82,10 @@ const BusinessSupplies = () => {
         categoryFilter={categoryFilter}
         setCategoryFilter={setCategoryFilter}
         categories={categories}
-        onAddSupply={handleAddSupply}
+        onAddSupply={() => {}} // We'll use the dialog directly now
+        addSupplyDialog={
+          <AddBusinessSupplyDialog onSubmit={handleAddSupply} />
+        }
       />
 
       {lowStockSupplies.length > 0 && (
@@ -107,6 +119,14 @@ const BusinessSupplies = () => {
         onEdit={handleEditSupply}
         onDelete={handleDeleteSupply}
       />
+
+      {editingSupply && (
+        <AddBusinessSupplyDialog
+          onSubmit={handleUpdateSupply}
+          editSupply={editingSupply}
+          onEditComplete={handleEditComplete}
+        />
+      )}
     </motion.div>
   );
 };

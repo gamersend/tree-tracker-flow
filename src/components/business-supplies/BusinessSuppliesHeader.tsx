@@ -1,9 +1,8 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 interface BusinessSuppliesHeaderProps {
   searchQuery: string;
@@ -12,6 +11,7 @@ interface BusinessSuppliesHeaderProps {
   setCategoryFilter: (category: string) => void;
   categories: string[];
   onAddSupply: () => void;
+  addSupplyDialog?: React.ReactNode;
 }
 
 const BusinessSuppliesHeader: React.FC<BusinessSuppliesHeaderProps> = ({
@@ -20,7 +20,8 @@ const BusinessSuppliesHeader: React.FC<BusinessSuppliesHeaderProps> = ({
   categoryFilter,
   setCategoryFilter,
   categories,
-  onAddSupply
+  onAddSupply,
+  addSupplyDialog
 }) => {
   return (
     <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
@@ -56,13 +57,7 @@ const BusinessSuppliesHeader: React.FC<BusinessSuppliesHeaderProps> = ({
           </SelectContent>
         </Select>
         
-        <Button 
-          onClick={onAddSupply}
-          className="bg-tree-green hover:bg-tree-green/90"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Supply
-        </Button>
+        {addSupplyDialog}
       </div>
     </div>
   );
