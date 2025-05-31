@@ -38,7 +38,7 @@ export const useSupabaseTickLedger = () => {
         .select(`
           *,
           customers!tick_ledger_customer_id_fkey(name),
-          strains(name)
+          strains!tick_ledger_strain_id_fkey(name)
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
