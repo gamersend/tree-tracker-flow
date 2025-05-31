@@ -7,7 +7,7 @@ export const SECURITY_LIMITS = {
   MIN_PRICE: 0,
   MIN_QUANTITY: 0.1,
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
-  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
+  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'] as const,
 } as const;
 
 // Sanitize text input to prevent XSS
@@ -58,7 +58,7 @@ export const validateFileUpload = (file: File): { isValid: boolean; error?: stri
     };
   }
   
-  if (!SECURITY_LIMITS.ALLOWED_IMAGE_TYPES.includes(file.type)) {
+  if (!(SECURITY_LIMITS.ALLOWED_IMAGE_TYPES as readonly string[]).includes(file.type)) {
     return {
       isValid: false,
       error: 'Only JPEG, PNG, and WebP images are allowed'
