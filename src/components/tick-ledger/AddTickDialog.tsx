@@ -49,21 +49,25 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
   const { strains } = useSupabaseInventory();
   const [formData, setFormData] = useState<TickFormData>({
     customer_id: '',
-    strain_id: '',
+    strain_id: undefined,
     amount: 0,
     description: '',
     date: new Date().toISOString().split('T')[0],
     due_date: '',
     notes: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        strain_id: initialData.strain_id || undefined
+      });
     } else {
       setFormData({
         customer_id: '',
-        strain_id: '',
+        strain_id: undefined,
         amount: 0,
         description: '',
         date: new Date().toISOString().split('T')[0],
@@ -77,17 +81,30 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
     e.preventDefault();
     
     if (!formData.customer_id || !formData.description || formData.amount <= 0) {
+      alert('Please fill in all required fields (customer, description, and amount)');
       return;
     }
 
-    const success = await onSubmit({
-      ...formData,
-      amount: Number(formData.amount),
-      strain_id: formData.strain_id === 'none' ? undefined : formData.strain_id,
-    });
+    setIsSubmitting(true);
+    
+    try {
+      const submitData = {
+        ...formData,
+        amount: Number(formData.amount),
+        strain_id: formData.strain_id === 'none' ? undefined : formData.strain_id,
+        due_date: formData.due_date || undefined,
+        notes: formData.notes || undefined
+      };
 
-    if (success) {
-      onOpenChange(false);
+      const success = await onSubmit(submitData);
+
+      if (success) {
+        onOpenChange(false);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -100,10 +117,11 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="customer">Customer</Label>
+            <Label htmlFor="customer">Customer *</Label>
             <Select 
               value={formData.customer_id} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, customer_id: value }))}
+              required
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a customer" />
@@ -122,7 +140,10 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
             <Label htmlFor="strain">Strain (Optional)</Label>
             <Select 
               value={formData.strain_id || 'none'} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, strain_id: value === 'none' ? undefined : value }))}
+              onValueChange={(value) => setFormData(prev => ({ 
+                ...prev, 
+                strain_id: value === 'none' ? undefined : value 
+              }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a strain (optional)" />
@@ -140,20 +161,23 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount ($)</Label>
+              <Label htmlFor="amount">Amount ($) *</Label>
               <Input
                 id="amount"
                 type="number"
                 step="0.01"
-                min="0"
-                value={formData.amount}
-                onChange={(e) => setFormData(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))}
+                min="0.01"
+                value={formData.amount || ''}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  amount: parseFloat(e.target.value) || 0 
+                }))}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">Date *</Label>
               <Input
                 id="date"
                 type="date"
@@ -165,7 +189,7 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description *</Label>
             <Input
               id="description"
               value={formData.description}
@@ -197,11 +221,16 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit">
-              {initialData ? 'Update Entry' : 'Add Entry'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Processing...' : (initialData ? 'Update Entry' : 'Add Entry')}
             </Button>
           </div>
         </form>

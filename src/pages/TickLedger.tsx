@@ -64,7 +64,7 @@ const TickLedger = () => {
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [editingEntry, setEditingEntry] = useState<any>(null);
 
-  // Show loading state while checking authentication
+  // Show loading state while checking authentication or loading data
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -73,7 +73,7 @@ const TickLedger = () => {
     );
   }
 
-  // If not authenticated, the AuthGuard will handle the redirect
+  // If not authenticated, show message
   if (!user) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -83,40 +83,79 @@ const TickLedger = () => {
   }
 
   const handleAddEntry = async (data: any) => {
-    const success = await addTickEntry({
-      ...data,
-      paid: 0,
-      remaining: data.amount,
-      status: 'outstanding' as const
-    });
-    return success;
+    try {
+      const success = await addTickEntry({
+        ...data,
+        paid: 0,
+        remaining: data.amount,
+        status: 'outstanding' as const
+      });
+      return success;
+    } catch (error) {
+      console.error('Error adding entry:', error);
+      return false;
+    }
   };
 
   const handleEditEntry = async (data: any) => {
     if (!editingEntry) return false;
-    const success = await updateTickEntry(editingEntry.id, data);
-    if (success) {
-      setEditingEntry(null);
+    
+    try {
+      // Calculate new remaining amount if amount changed
+      const newRemaining = data.amount - (editingEntry.paid || 0);
+      let newStatus = editingEntry.status;
+      
+      if (newRemaining <= 0) {
+        newStatus = 'paid';
+      } else if ((editingEntry.paid || 0) > 0) {
+        newStatus = 'partial';
+      } else {
+        newStatus = 'outstanding';
+      }
+
+      const success = await updateTickEntry(editingEntry.id, {
+        ...data,
+        remaining: Math.max(0, newRemaining),
+        status: newStatus
+      });
+      
+      if (success) {
+        setEditingEntry(null);
+      }
+      return success;
+    } catch (error) {
+      console.error('Error editing entry:', error);
+      return false;
     }
-    return success;
   };
 
   const handleDeleteEntry = async () => {
     if (!selectedEntry) return;
-    const success = await deleteTickEntry(selectedEntry.id);
-    if (success) {
-      setIsDeleteDialogOpen(false);
-      setSelectedEntry(null);
+    
+    try {
+      const success = await deleteTickEntry(selectedEntry.id);
+      if (success) {
+        setIsDeleteDialogOpen(false);
+        setSelectedEntry(null);
+      }
+    } catch (error) {
+      console.error('Error deleting entry:', error);
     }
   };
 
   const handleMakePayment = async (amount: number) => {
     if (!selectedEntry) return false;
-    const success = await makePayment(selectedEntry.id, amount);
-    if (success) {
-      setSelectedEntry(null);
+    
+    try {
+      const success = await makePayment(selectedEntry.id, amount);
+      if (success) {
+        setSelectedEntry(null);
+      }
+      return success;
+    } catch (error) {
+      console.error('Error making payment:', error);
+      return false;
     }
-    return success;
   };
 
   const getStatusColor = (status: string) => {
@@ -129,6 +168,14 @@ const TickLedger = () => {
 
   const isOverdue = (dueDate?: string) => {
     return dueDate && new Date(dueDate) < new Date();
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+      return 'Invalid date';
+    }
   };
 
   // Filter entries based on search
@@ -234,7 +281,7 @@ const TickLedger = () => {
                     <TableCell>
                       {entry.due_date ? (
                         <span className={isOverdue(entry.due_date) ? 'text-red-400' : ''}>
-                          {new Date(entry.due_date).toLocaleDateString()}
+                          {formatDate(entry.due_date)}
                           {isOverdue(entry.due_date) && ' (Overdue)'}
                         </span>
                       ) : (
@@ -291,7 +338,7 @@ const TickLedger = () => {
             </Table>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              No tick entries found. Add one to get started!
+              {searchQuery ? 'No entries match your search.' : 'No tick entries found. Add one to get started!'}
             </div>
           )}
         </CardContent>

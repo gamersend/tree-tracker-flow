@@ -33,6 +33,7 @@ export const useSupabaseTickLedger = () => {
     if (!user) return;
 
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('tick_ledger')
         .select(`
@@ -43,7 +44,10 @@ export const useSupabaseTickLedger = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching tick entries:', error);
+        throw error;
+      }
 
       const formattedEntries = data?.map(entry => ({
         ...entry,
@@ -55,22 +59,48 @@ export const useSupabaseTickLedger = () => {
     } catch (error) {
       console.error('Error fetching tick entries:', error);
       toast.error('Failed to load tick entries');
+    } finally {
+      setLoading(false);
     }
   };
 
   // Add new tick entry
   const addTickEntry = async (entryData: Omit<TickEntry, 'id' | 'created_at' | 'updated_at' | 'customer_name' | 'strain_name'>) => {
-    if (!user) return false;
+    if (!user) {
+      toast.error('User not authenticated');
+      return false;
+    }
 
     try {
+      // Ensure required fields are present
+      if (!entryData.customer_id || !entryData.description || entryData.amount <= 0) {
+        toast.error('Please fill in all required fields');
+        return false;
+      }
+
+      const insertData = {
+        user_id: user.id,
+        customer_id: entryData.customer_id,
+        strain_id: entryData.strain_id || null,
+        amount: entryData.amount,
+        paid: entryData.paid || 0,
+        remaining: entryData.remaining,
+        description: entryData.description,
+        date: entryData.date,
+        due_date: entryData.due_date || null,
+        status: entryData.status,
+        notes: entryData.notes || null,
+        sale_id: entryData.sale_id || null
+      };
+
       const { error } = await supabase
         .from('tick_ledger')
-        .insert({
-          user_id: user.id,
-          ...entryData
-        });
+        .insert(insertData);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding tick entry:', error);
+        throw error;
+      }
 
       toast.success('Tick entry added successfully!');
       await fetchTickEntries();
@@ -84,16 +114,28 @@ export const useSupabaseTickLedger = () => {
 
   // Update tick entry
   const updateTickEntry = async (id: string, updates: Partial<TickEntry>) => {
-    if (!user) return false;
+    if (!user) {
+      toast.error('User not authenticated');
+      return false;
+    }
 
     try {
+      // Remove non-database fields from updates
+      const { customer_name, strain_name, created_at, updated_at, ...dbUpdates } = updates;
+
       const { error } = await supabase
         .from('tick_ledger')
-        .update(updates)
+        .update({
+          ...dbUpdates,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating tick entry:', error);
+        throw error;
+      }
 
       toast.success('Tick entry updated successfully!');
       await fetchTickEntries();
@@ -107,7 +149,10 @@ export const useSupabaseTickLedger = () => {
 
   // Delete tick entry
   const deleteTickEntry = async (id: string) => {
-    if (!user) return false;
+    if (!user) {
+      toast.error('User not authenticated');
+      return false;
+    }
 
     try {
       const { error } = await supabase
@@ -116,7 +161,10 @@ export const useSupabaseTickLedger = () => {
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting tick entry:', error);
+        throw error;
+      }
 
       toast.success('Tick entry deleted successfully!');
       await fetchTickEntries();
@@ -130,7 +178,15 @@ export const useSupabaseTickLedger = () => {
 
   // Make payment on tick entry
   const makePayment = async (id: string, paymentAmount: number) => {
-    if (!user) return false;
+    if (!user) {
+      toast.error('User not authenticated');
+      return false;
+    }
+
+    if (paymentAmount <= 0) {
+      toast.error('Payment amount must be greater than 0');
+      return false;
+    }
 
     try {
       // Get current entry
@@ -141,11 +197,20 @@ export const useSupabaseTickLedger = () => {
         .eq('user_id', user.id)
         .single();
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error('Error fetching current entry:', fetchError);
+        throw fetchError;
+      }
+
+      if (!currentEntry) {
+        toast.error('Tick entry not found');
+        return false;
+      }
 
       const newPaidAmount = (currentEntry.paid || 0) + paymentAmount;
       const newRemainingAmount = currentEntry.amount - newPaidAmount;
       
+      // Determine new status
       let newStatus: 'outstanding' | 'partial' | 'paid' = 'outstanding';
       if (newRemainingAmount <= 0) {
         newStatus = 'paid';
@@ -158,12 +223,16 @@ export const useSupabaseTickLedger = () => {
         .update({
           paid: newPaidAmount,
           remaining: Math.max(0, newRemainingAmount),
-          status: newStatus
+          status: newStatus,
+          updated_at: new Date().toISOString()
         })
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error making payment:', error);
+        throw error;
+      }
 
       toast.success('Payment recorded successfully!');
       await fetchTickEntries();
@@ -178,9 +247,10 @@ export const useSupabaseTickLedger = () => {
   // Initialize data
   useEffect(() => {
     if (user) {
-      fetchTickEntries().finally(() => setLoading(false));
+      fetchTickEntries();
     } else {
       setLoading(false);
+      setTickEntries([]);
     }
   }, [user]);
 
