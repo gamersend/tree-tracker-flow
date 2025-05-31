@@ -50,9 +50,10 @@ export const useSupabaseStock = () => {
 
       if (error) throw error;
 
-      const formattedData = data?.map(transaction => ({
+      const formattedData: StockTransaction[] = data?.map(transaction => ({
         ...transaction,
-        strain_name: transaction.strains?.name || 'Unknown Strain'
+        strain_name: transaction.strains?.name || 'Unknown Strain',
+        transaction_type: transaction.transaction_type as StockTransaction['transaction_type']
       })) || [];
 
       setTransactions(formattedData);
