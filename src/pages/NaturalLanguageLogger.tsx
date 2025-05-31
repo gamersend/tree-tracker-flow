@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -105,7 +104,7 @@ const NaturalLanguageLogger = () => {
     }
 
     // Create new customer with required fields
-    const newCustomer = await addCustomer({
+    const success = await addCustomer({
       name: customerName,
       platform: 'Direct',
       trusted_buyer: false,
@@ -113,6 +112,15 @@ const NaturalLanguageLogger = () => {
       alias: '',
       notes: ''
     });
+
+    if (!success) {
+      return null;
+    }
+
+    // Find the newly created customer
+    const newCustomer = customers.find(c => 
+      c.name.toLowerCase() === customerName.toLowerCase()
+    );
 
     return newCustomer?.id || null;
   };
@@ -178,13 +186,13 @@ const NaturalLanguageLogger = () => {
       // Find or create strain
       const strainId = await findOrCreateStrain(editableSale.strain, costPerGram);
 
-      // Prepare sale data - convert Date to ISO string
+      // Prepare sale data - ensure we have a proper Date object
       const saleDate = editableSale.date instanceof Date ? editableSale.date : new Date(editableSale.date);
       
       const saleData = {
         customer_id: customerId,
         strain_id: strainId,
-        date: saleDate.toISOString(),
+        date: saleDate, // Pass as Date object
         quantity: editableSale.quantity,
         sale_price: editableSale.salePrice,
         cost_per_gram: costPerGram,
@@ -210,7 +218,7 @@ const NaturalLanguageLogger = () => {
           paid: editableSale.paidSoFar || 0,
           remaining: remainingAmount,
           description: `${editableSale.quantity}g of ${editableSale.strain}`,
-          date: saleDate
+          date: saleDate.toISOString() // Convert to string for tick entry
         });
       }
 
