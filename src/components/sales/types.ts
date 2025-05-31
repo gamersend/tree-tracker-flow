@@ -14,12 +14,14 @@ export type SaleItem = {
 };
 
 export type StrainInfo = {
+  id: string;
   name: string;
   costPerGram: number;
   image?: string;
 };
 
 export type CustomerInfo = {
+  id: string;
   name: string;
   orderCount: number;
   lastOrderDate: Date | null;

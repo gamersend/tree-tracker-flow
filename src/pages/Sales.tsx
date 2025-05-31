@@ -90,7 +90,7 @@ const Sales = () => {
     return "👻 Ghosted";
   };
 
-  // Format customers for AddSaleDialog - with correct CustomerInfo type
+  // Format customers for AddSaleDialog - with correct CustomerInfo type including id
   const formattedCustomers = customers.map(c => ({
     id: c.id,
     name: c.name,
