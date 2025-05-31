@@ -9,8 +9,6 @@ interface TickEntry {
   customer_id: string;
   customer_name?: string;
   sale_id?: string;
-  strain_id?: string;
-  strain_name?: string;
   amount: number;
   paid: number;
   remaining: number;
@@ -28,7 +26,7 @@ export const useSupabaseTickLedger = () => {
   const [tickEntries, setTickEntries] = useState<TickEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch tick entries with customer and strain names
+  // Fetch tick entries with customer names only
   const fetchTickEntries = async () => {
     if (!user) return;
 
@@ -37,8 +35,7 @@ export const useSupabaseTickLedger = () => {
         .from('tick_ledger')
         .select(`
           *,
-          customers!tick_ledger_customer_id_fkey(name),
-          strains!tick_ledger_strain_id_fkey(name)
+          customers!tick_ledger_customer_id_fkey(name)
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -47,8 +44,7 @@ export const useSupabaseTickLedger = () => {
 
       const formattedEntries = data?.map(entry => ({
         ...entry,
-        customer_name: entry.customers?.name || 'Unknown Customer',
-        strain_name: entry.strains?.name || 'No Strain'
+        customer_name: entry.customers?.name || 'Unknown Customer'
       })) || [];
 
       setTickEntries(formattedEntries);
@@ -59,7 +55,7 @@ export const useSupabaseTickLedger = () => {
   };
 
   // Add new tick entry
-  const addTickEntry = async (entryData: Omit<TickEntry, 'id' | 'created_at' | 'updated_at' | 'customer_name' | 'strain_name'>) => {
+  const addTickEntry = async (entryData: Omit<TickEntry, 'id' | 'created_at' | 'updated_at' | 'customer_name'>) => {
     if (!user) return false;
 
     try {

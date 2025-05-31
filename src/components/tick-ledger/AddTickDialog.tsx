@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useSupabaseCustomers } from '@/hooks/useSupabaseCustomers';
-import { useSupabaseInventory } from '@/hooks/useSupabaseInventory';
 
 interface AddTickDialogProps {
   isOpen: boolean;
@@ -30,7 +29,6 @@ interface AddTickDialogProps {
 
 interface TickFormData {
   customer_id: string;
-  strain_id?: string;
   amount: number;
   description: string;
   date: string;
@@ -46,21 +44,14 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
   title,
 }) => {
   const { customers } = useSupabaseCustomers();
-  const { strains } = useSupabaseInventory();
   const [formData, setFormData] = useState<TickFormData>({
     customer_id: '',
-    strain_id: '',
     amount: 0,
     description: '',
     date: new Date().toISOString().split('T')[0],
     due_date: '',
     notes: '',
   });
-  const [quantity, setQuantity] = useState<number>(1);
-
-  // Get selected strain pricing
-  const selectedStrain = strains.find(s => s.id === formData.strain_id);
-  const pricePerGram = selectedStrain?.cost_per_gram || 0;
 
   useEffect(() => {
     if (initialData) {
@@ -68,28 +59,14 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
     } else {
       setFormData({
         customer_id: '',
-        strain_id: '',
         amount: 0,
         description: '',
         date: new Date().toISOString().split('T')[0],
         due_date: '',
         notes: '',
       });
-      setQuantity(1);
     }
   }, [initialData, isOpen]);
-
-  // Update amount when strain or quantity changes
-  useEffect(() => {
-    if (selectedStrain && quantity > 0) {
-      const calculatedAmount = pricePerGram * quantity;
-      setFormData(prev => ({
-        ...prev,
-        amount: calculatedAmount,
-        description: `${quantity}g ${selectedStrain.name}`
-      }));
-    }
-  }, [selectedStrain, quantity, pricePerGram]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,47 +111,6 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
               </SelectContent>
             </Select>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="strain">Strain (Optional)</Label>
-            <Select 
-              value={formData.strain_id} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, strain_id: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a strain" />
-              </SelectTrigger>
-              <SelectContent>
-                {strains.map((strain) => (
-                  <SelectItem key={strain.id} value={strain.id}>
-                    {strain.name} (${strain.cost_per_gram.toFixed(2)}/g)
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {selectedStrain && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity (grams)</Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  value={quantity}
-                  onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Price per gram</Label>
-                <div className="px-3 py-2 border rounded-md bg-gray-50">
-                  ${pricePerGram.toFixed(2)}
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
