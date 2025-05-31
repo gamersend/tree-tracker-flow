@@ -57,12 +57,12 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
             <p className="text-sm text-gray-400 mt-2">Description</p>
             <p className="text-sm">{description}</p>
             <p className="text-sm text-gray-400 mt-2">Outstanding Amount</p>
-            <p className="text-lg font-bold text-tree-green">£{remainingAmount.toFixed(2)}</p>
+            <p className="text-lg font-bold text-tree-green">${remainingAmount.toFixed(2)}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="payment">Payment Amount (£)</Label>
+              <Label htmlFor="payment">Payment Amount ($)</Label>
               <Input
                 id="payment"
                 type="number"

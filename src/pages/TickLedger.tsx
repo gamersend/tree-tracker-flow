@@ -134,7 +134,8 @@ const TickLedger = () => {
   // Filter entries based on search
   const filteredEntries = tickEntries.filter(entry => 
     entry.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    entry.description.toLowerCase().includes(searchQuery.toLowerCase())
+    entry.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    entry.strain_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -164,7 +165,7 @@ const TickLedger = () => {
             <DollarSign className="h-4 w-4 text-red-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-400">£{totalOutstanding.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-red-400">${totalOutstanding.toFixed(2)}</div>
           </CardContent>
         </Card>
 
@@ -174,7 +175,7 @@ const TickLedger = () => {
             <CheckCircle className="h-4 w-4 text-green-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-400">£{totalPaid.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-green-400">${totalPaid.toFixed(2)}</div>
           </CardContent>
         </Card>
 
@@ -216,6 +217,7 @@ const TickLedger = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Customer</TableHead>
+                  <TableHead>Strain</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Paid</TableHead>
@@ -229,10 +231,11 @@ const TickLedger = () => {
                 {filteredEntries.map((entry) => (
                   <TableRow key={entry.id}>
                     <TableCell className="font-medium">{entry.customer_name}</TableCell>
+                    <TableCell>{entry.strain_name || '-'}</TableCell>
                     <TableCell>{entry.description}</TableCell>
-                    <TableCell>£{entry.amount.toFixed(2)}</TableCell>
-                    <TableCell>£{(entry.paid || 0).toFixed(2)}</TableCell>
-                    <TableCell>£{entry.remaining.toFixed(2)}</TableCell>
+                    <TableCell>${entry.amount.toFixed(2)}</TableCell>
+                    <TableCell>${(entry.paid || 0).toFixed(2)}</TableCell>
+                    <TableCell>${entry.remaining.toFixed(2)}</TableCell>
                     <TableCell>
                       {entry.due_date ? (
                         <span className={isOverdue(entry.due_date) ? 'text-red-400' : ''}>
@@ -309,6 +312,7 @@ const TickLedger = () => {
         onSubmit={editingEntry ? handleEditEntry : handleAddEntry}
         initialData={editingEntry ? {
           customer_id: editingEntry.customer_id,
+          strain_id: editingEntry.strain_id,
           amount: editingEntry.amount,
           description: editingEntry.description,
           date: editingEntry.date.split('T')[0],
@@ -341,7 +345,7 @@ const TickLedger = () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteEntry}>Delete</AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
+        </AlertDialogFooter>
       </AlertDialog>
     </motion.div>
   );
