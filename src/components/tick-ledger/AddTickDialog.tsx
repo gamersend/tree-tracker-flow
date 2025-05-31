@@ -83,6 +83,7 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
     const success = await onSubmit({
       ...formData,
       amount: Number(formData.amount),
+      strain_id: formData.strain_id === 'none' ? undefined : formData.strain_id,
     });
 
     if (success) {
@@ -120,14 +121,14 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
           <div className="space-y-2">
             <Label htmlFor="strain">Strain (Optional)</Label>
             <Select 
-              value={formData.strain_id || ''} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, strain_id: value || undefined }))}
+              value={formData.strain_id || 'none'} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, strain_id: value === 'none' ? undefined : value }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a strain (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No strain selected</SelectItem>
+                <SelectItem value="none">No strain selected</SelectItem>
                 {strains.map((strain) => (
                   <SelectItem key={strain.id} value={strain.id}>
                     {strain.name}
