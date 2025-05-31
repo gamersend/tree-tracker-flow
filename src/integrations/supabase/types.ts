@@ -612,6 +612,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_tick_ledger_customer"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_tick_ledger_sale"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tick_ledger_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
