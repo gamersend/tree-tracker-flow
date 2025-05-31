@@ -114,7 +114,7 @@ const NaturalLanguageLogger = () => {
       notes: ''
     });
 
-    return newCustomer ? newCustomer.id : null;
+    return newCustomer?.id || null;
   };
 
   // Find or create strain
@@ -178,11 +178,13 @@ const NaturalLanguageLogger = () => {
       // Find or create strain
       const strainId = await findOrCreateStrain(editableSale.strain, costPerGram);
 
-      // Prepare sale data
+      // Prepare sale data - convert Date to ISO string
+      const saleDate = editableSale.date instanceof Date ? editableSale.date : new Date(editableSale.date);
+      
       const saleData = {
         customer_id: customerId,
         strain_id: strainId,
-        date: editableSale.date instanceof Date ? editableSale.date : new Date(editableSale.date),
+        date: saleDate.toISOString(),
         quantity: editableSale.quantity,
         sale_price: editableSale.salePrice,
         cost_per_gram: costPerGram,
@@ -208,7 +210,7 @@ const NaturalLanguageLogger = () => {
           paid: editableSale.paidSoFar || 0,
           remaining: remainingAmount,
           description: `${editableSale.quantity}g of ${editableSale.strain}`,
-          date: saleData.date
+          date: saleDate
         });
       }
 

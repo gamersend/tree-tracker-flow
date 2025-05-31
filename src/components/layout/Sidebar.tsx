@@ -3,12 +3,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
-  HomeIcon,
   LayoutDashboardIcon,
   PackageIcon,
   DollarSignIcon,
   UsersIcon,
-  BoxIcon,
   TrendingUpIcon,
   CalendarIcon,
   FileUpIcon,
@@ -42,14 +40,7 @@ const Sidebar = () => {
     navigate(path);
   };
 
-  // Inside the navigation items array, add a new item for Mates Rates
   const navigationItems = [
-    {
-      title: "Home",
-      icon: <HomeIcon className="mr-2" />,
-      href: "/",
-      colors: "from-blue-500 to-blue-600",
-    },
     {
       title: "Dashboard",
       icon: <LayoutDashboardIcon className="mr-2" />,
@@ -79,12 +70,6 @@ const Sidebar = () => {
       icon: <UsersIcon className="mr-2" />,
       href: "/customers",
       colors: "from-purple-500 to-purple-600",
-    },
-    {
-      title: "Stock",
-      icon: <BoxIcon className="mr-2" />,
-      href: "/stock",
-      colors: "from-green-500 to-green-600",
     },
     {
       title: "Analytics",
