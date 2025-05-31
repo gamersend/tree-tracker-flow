@@ -1,9 +1,10 @@
+
 import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { BarChart, Calendar, CheckSquare, DollarSign, TrendingUp } from "lucide-react";
+import { BarChart, Calendar, CheckSquare, DollarSign, TrendingUp, Package, AlertTriangle } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useNotes } from "@/contexts/NotesContext";
 import { NotesContainer } from "@/components/notes/NotesContainer";
@@ -11,19 +12,17 @@ import { motion } from "framer-motion";
 import { useNotificationsContext } from "@/contexts/NotificationsContext";
 import TodoItem from "@/components/dashboard/TodoItem";
 import { Input } from "@/components/ui/input";
-
-// Mock data for charts and stats
-const profitData = [
-  { name: "Mon", value: 420 },
-  { name: "Tue", value: 380 },
-  { name: "Wed", value: 550 },
-  { name: "Thu", value: 490 },
-  { name: "Fri", value: 600 },
-  { name: "Sat", value: 450 },
-  { name: "Sun", value: 470 },
-];
+import { useSupabaseSales } from "@/hooks/useSupabaseSales";
+import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
+import { useSupabaseBusinessSupplies } from "@/hooks/useSupabaseBusinessSupplies";
+import { useAuth } from "@/hooks/useAuth";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const { sales } = useSupabaseSales();
+  const { strains, inventory } = useSupabaseInventory();
+  const { supplies, lowStockSupplies } = useSupabaseBusinessSupplies();
+  
   const [notes, setNotes] = React.useState("Meeting with supplier on Friday.\nCheck inventory of OG Kush.");
   const [todos, setTodos] = React.useState([
     { id: "t1", label: "Order new inventory", completed: false },
@@ -39,54 +38,125 @@ const Dashboard = () => {
   // Get the notifications context
   const { addNotification } = useNotificationsContext();
 
-  // Add some demo notifications when the dashboard loads
-  useEffect(() => {
-    // Check local storage for a flag to prevent showing these notifications more than once per session
-    const notificationsShown = sessionStorage.getItem("demo-notifications-shown");
+  // Calculate real data metrics
+  const calculateMetrics = () => {
+    const now = new Date();
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const lastMonth = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const yesterdaySales = sales.filter(sale => {
+      const saleDate = new Date(sale.date);
+      return saleDate.toDateString() === yesterday.toDateString();
+    });
+
+    const lastWeekSales = sales.filter(sale => {
+      const saleDate = new Date(sale.date);
+      return saleDate >= lastWeek;
+    });
+
+    const lastMonthSales = sales.filter(sale => {
+      const saleDate = new Date(sale.date);
+      return saleDate >= lastMonth;
+    });
+
+    const totalInventoryValue = inventory.reduce((sum, item) => sum + item.total_cost, 0);
+    const totalBusinessSuppliesValue = supplies.reduce((sum, supply) => sum + (supply.cost_per_unit * supply.quantity), 0);
+
+    return {
+      yesterdayProfit: yesterdaySales.reduce((sum, sale) => sum + sale.profit, 0),
+      yesterdaySalesCount: yesterdaySales.length,
+      lastWeekProfit: lastWeekSales.reduce((sum, sale) => sum + sale.profit, 0),
+      lastMonthProfit: lastMonthSales.reduce((sum, sale) => sum + sale.profit, 0),
+      totalInventoryValue,
+      totalBusinessSuppliesValue,
+      totalValue: totalInventoryValue + totalBusinessSuppliesValue
+    };
+  };
+
+  // Generate chart data from real sales
+  const generateChartData = () => {
+    const last7Days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toLocaleDateString('en-US', { weekday: 'short' });
+      
+      const daySales = sales.filter(sale => {
+        const saleDate = new Date(sale.date);
+        return saleDate.toDateString() === date.toDateString();
+      });
+      
+      const profit = daySales.reduce((sum, sale) => sum + sale.profit, 0);
+      
+      last7Days.push({
+        name: dateStr,
+        value: profit
+      });
+    }
+    return last7Days;
+  };
+
+  const metrics = calculateMetrics();
+  const profitData = generateChartData();
+
+  // Stock levels for strains
+  const strainStockLevels = strains.map(strain => {
+    const strainInventory = inventory.filter(item => item.strain_id === strain.id);
+    const totalStock = strainInventory.reduce((sum, item) => sum + item.quantity, 0);
     
-    if (!notificationsShown) {
-      // Add sample notifications with a small delay
+    return {
+      id: strain.id,
+      name: strain.name,
+      currentStock: totalStock,
+      lowStockThreshold: 56 // 2oz threshold
+    };
+  });
+
+  const lowStockStrains = strainStockLevels.filter(strain => 
+    strain.currentStock > 0 && strain.currentStock <= strain.lowStockThreshold
+  );
+
+  // Add notifications for low stock
+  useEffect(() => {
+    if (!user) return;
+    
+    const notificationsShown = sessionStorage.getItem("stock-notifications-shown");
+    
+    if (!notificationsShown && (lowStockStrains.length > 0 || lowStockSupplies.length > 0)) {
       setTimeout(() => {
-        addNotification({
-          title: "Low Stock Alert",
-          message: "You're running low on OG Kush. Consider restocking soon.",
-          priority: "high",
-          type: "alert",
-          link: "/inventory"
-        });
-        
-        setTimeout(() => {
+        if (lowStockStrains.length > 0) {
           addNotification({
-            title: "New Order",
-            message: "You have received a new order from John Smith.",
-            priority: "medium",
-            type: "info",
-            link: "/sales"
+            title: "Low Strain Stock Alert",
+            message: `${lowStockStrains.length} strain(s) running low: ${lowStockStrains.map(s => s.name).join(', ')}`,
+            priority: "high",
+            type: "alert",
+            link: "/inventory"
           });
-        }, 2000);
+        }
         
-        setTimeout(() => {
-          addNotification({
-            title: "Upcoming Payment",
-            message: "Payment from Regular Customer due tomorrow.",
-            priority: "low",
-            type: "reminder",
-            link: "/customers"
-          });
-        }, 4000);
+        if (lowStockSupplies.length > 0) {
+          setTimeout(() => {
+            addNotification({
+              title: "Low Business Supplies Alert",
+              message: `${lowStockSupplies.length} business supply item(s) running low`,
+              priority: "medium",
+              type: "alert",
+              link: "/business-supplies"
+            });
+          }, 2000);
+        }
       }, 1000);
       
-      // Set the flag to prevent showing these notifications again
-      sessionStorage.setItem("demo-notifications-shown", "true");
+      sessionStorage.setItem("stock-notifications-shown", "true");
     }
-  }, [addNotification]);
+  }, [addNotification, user, lowStockStrains.length, lowStockSupplies.length]);
 
   const toggleTodo = (id: string) => {
     setTodos(todos.map(todo => 
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
     
-    // Generate a notification when a todo is completed
     const completedTodo = todos.find(todo => todo.id === id);
     if (completedTodo && !completedTodo.completed) {
       addNotification({
@@ -109,7 +179,6 @@ const Dashboard = () => {
       setTodos([...todos, newTodoItem]);
       setNewTodo("");
       
-      // Generate a notification for a new todo
       addNotification({
         title: "New Task Added",
         message: `Added task: ${newTodo.trim()}`,
@@ -132,7 +201,6 @@ const Dashboard = () => {
   const handleAddNote = () => {
     const newNote = addNote("New note", "yellow");
     
-    // Generate a notification for new note
     addNotification({
       title: "New Note Created",
       message: "You created a new note",
@@ -165,9 +233,9 @@ const Dashboard = () => {
           <CardContent>
             <div className="flex items-center">
               <DollarSign className="h-5 w-5 text-tree-purple mr-2" />
-              <span className="text-2xl font-bold">$420</span>
+              <span className="text-2xl font-bold">${metrics.yesterdayProfit.toFixed(2)}</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">From 7 sales</p>
+            <p className="text-xs text-gray-400 mt-1">From {metrics.yesterdaySalesCount} sales</p>
           </CardContent>
         </Card>
         
@@ -178,9 +246,9 @@ const Dashboard = () => {
           <CardContent>
             <div className="flex items-center">
               <TrendingUp className="h-5 w-5 text-tree-green mr-2" />
-              <span className="text-2xl font-bold">$3,360</span>
+              <span className="text-2xl font-bold">${metrics.lastWeekProfit.toFixed(2)}</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">+12% from last week</p>
+            <p className="text-xs text-gray-400 mt-1">Total profit</p>
           </CardContent>
         </Card>
         
@@ -191,22 +259,22 @@ const Dashboard = () => {
           <CardContent>
             <div className="flex items-center">
               <BarChart className="h-5 w-5 text-tree-gold mr-2" />
-              <span className="text-2xl font-bold">$12,480</span>
+              <span className="text-2xl font-bold">${metrics.lastMonthProfit.toFixed(2)}</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">+8% from previous month</p>
+            <p className="text-xs text-gray-400 mt-1">Total profit</p>
           </CardContent>
         </Card>
         
         <Card className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Inventory Value</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-400">Total Inventory Value</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <CheckSquare className="h-5 w-5 text-blue-500 mr-2" />
-              <span className="text-2xl font-bold">$18,740</span>
+              <Package className="h-5 w-5 text-blue-500 mr-2" />
+              <span className="text-2xl font-bold">${metrics.totalValue.toFixed(2)}</span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">10 strains in stock</p>
+            <p className="text-xs text-gray-400 mt-1">{strains.length} strains + {supplies.length} supplies</p>
           </CardContent>
         </Card>
       </div>
@@ -312,6 +380,89 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Stock Status Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-tree-green" />
+              Strain Stock Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {lowStockStrains.length > 0 && (
+              <div className="bg-yellow-900/20 border border-yellow-800 rounded-lg p-3 mb-4">
+                <div className="flex items-center gap-2 text-yellow-400 mb-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="font-medium">Low Stock Alert</span>
+                </div>
+                <div className="space-y-1">
+                  {lowStockStrains.map((strain) => (
+                    <div key={strain.id} className="text-sm text-yellow-300">
+                      {strain.name}: {strain.currentStock}g
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="space-y-2">
+              {strainStockLevels.slice(0, 5).map((strain) => (
+                <div key={strain.id} className="flex justify-between items-center">
+                  <span className="text-sm">{strain.name}</span>
+                  <span className={`text-sm font-medium ${
+                    strain.currentStock === 0 ? 'text-red-400' :
+                    strain.currentStock <= strain.lowStockThreshold ? 'text-yellow-400' :
+                    'text-green-400'
+                  }`}>
+                    {strain.currentStock}g
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckSquare className="h-5 w-5 text-blue-500" />
+              Business Supplies Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {lowStockSupplies.length > 0 && (
+              <div className="bg-yellow-900/20 border border-yellow-800 rounded-lg p-3 mb-4">
+                <div className="flex items-center gap-2 text-yellow-400 mb-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="font-medium">Low Stock Alert</span>
+                </div>
+                <div className="space-y-1">
+                  {lowStockSupplies.map((supply) => (
+                    <div key={supply.id} className="text-sm text-yellow-300">
+                      {supply.name}: {supply.quantity} units
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="space-y-2">
+              {supplies.slice(0, 5).map((supply) => (
+                <div key={supply.id} className="flex justify-between items-center">
+                  <span className="text-sm">{supply.name}</span>
+                  <span className={`text-sm font-medium ${
+                    supply.quantity === 0 ? 'text-red-400' :
+                    supply.low_stock_threshold && supply.quantity <= supply.low_stock_threshold ? 'text-yellow-400' :
+                    'text-green-400'
+                  }`}>
+                    {supply.quantity}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="bg-gradient-to-br from-slate-950 to-slate-900 border-yellow-500/30">
