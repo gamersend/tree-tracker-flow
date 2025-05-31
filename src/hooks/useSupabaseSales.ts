@@ -154,7 +154,7 @@ export const useSupabaseSales = () => {
     }
   };
 
-  // Delete sale
+  // Delete sale - FIXED IMPLEMENTATION
   const deleteSale = async (id: string) => {
     if (!user) return false;
 

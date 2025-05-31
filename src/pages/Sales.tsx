@@ -14,8 +14,8 @@ import { getLoyaltyTagColor } from "@/components/sales/utils";
 
 const Sales = () => {
   const { user, loading: authLoading } = useAuth();
-  const { sales, loading, addSale } = useSupabaseSales();
-  const { customers } = useSupabaseCustomers();
+  const { sales, loading, addSale, deleteSale } = useSupabaseSales();
+  const { customers, refetch: refetchCustomers } = useSupabaseCustomers();
   const { strains } = useSupabaseInventory();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,6 +45,8 @@ const Sales = () => {
     const success = await addSale(saleData);
     if (success) {
       setIsDialogOpen(false);
+      // Refetch customers to ensure new customers appear in the list
+      await refetchCustomers();
     }
     return success;
   };
@@ -58,9 +60,13 @@ const Sales = () => {
     }
   };
 
+  // FIXED: Properly implement delete functionality
   const handleDeleteSale = async (saleId: string) => {
-    // TODO: Implement delete functionality
-    console.log("Delete sale:", saleId);
+    const success = await deleteSale(saleId);
+    if (success) {
+      // Also refetch customers to update their totals
+      await refetchCustomers();
+    }
   };
 
   // Format sales data for components

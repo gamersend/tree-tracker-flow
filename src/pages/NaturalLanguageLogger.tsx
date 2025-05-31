@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -25,7 +26,7 @@ const NaturalLanguageLogger = () => {
   
   const { parseSaleText, getStrainSuggestions } = useSaleParser();
   const { addSale } = useSupabaseSales();
-  const { customers, addCustomer } = useSupabaseCustomers();
+  const { customers, addCustomer, refetch: refetchCustomers } = useSupabaseCustomers();
   const { strains, addInventoryItem } = useSupabaseInventory();
   const { addTickEntry } = useSupabaseTickLedger();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -117,6 +118,15 @@ const NaturalLanguageLogger = () => {
       return null;
     }
 
+    // Refresh customers list and find the newly created customer
+    await refetchCustomers();
+    
+    // Wait a bit for the refresh to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Re-fetch to get the updated customer list
+    const updatedCustomers = await refetchCustomers();
+    
     // Find the newly created customer
     const newCustomer = customers.find(c => 
       c.name.toLowerCase() === customerName.toLowerCase()
@@ -222,6 +232,9 @@ const NaturalLanguageLogger = () => {
           status: 'outstanding' as const
         });
       }
+
+      // IMPORTANT: Refresh customers list after successful sale
+      await refetchCustomers();
 
       showSaleAddedToast(editableSale);
       
