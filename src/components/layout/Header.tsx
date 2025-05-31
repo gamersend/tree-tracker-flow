@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import NotificationsDropdown from "@/components/notifications/NotificationsDropdown";
+import MobileNavigation from "./MobileNavigation";
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -54,6 +55,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
   return (
     <header className="h-14 sm:h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-3 sm:px-6">
       <div className="flex items-center gap-2 sm:gap-4">
+        <MobileNavigation />
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
