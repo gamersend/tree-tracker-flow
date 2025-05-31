@@ -44,7 +44,7 @@ interface AddSaleDialogProps {
   setIsOpen: (isOpen: boolean) => void;
   availableStrains: StrainInfo[];
   customers: CustomerInfo[];
-  addSale: (sale: SaleItem) => void;
+  addSale: (sale: any) => Promise<boolean>;
   targetMargin: number;
   setTargetMargin: (margin: number) => void;
 }
@@ -122,7 +122,7 @@ export const AddSaleDialog: React.FC<AddSaleDialogProps> = ({
   };
 
   // Handle form submission
-  const handleAddSale = () => {
+  const handleAddSale = async () => {
     if (!selectedStrain || !saleDate || !quantity || !customer || !salePrice) {
       toast.error("Please fill in all required fields");
       return;
@@ -139,24 +139,26 @@ export const AddSaleDialog: React.FC<AddSaleDialogProps> = ({
     const costPerGram = selectedStrainInfo.costPerGram;
     const profit = salePriceValue - (quantityValue * costPerGram);
     
-    const newSale: SaleItem = {
-      id: `sale${Date.now()}`,
-      strain: selectedStrain,
+    // Find customer ID if exists
+    const selectedCustomer = customers.find(c => c.name === customer);
+    
+    const newSaleData = {
+      strain_id: selectedStrainInfo.id,
       date: saleDate,
       quantity: quantityValue,
-      customer: customer,
-      salePrice: salePriceValue,
-      costPerGram,
+      sale_price: salePriceValue,
+      cost_per_gram: costPerGram,
       profit,
-      image: selectedImage || selectedStrainInfo.image
+      customer_id: selectedCustomer ? selectedCustomer.id : undefined,
+      image_url: selectedImage,
+      notes: `Customer: ${customer}`
     };
     
-    addSale(newSale);
-    toast.success("Sale added successfully!");
-    
-    // Reset form
-    resetForm();
-    setIsOpen(false);
+    const success = await addSale(newSaleData);
+    if (success) {
+      resetForm();
+      setIsOpen(false);
+    }
   };
 
   // Reset form fields

@@ -85,8 +85,16 @@ export const useSupabaseSales = () => {
         .from('sales')
         .insert({
           user_id: user.id,
-          ...saleData,
-          date: saleData.date.toISOString()
+          customer_id: saleData.customer_id,
+          strain_id: saleData.strain_id,
+          date: saleData.date.toISOString(),
+          quantity: saleData.quantity,
+          sale_price: saleData.sale_price,
+          cost_per_gram: saleData.cost_per_gram,
+          profit: saleData.profit,
+          payment_method: saleData.payment_method,
+          notes: saleData.notes,
+          image_url: saleData.image_url
         });
 
       if (error) throw error;
