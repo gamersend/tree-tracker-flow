@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
+import { getSecureErrorMessage, validateSaleInput } from '@/utils/security';
 
 interface Sale {
   id: string;
@@ -61,11 +62,12 @@ export const useSupabaseSales = () => {
       setSales(formattedData);
     } catch (error) {
       console.error('Error fetching sales:', error);
-      toast.error('Failed to load sales');
+      const secureMessage = getSecureErrorMessage(error, 'Failed to load sales');
+      toast.error(secureMessage);
     }
   };
 
-  // Add sale
+  // Add sale with validation
   const addSale = async (saleData: {
     customer_id?: string;
     strain_id: string;
@@ -79,6 +81,13 @@ export const useSupabaseSales = () => {
     image_url?: string;
   }) => {
     if (!user) return false;
+
+    // Validate sale data before submission
+    const validation = validateSaleInput(saleData.quantity, saleData.sale_price);
+    if (!validation.isValid) {
+      toast.error(validation.errors.join(', '));
+      return false;
+    }
 
     try {
       const { error } = await supabase
@@ -104,7 +113,8 @@ export const useSupabaseSales = () => {
       return true;
     } catch (error) {
       console.error('Error adding sale:', error);
-      toast.error('Failed to add sale');
+      const secureMessage = getSecureErrorMessage(error, 'Failed to add sale');
+      toast.error(secureMessage);
       return false;
     }
   };
@@ -112,6 +122,17 @@ export const useSupabaseSales = () => {
   // Update sale
   const updateSale = async (id: string, updates: Partial<Sale>) => {
     if (!user) return false;
+
+    // Validate numeric fields if they're being updated
+    if (updates.quantity !== undefined || updates.sale_price !== undefined) {
+      const quantity = updates.quantity ?? 0;
+      const price = updates.sale_price ?? 0;
+      const validation = validateSaleInput(quantity, price);
+      if (!validation.isValid) {
+        toast.error(validation.errors.join(', '));
+        return false;
+      }
+    }
 
     try {
       const { error } = await supabase
@@ -127,7 +148,8 @@ export const useSupabaseSales = () => {
       return true;
     } catch (error) {
       console.error('Error updating sale:', error);
-      toast.error('Failed to update sale');
+      const secureMessage = getSecureErrorMessage(error, 'Failed to update sale');
+      toast.error(secureMessage);
       return false;
     }
   };
@@ -150,7 +172,8 @@ export const useSupabaseSales = () => {
       return true;
     } catch (error) {
       console.error('Error deleting sale:', error);
-      toast.error('Failed to delete sale');
+      const secureMessage = getSecureErrorMessage(error, 'Failed to delete sale');
+      toast.error(secureMessage);
       return false;
     }
   };

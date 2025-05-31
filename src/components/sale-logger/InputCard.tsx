@@ -7,12 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { FileText, AlertTriangle } from "lucide-react";
 import { SaleTemplates } from "./SaleTemplates";
 import { RecentEntries } from "./RecentEntries";
 import { InputField } from "./InputField";
 import { ActionButtons } from "./ActionButtons";
 import AISaleHelper from "./AISaleHelper";
+import { useSecureInput } from "@/hooks/useSecureInput";
+import { useSecurity } from "@/contexts/SecurityContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface InputCardProps {
   saleText: string;
@@ -38,10 +41,36 @@ export const InputCard: React.FC<InputCardProps> = ({
   textareaRef,
 }) => {
   const [showExamples, setShowExamples] = useState(false);
+  const { validateAndSanitizeText, validationErrors } = useSecureInput({ maxLength: 5000 });
+  const { isRateLimited } = useSecurity();
+
+  const handleSecureTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const sanitizedValue = validateAndSanitizeText(e.target.value);
+    
+    // Create a new event with sanitized value
+    const secureEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: sanitizedValue
+      }
+    };
+    
+    onTextChange(secureEvent);
+  };
+
+  const handleSecureProcessText = () => {
+    if (isRateLimited('salesEntry')) {
+      return; // Rate limit will show via toast in security context
+    }
+    
+    onProcessText();
+  };
 
   const useTemplate = (template: string) => {
+    const sanitizedTemplate = validateAndSanitizeText(template);
     const event = {
-      target: { value: template },
+      target: { value: sanitizedTemplate },
     } as React.ChangeEvent<HTMLTextAreaElement>;
     onTextChange(event);
     setShowExamples(false);
@@ -50,8 +79,10 @@ export const InputCard: React.FC<InputCardProps> = ({
     }
   };
 
-  // Ensure recent entries is an array
-  const safeRecentEntries = Array.isArray(recentEntries) ? recentEntries : [];
+  // Ensure recent entries is an array and sanitize entries
+  const safeRecentEntries = Array.isArray(recentEntries) 
+    ? recentEntries.map(entry => validateAndSanitizeText(entry))
+    : [];
 
   return (
     <Card className="border-tree-purple/20 bg-gradient-to-br from-slate-950 to-slate-900">
@@ -64,9 +95,20 @@ export const InputCard: React.FC<InputCardProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {validationErrors.length > 0 && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {validationErrors.map((error, index) => (
+                <div key={index}>{error}</div>
+              ))}
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <InputField
           value={saleText || ''}
-          onChange={onTextChange}
+          onChange={handleSecureTextChange}
           onKeyDown={handleKeyDown}
           textareaRef={textareaRef}
           onShowExamples={() => setShowExamples(!showExamples)}
@@ -80,7 +122,7 @@ export const InputCard: React.FC<InputCardProps> = ({
         
         <ActionButtons
           onClearAll={onClearAll}
-          onProcessText={onProcessText}
+          onProcessText={handleSecureProcessText}
           isProcessing={isProcessing}
           isInputEmpty={!saleText || !saleText.trim()}
         />
@@ -89,8 +131,9 @@ export const InputCard: React.FC<InputCardProps> = ({
           <AISaleHelper 
             saleText={saleText} 
             onProcessedResult={(result) => {
+              const sanitizedResult = validateAndSanitizeText(result);
               const event = {
-                target: { value: result },
+                target: { value: sanitizedResult },
               } as React.ChangeEvent<HTMLTextAreaElement>;
               onTextChange(event);
             }} 
