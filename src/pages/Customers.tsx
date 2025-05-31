@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Card,
@@ -60,6 +61,9 @@ const Customers = () => {
     trustedBuyer: false,
     emoji: customerEmojis[Math.floor(Math.random() * customerEmojis.length)],
   });
+
+  console.log('Customers page - filteredCustomers:', filteredCustomers);
+  console.log('Customers page - loading:', loading);
 
   // Show loading state while checking authentication
   if (authLoading || loading) {
@@ -152,15 +156,17 @@ const Customers = () => {
     id: customer.id,
     name: customer.name,
     platform: customer.platform,
-    alias: customer.alias,
-    notes: customer.notes,
+    alias: customer.alias || "",
+    notes: customer.notes || "",
     trustedBuyer: customer.trusted_buyer,
     totalOrders: customer.total_orders,
     totalSpent: customer.total_spent,
     totalProfit: customer.total_profit,
     lastPurchase: customer.last_purchase ? new Date(customer.last_purchase) : undefined,
-    emoji: customer.emoji,
+    emoji: customer.emoji || "🌿",
   }));
+
+  console.log('Formatted customers for CustomerList:', formattedCustomers);
 
   return (
     <motion.div 
