@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analytics_data: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_supplies: {
         Row: {
           category: string
@@ -430,6 +463,59 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_transactions: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          price_per_gram: number | null
+          quantity: number
+          quantity_unit: string
+          strain_id: string
+          total_value: number | null
+          transaction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          price_per_gram?: number | null
+          quantity: number
+          quantity_unit: string
+          strain_id: string
+          total_value?: number | null
+          transaction_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          price_per_gram?: number | null
+          quantity?: number
+          quantity_unit?: string
+          strain_id?: string
+          total_value?: number | null
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_transactions_strain_id_fkey"
+            columns: ["strain_id"]
+            isOneToOne: false
+            referencedRelation: "strains"
             referencedColumns: ["id"]
           },
         ]

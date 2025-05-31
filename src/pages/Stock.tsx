@@ -1,14 +1,25 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSupabaseStock } from "@/hooks/useSupabaseStock";
+import StockHeader from "@/components/stock/StockHeader";
+import StockLevelsCard from "@/components/stock/StockLevelsCard";
+import StockTransactionsTable from "@/components/stock/StockTransactionsTable";
 
 const Stock = () => {
   const { user, loading: authLoading } = useAuth();
+  const {
+    transactions,
+    stockLevels,
+    loading,
+    addStockTransaction
+  } = useSupabaseStock();
+  
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Show loading state while checking authentication
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tree-green"></div>
@@ -25,6 +36,17 @@ const Stock = () => {
     );
   }
 
+  const handleAddTransaction = () => {
+    // This would open a dialog to add a new stock transaction
+    // For now, we'll just log it
+    console.log("Add transaction clicked");
+  };
+
+  const filteredTransactions = transactions.filter(transaction =>
+    transaction.strain_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    transaction.transaction_type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <motion.div 
       className="space-y-6"
@@ -32,38 +54,16 @@ const Stock = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-        <div>
-          <motion.h1
-            className="text-3xl font-bold text-white"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            <span className="mr-2">📦</span> Stock Management
-          </motion.h1>
-          <motion.p
-            className="text-gray-400"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            Track and manage your current stock levels
-          </motion.p>
-        </div>
-      </div>
+      <StockHeader
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onAddTransaction={handleAddTransaction}
+      />
 
-      <Card className="bg-gradient-to-br from-slate-950 to-slate-900 border-slate-800">
-        <CardHeader>
-          <CardTitle>Stock Overview</CardTitle>
-          <CardDescription>
-            Current stock levels and inventory management
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-400">Stock management features coming soon...</p>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <StockLevelsCard stockLevels={stockLevels} />
+        <StockTransactionsTable transactions={filteredTransactions} />
+      </div>
     </motion.div>
   );
 };
