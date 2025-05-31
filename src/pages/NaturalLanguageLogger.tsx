@@ -218,7 +218,8 @@ const NaturalLanguageLogger = () => {
           paid: editableSale.paidSoFar || 0,
           remaining: remainingAmount,
           description: `${editableSale.quantity}g of ${editableSale.strain}`,
-          date: saleDate.toISOString() // Convert to string for tick entry
+          date: saleDate.toISOString(),
+          status: 'outstanding' as const
         });
       }
 

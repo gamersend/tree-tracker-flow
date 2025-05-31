@@ -574,7 +574,7 @@ export type Database = {
           paid: number | null
           remaining: number
           sale_id: string | null
-          status: Database["public"]["Enums"]["tick_status"] | null
+          status: Database["public"]["Enums"]["tick_status"]
           strain_id: string | null
           updated_at: string | null
           user_id: string
@@ -591,7 +591,7 @@ export type Database = {
           paid?: number | null
           remaining: number
           sale_id?: string | null
-          status?: Database["public"]["Enums"]["tick_status"] | null
+          status?: Database["public"]["Enums"]["tick_status"]
           strain_id?: string | null
           updated_at?: string | null
           user_id: string
@@ -608,7 +608,7 @@ export type Database = {
           paid?: number | null
           remaining?: number
           sale_id?: string | null
-          status?: Database["public"]["Enums"]["tick_status"] | null
+          status?: Database["public"]["Enums"]["tick_status"]
           strain_id?: string | null
           updated_at?: string | null
           user_id?: string
