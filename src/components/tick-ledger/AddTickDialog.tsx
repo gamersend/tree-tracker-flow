@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useSupabaseCustomers } from '@/hooks/useSupabaseCustomers';
+import { useSupabaseInventory } from '@/hooks/useSupabaseInventory';
 
 interface AddTickDialogProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ interface AddTickDialogProps {
 
 interface TickFormData {
   customer_id: string;
+  strain_id?: string;
   amount: number;
   description: string;
   date: string;
@@ -44,8 +46,10 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
   title,
 }) => {
   const { customers } = useSupabaseCustomers();
+  const { strains } = useSupabaseInventory();
   const [formData, setFormData] = useState<TickFormData>({
     customer_id: '',
+    strain_id: '',
     amount: 0,
     description: '',
     date: new Date().toISOString().split('T')[0],
@@ -59,6 +63,7 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
     } else {
       setFormData({
         customer_id: '',
+        strain_id: '',
         amount: 0,
         description: '',
         date: new Date().toISOString().split('T')[0],
@@ -106,6 +111,26 @@ const AddTickDialog: React.FC<AddTickDialogProps> = ({
                 {customers.map((customer) => (
                   <SelectItem key={customer.id} value={customer.id}>
                     {customer.name} {customer.alias && `(${customer.alias})`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="strain">Strain (Optional)</Label>
+            <Select 
+              value={formData.strain_id || ''} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, strain_id: value || undefined }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a strain (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">No strain selected</SelectItem>
+                {strains.map((strain) => (
+                  <SelectItem key={strain.id} value={strain.id}>
+                    {strain.name}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -133,7 +134,8 @@ const TickLedger = () => {
   // Filter entries based on search
   const filteredEntries = tickEntries.filter(entry => 
     entry.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    entry.description.toLowerCase().includes(searchQuery.toLowerCase())
+    entry.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (entry.strain_name && entry.strain_name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -210,6 +212,7 @@ const TickLedger = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Customer</TableHead>
+                  <TableHead>Strain</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Paid</TableHead>
@@ -223,6 +226,7 @@ const TickLedger = () => {
                 {filteredEntries.map((entry) => (
                   <TableRow key={entry.id}>
                     <TableCell className="font-medium">{entry.customer_name}</TableCell>
+                    <TableCell>{entry.strain_name || '-'}</TableCell>
                     <TableCell>{entry.description}</TableCell>
                     <TableCell>${entry.amount.toFixed(2)}</TableCell>
                     <TableCell>${(entry.paid || 0).toFixed(2)}</TableCell>
@@ -303,6 +307,7 @@ const TickLedger = () => {
         onSubmit={editingEntry ? handleEditEntry : handleAddEntry}
         initialData={editingEntry ? {
           customer_id: editingEntry.customer_id,
+          strain_id: editingEntry.strain_id,
           amount: editingEntry.amount,
           description: editingEntry.description,
           date: editingEntry.date.split('T')[0],

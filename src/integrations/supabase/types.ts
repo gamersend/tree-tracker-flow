@@ -575,6 +575,7 @@ export type Database = {
           remaining: number
           sale_id: string | null
           status: Database["public"]["Enums"]["tick_status"] | null
+          strain_id: string | null
           updated_at: string | null
           user_id: string
         }
@@ -591,6 +592,7 @@ export type Database = {
           remaining: number
           sale_id?: string | null
           status?: Database["public"]["Enums"]["tick_status"] | null
+          strain_id?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -607,6 +609,7 @@ export type Database = {
           remaining?: number
           sale_id?: string | null
           status?: Database["public"]["Enums"]["tick_status"] | null
+          strain_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -626,6 +629,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_tick_ledger_strain"
+            columns: ["strain_id"]
+            isOneToOne: false
+            referencedRelation: "strains"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tick_ledger_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -637,6 +647,13 @@ export type Database = {
             columns: ["sale_id"]
             isOneToOne: false
             referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tick_ledger_strain_id_fkey"
+            columns: ["strain_id"]
+            isOneToOne: false
+            referencedRelation: "strains"
             referencedColumns: ["id"]
           },
           {
