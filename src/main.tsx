@@ -3,7 +3,15 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Simple service worker registration without immediate notification checks
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+const root = createRoot(rootElement);
+root.render(<App />);
+
+// Register service worker after React app is mounted
 const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
     try {
@@ -18,20 +26,11 @@ const registerServiceWorker = async () => {
   return null;
 };
 
-// Initialize the React app first
-const rootElement = document.getElementById("root");
-if (!rootElement) {
-  throw new Error('Root element not found');
-}
-
-const root = createRoot(rootElement);
-root.render(<App />);
-
-// Register service worker after React app is mounted
-registerServiceWorker();
-
-// Set up notification checks only after the app is fully loaded
+// Set up everything after the app is loaded
 window.addEventListener('load', () => {
+  // Register service worker
+  registerServiceWorker();
+  
   // Only import and use notification helpers after everything is loaded
   if (typeof window !== 'undefined' && 'Notification' in window) {
     import('./utils/pwa-helpers.ts').then(({ checkScheduledNotifications, checkAndScheduleNotifications }) => {

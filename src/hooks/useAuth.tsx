@@ -17,37 +17,28 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Initialize state with default values
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
     let subscription: any = null;
 
     const initializeAuth = async () => {
       try {
+        console.log('Initializing auth...');
+        
         // Get initial session
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         
-        if (mounted) {
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
-          setLoading(false);
-        }
+        console.log('Initial session:', initialSession);
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
 
         // Set up auth state listener
         const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            if (!mounted) return;
-            
             console.log('Auth state changed:', event, session);
             setSession(session);
             setUser(session?.user ?? null);
@@ -56,11 +47,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
 
         subscription = authSubscription;
+        setLoading(false);
       } catch (error) {
         console.error('Auth initialization error:', error);
-        if (mounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
@@ -71,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         subscription.unsubscribe();
       }
     };
-  }, [mounted]);
+  }, []);
 
   const signUp = useCallback(async (email: string, password: string, userData?: any) => {
     try {
