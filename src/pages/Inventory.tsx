@@ -3,12 +3,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
 import { useAddInventoryForm } from "@/hooks/useAddInventoryForm";
+import { useAuth } from "@/hooks/useAuth";
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import AddInventoryDialog from "@/components/inventory/AddInventoryDialog";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import InventorySummary from "@/components/inventory/InventorySummary";
 
 const Inventory = () => {
+  const { user, loading: authLoading } = useAuth();
   const {
     inventory,
     strains,
@@ -41,10 +43,20 @@ const Inventory = () => {
     return success;
   });
 
-  if (loading) {
+  // Show loading state while checking authentication
+  if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tree-green"></div>
+      </div>
+    );
+  }
+
+  // If not authenticated, the AuthGuard will handle the redirect
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400">Please sign in to access inventory data.</div>
       </div>
     );
   }

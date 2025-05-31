@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useSupabaseSales } from "@/hooks/useSupabaseSales";
 import { useSupabaseCustomers } from "@/hooks/useSupabaseCustomers";
 import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
+import { useAuth } from "@/hooks/useAuth";
 import { SalesHeader } from "@/components/sales/SalesHeader";
 import { AddSaleDialog } from "@/components/sales/AddSaleDialog";
 import { SalesTable } from "@/components/sales/SalesTable";
@@ -12,6 +13,7 @@ import { useState } from "react";
 import { getLoyaltyTagColor } from "@/components/sales/utils";
 
 const Sales = () => {
+  const { user, loading: authLoading } = useAuth();
   const { sales, loading, addSale } = useSupabaseSales();
   const { customers } = useSupabaseCustomers();
   const { strains } = useSupabaseInventory();
@@ -21,10 +23,20 @@ const Sales = () => {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [targetMargin, setTargetMargin] = useState(70);
 
-  if (loading) {
+  // Show loading state while checking authentication
+  if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tree-green"></div>
+      </div>
+    );
+  }
+
+  // If not authenticated, the AuthGuard will handle the redirect
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400">Please sign in to access sales data.</div>
       </div>
     );
   }
