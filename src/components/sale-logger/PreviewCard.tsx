@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Pencil, CheckCircle2, RotateCcw } from "lucide-react";
+import { Brain, Pencil, CheckCircle2, RotateCcw, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { EditableSaleForm } from "./EditableSaleForm";
 import { SalePreviewTable } from "./SalePreviewTable";
 
 interface PreviewCardProps {
-  parsedSale: any | null; // Using any type for simplicity
+  parsedSale: any | null;
   editableSale: any | null;
   isEditing: boolean;
   setIsEditing: (value: boolean) => void;
@@ -24,6 +24,7 @@ interface PreviewCardProps {
   handleAddToSales: () => void;
   getStrainSuggestions: () => string[];
   handleEditableChange: (field: string, value: any) => void;
+  isAddingSale?: boolean;
 }
 
 export const PreviewCard: React.FC<PreviewCardProps> = ({
@@ -35,6 +36,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
   handleAddToSales,
   getStrainSuggestions,
   handleEditableChange,
+  isAddingSale = false,
 }) => {
   const navigate = useNavigate();
   
@@ -50,7 +52,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
         </CardTitle>
         <CardDescription>
           {isValidSale ? 
-            "Preview and edit before adding to your records" :
+            "Preview and edit before saving to your database" :
             "Preview of structured data extracted from your text"}
         </CardDescription>
       </CardHeader>
@@ -82,14 +84,26 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
                     <Button
                       onClick={() => setIsEditing(false)}
                       className="w-full bg-slate-700 hover:bg-slate-600"
+                      disabled={isAddingSale}
                     >
                       <RotateCcw className="mr-2 h-4 w-4" /> Cancel Editing
                     </Button>
                     <Button
                       onClick={handleAddToSales}
                       className="w-full bg-tree-green hover:bg-tree-green/80"
+                      disabled={isAddingSale}
                     >
-                      <CheckCircle2 className="mr-2 h-4 w-4" /> Save Changes
+                      {isAddingSale ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4" /> 
+                          Save to Database
+                        </>
+                      )}
                     </Button>
                   </>
                 ) : (
@@ -97,14 +111,26 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
                     <Button
                       onClick={handleEditBeforeImport}
                       className="w-full bg-slate-700 hover:bg-slate-600"
+                      disabled={isAddingSale}
                     >
-                      <Pencil className="mr-2 h-4 w-4" /> Edit Before Import
+                      <Pencil className="mr-2 h-4 w-4" /> Edit Before Saving
                     </Button>
                     <Button
                       onClick={handleAddToSales}
                       className="w-full bg-tree-green hover:bg-tree-green/80"
+                      disabled={isAddingSale}
                     >
-                      <CheckCircle2 className="mr-2 h-4 w-4" /> Add to Sales Tab
+                      {isAddingSale ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4" /> 
+                          Save to Database
+                        </>
+                      )}
                     </Button>
                   </>
                 )}
@@ -114,7 +140,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
                 <div className="bg-yellow-900/30 border border-yellow-700/30 rounded-md p-3 text-sm">
                   <div className="font-medium text-yellow-500 mb-1">📝 Tick Sale Detected</div>
                   <p className="text-yellow-300/70">
-                    This will be added to both Sales and Tick Ledger. 
+                    This will be added to both Sales and Tick Ledger in your database. 
                     {parsedSale.paidSoFar ? 
                       ` Initial payment of $${parsedSale.paidSoFar.toFixed(2)} recorded.` : 
                       ` No payment has been recorded yet.`}
@@ -134,7 +160,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
                 <Brain className="h-10 w-10 text-slate-500" />
               </div>
               <h3 className="text-lg font-medium text-slate-300">
-                🌿 Ready to blaze your data into CSV?
+                🌿 Ready to parse your sale data?
               </h3>
               <p className="text-slate-500 max-w-sm mt-2">
                 Enter a description of your sale in natural language and 
@@ -150,7 +176,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
           className="text-xs text-slate-500"
           onClick={() => navigate("/sales")}
         >
-          View all entries in the Sales tab
+          View all entries in the Sales page
         </Button>
       </CardFooter>
     </Card>

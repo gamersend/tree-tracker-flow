@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -6,17 +7,28 @@ import { useSaleParser } from "@/hooks/use-sale-parser";
 import { ParsedSale } from "@/hooks/sale-parser/types";
 import { InputCard } from "@/components/sale-logger/InputCard";
 import { PreviewCard } from "@/components/sale-logger/PreviewCard";
-import { AlertCircle } from "lucide-react";
+import { useSupabaseSales } from "@/hooks/useSupabaseSales";
+import { useSupabaseCustomers } from "@/hooks/useSupabaseCustomers";
+import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
+import { useSupabaseTickLedger } from "@/hooks/useSupabaseTickLedger";
+import { useAuth } from "@/hooks/useAuth";
 import { showParsingResultToast, showSaleAddedToast, showErrorToast } from "@/utils/toast-helpers";
 
 const NaturalLanguageLogger = () => {
+  const { user } = useAuth();
   const [saleText, setSaleText] = useState("");
   const [parsedSale, setParsedSale] = useState<ParsedSale | null>(null);
   const [editableSale, setEditableSale] = useState<ParsedSale | null>(null);
   const [recentEntries, setRecentEntries] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingSale, setIsAddingSale] = useState(false);
+  
   const { parseSaleText, getStrainSuggestions } = useSaleParser();
+  const { addSale } = useSupabaseSales();
+  const { customers, addCustomer } = useSupabaseCustomers();
+  const { strains, addStrain } = useSupabaseInventory();
+  const { addTickEntry } = useSupabaseTickLedger();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Load recent entries from localStorage
@@ -77,50 +89,115 @@ const NaturalLanguageLogger = () => {
     }
   };
 
-  // Add the sale to the main sales table
-  const handleAddToSales = () => {
-    if (!editableSale) return;
+  // Find or create customer
+  const findOrCreateCustomer = async (customerName: string) => {
+    if (!customerName || customerName.toLowerCase() === 'walk-in') {
+      return null; // No customer for walk-in sales
+    }
+
+    // Look for existing customer
+    const existingCustomer = customers.find(c => 
+      c.name.toLowerCase() === customerName.toLowerCase()
+    );
+
+    if (existingCustomer) {
+      return existingCustomer.id;
+    }
+
+    // Create new customer
+    const newCustomer = await addCustomer({
+      name: customerName,
+      platform: 'Direct',
+      trusted_buyer: false
+    });
+
+    return newCustomer ? newCustomer.id : null;
+  };
+
+  // Find or create strain
+  const findOrCreateStrain = async (strainName: string, costPerGram: number) => {
+    if (!strainName) {
+      throw new Error("Strain name is required");
+    }
+
+    // Look for existing strain
+    const existingStrain = strains.find(s => 
+      s.name.toLowerCase() === strainName.toLowerCase()
+    );
+
+    if (existingStrain) {
+      return existingStrain.id;
+    }
+
+    // Create new strain with estimated cost
+    const newStrain = await addStrain({
+      name: strainName,
+      cost_per_gram: costPerGram
+    });
+
+    if (!newStrain) {
+      throw new Error("Failed to create strain");
+    }
+
+    return newStrain.id;
+  };
+
+  // Add the sale to Supabase
+  const handleAddToSales = async () => {
+    if (!editableSale || !user) {
+      toast.error("Please ensure you're logged in and have a valid sale to add");
+      return;
+    }
+    
+    setIsAddingSale(true);
     
     try {
-      // Get existing sales from localStorage
-      const existingSales = loadFromLocalStorage<any[]>("sales", []);
+      // Calculate cost per gram from profit and sale price
+      const costPerGram = editableSale.salePrice > 0 && editableSale.quantity > 0 
+        ? (editableSale.salePrice - editableSale.profit) / editableSale.quantity 
+        : 5; // Default fallback cost
+
+      // Find or create customer
+      const customerId = await findOrCreateCustomer(editableSale.customer);
       
-      // Format the new sale for storage
-      const newSale = {
-        id: `sale${Date.now()}`,
-        strain: editableSale.strain,
-        date: editableSale.date,
+      // Find or create strain
+      const strainId = await findOrCreateStrain(editableSale.strain, costPerGram);
+
+      // Prepare sale data
+      const saleData = {
+        customer_id: customerId,
+        strain_id: strainId,
+        date: editableSale.date instanceof Date ? editableSale.date : new Date(editableSale.date),
         quantity: editableSale.quantity,
-        customer: editableSale.customer,
-        salePrice: editableSale.salePrice,
-        costPerGram: editableSale.salePrice ? (editableSale.salePrice - editableSale.profit) / editableSale.quantity : 0,
-        profit: editableSale.profit
+        sale_price: editableSale.salePrice,
+        cost_per_gram: costPerGram,
+        profit: editableSale.profit,
+        payment_method: editableSale.isTick ? 'Tick' : 'Cash',
+        notes: editableSale.rawInput || saleText
       };
+
+      // Add the sale
+      const success = await addSale(saleData);
       
-      // Add to existing sales
-      const updatedSales = [...existingSales, newSale];
-      saveToLocalStorage("sales", updatedSales);
-      
-      // If it's a tick, also add to tick ledger
-      if (editableSale.isTick) {
-        const tickLedger = loadFromLocalStorage<any[]>("tickLedger", []);
-        const newTick = {
-          id: `tick${Date.now()}`,
-          customer: editableSale.customer,
-          date: editableSale.date,
-          amount: editableSale.salePrice,
-          description: `${editableSale.quantity}g of ${editableSale.strain}`,
-          paid: editableSale.paidSoFar || 0,
-          remaining: editableSale.salePrice - (editableSale.paidSoFar || 0),
-          status: "outstanding"
-        };
-        
-        saveToLocalStorage("tickLedger", [...tickLedger, newTick]);
-        
-        showSaleAddedToast(editableSale);
-      } else {
-        toast.success("Sale added successfully!");
+      if (!success) {
+        throw new Error("Failed to add sale to database");
       }
+
+      // If it's a tick sale, add to tick ledger
+      if (editableSale.isTick && customerId) {
+        const remainingAmount = editableSale.salePrice - (editableSale.paidSoFar || 0);
+        
+        await addTickEntry({
+          customer_id: customerId,
+          amount: editableSale.salePrice,
+          paid: editableSale.paidSoFar || 0,
+          remaining: remainingAmount,
+          description: `${editableSale.quantity}g of ${editableSale.strain}`,
+          date: saleData.date
+        });
+      }
+
+      showSaleAddedToast(editableSale);
       
       // Clear form for next entry
       setSaleText("");
@@ -133,7 +210,10 @@ const NaturalLanguageLogger = () => {
         textareaRef.current.focus();
       }
     } catch (error) {
+      console.error('Error adding sale:', error);
       showErrorToast(error, "Failed to add sale. Please try again.");
+    } finally {
+      setIsAddingSale(false);
     }
   };
 
@@ -178,6 +258,25 @@ const NaturalLanguageLogger = () => {
     }
   };
 
+  // Show login message if not authenticated
+  if (!user) {
+    return (
+      <motion.div
+        className="space-y-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-white mb-2">Authentication Required</h2>
+            <p className="text-gray-400">Please sign in to use the Quick Sale feature.</p>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       className="space-y-6"
@@ -201,7 +300,7 @@ const NaturalLanguageLogger = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Describe your sales in plain English and convert them to structured data
+            Describe your sales in plain English and save them directly to your database
           </motion.p>
         </div>
       </div>
@@ -228,6 +327,7 @@ const NaturalLanguageLogger = () => {
           handleAddToSales={handleAddToSales}
           getStrainSuggestions={getStrainSuggestions}
           handleEditableChange={handleEditableChange}
+          isAddingSale={isAddingSale}
         />
       </div>
     </motion.div>
