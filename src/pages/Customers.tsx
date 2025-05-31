@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -7,6 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
 import CustomerList from "@/components/customers/CustomerList";
 import CustomerDetails from "@/components/customers/CustomerDetails";
 import CustomerHeader from "@/components/customers/CustomerHeader";
@@ -25,6 +26,7 @@ interface CustomerFormData {
 }
 
 const Customers = () => {
+  const { user, loading: authLoading } = useAuth();
   const {
     customers,
     loading,
@@ -59,10 +61,20 @@ const Customers = () => {
     emoji: customerEmojis[Math.floor(Math.random() * customerEmojis.length)],
   });
 
-  if (loading) {
+  // Show loading state while checking authentication
+  if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tree-green"></div>
+      </div>
+    );
+  }
+
+  // If not authenticated, the AuthGuard will handle the redirect
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400">Please sign in to access customer data.</div>
       </div>
     );
   }
@@ -151,7 +163,12 @@ const Customers = () => {
   }));
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
       <CustomerHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -258,7 +275,7 @@ const Customers = () => {
         onOpenChange={setShowConfirmDelete}
         onConfirmDelete={confirmDeleteCustomer}
       />
-    </div>
+    </motion.div>
   );
 };
 

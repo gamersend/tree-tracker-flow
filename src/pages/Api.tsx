@@ -1,10 +1,31 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ApiExplorer from "@/components/api/ApiExplorer";
 
 const Api = () => {
+  const { user, loading: authLoading } = useAuth();
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tree-green"></div>
+      </div>
+    );
+  }
+
+  // If not authenticated, the AuthGuard will handle the redirect
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400">Please sign in to access API features.</div>
+      </div>
+    );
+  }
+
   return (
     <motion.div 
       className="space-y-6"
