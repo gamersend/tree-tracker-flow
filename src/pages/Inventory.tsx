@@ -8,6 +8,7 @@ import InventoryHeader from "@/components/inventory/InventoryHeader";
 import AddInventoryDialog from "@/components/inventory/AddInventoryDialog";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import InventorySummary from "@/components/inventory/InventorySummary";
+import CurrentStockCard from "@/components/inventory/CurrentStockCard";
 
 const Inventory = () => {
   const { user, loading: authLoading } = useAuth();
@@ -126,13 +127,16 @@ const Inventory = () => {
         handleAddInventory={handleAddInventory}
         strains={formattedStrains}
       />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CurrentStockCard strains={strains} inventory={inventory} />
+        <InventorySummary inventoryItems={formattedInventory} />
+      </div>
       
       <InventoryTable 
         inventoryItems={formattedFilteredInventory}
         searchQuery={searchQuery}
       />
-      
-      <InventorySummary inventoryItems={formattedInventory} />
     </motion.div>
   );
 };

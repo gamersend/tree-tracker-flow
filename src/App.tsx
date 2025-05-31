@@ -17,7 +17,6 @@ import Dashboard from "@/pages/Dashboard";
 import Inventory from "@/pages/Inventory";
 import Sales from "@/pages/Sales";
 import Customers from "@/pages/Customers";
-import Stock from "@/pages/Stock";
 import Analytics from "@/pages/Analytics";
 import Calendar from "@/pages/Calendar";
 import Import from "@/pages/Import";
@@ -47,7 +46,6 @@ function App() {
                       <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
                       <Route path="/sales" element={<Layout><Sales /></Layout>} />
                       <Route path="/customers" element={<Layout><Customers /></Layout>} />
-                      <Route path="/stock" element={<Layout><Stock /></Layout>} />
                       <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
                       <Route path="/calendar" element={<Layout><Calendar /></Layout>} />
                       <Route path="/import" element={<Layout><Import /></Layout>} />

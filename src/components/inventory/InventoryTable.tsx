@@ -1,14 +1,11 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter
+  Card, CardContent, CardDescription, CardHeader, CardTitle
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { InventoryItem } from "@/types/inventory";
 import { safeFormatNumber } from "@/utils/inventory-utils";
 import { safeFormatDate } from "@/lib/utils";
@@ -79,17 +76,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ inventoryItems, searchQ
           </TableBody>
         </Table>
       </CardContent>
-      <CardFooter className="bg-slate-800/20 border-t border-slate-700/30 flex justify-center py-2">
-        <Button 
-          variant="link" 
-          className="text-tree-green flex items-center gap-2" 
-          asChild
-        >
-          <Link to="/stock">
-            Go to Current Inventory <ArrowRight className="h-4 w-4" />
-          </Link>
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
