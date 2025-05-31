@@ -27,7 +27,7 @@ const NaturalLanguageLogger = () => {
   const { parseSaleText, getStrainSuggestions } = useSaleParser();
   const { addSale } = useSupabaseSales();
   const { customers, addCustomer } = useSupabaseCustomers();
-  const { strains, addStrain } = useSupabaseInventory();
+  const { strains, addInventoryItem } = useSupabaseInventory();
   const { addTickEntry } = useSupabaseTickLedger();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -104,11 +104,14 @@ const NaturalLanguageLogger = () => {
       return existingCustomer.id;
     }
 
-    // Create new customer
+    // Create new customer with required fields
     const newCustomer = await addCustomer({
       name: customerName,
       platform: 'Direct',
-      trusted_buyer: false
+      trusted_buyer: false,
+      emoji: '🌿',
+      alias: '',
+      notes: ''
     });
 
     return newCustomer ? newCustomer.id : null;
@@ -129,14 +132,26 @@ const NaturalLanguageLogger = () => {
       return existingStrain.id;
     }
 
-    // Create new strain with estimated cost
-    const newStrain = await addStrain({
-      name: strainName,
-      cost_per_gram: costPerGram
-    });
+    // Create new strain by adding an inventory item
+    const success = await addInventoryItem(
+      strainName,
+      new Date(),
+      '112g',
+      costPerGram * 112, // total cost for 112g
+      'Auto-created from sale entry'
+    );
+
+    if (!success) {
+      throw new Error("Failed to create strain");
+    }
+
+    // Find the newly created strain
+    const newStrain = strains.find(s => 
+      s.name.toLowerCase() === strainName.toLowerCase()
+    );
 
     if (!newStrain) {
-      throw new Error("Failed to create strain");
+      throw new Error("Failed to find newly created strain");
     }
 
     return newStrain.id;
