@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, LogOut, User } from "lucide-react";
-import { Sidebar } from "./Sidebar";
+import Sidebar from "./Sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import {
@@ -14,7 +14,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const Header = () => {
+interface HeaderProps {
+  children?: React.ReactNode;
+}
+
+const Header: React.FC<HeaderProps> = ({ children }) => {
   const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -40,6 +44,8 @@ const Header = () => {
         </Sheet>
         
         <div className="flex-1" />
+        
+        {children}
         
         {user && (
           <DropdownMenu>
