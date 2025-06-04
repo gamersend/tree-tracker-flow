@@ -30,6 +30,7 @@ import NaturalLanguageLogger from "@/pages/NaturalLanguageLogger";
 import Api from "@/pages/Api";
 import MatesRatesCalculator from "@/pages/MatesRatesCalculator";
 import Notifications from "@/pages/Notifications";
+import Auth from "@/pages/Auth";
 
 function App() {
   return (
@@ -41,29 +42,28 @@ function App() {
               <NotesProvider>
                 <BrowserRouter>
                   <AuthGuard>
-                    <SidebarProvider>
-                      <Routes>
-                        <Route path="/" element={<Layout><Dashboard /></Layout>} />
-                        <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-                        <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
-                        <Route path="/sales" element={<Layout><Sales /></Layout>} />
-                        <Route path="/customers" element={<Layout><Customers /></Layout>} />
-                        <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
-                        <Route path="/calendar" element={<Layout><Calendar /></Layout>} />
-                        <Route path="/import" element={<Layout><Import /></Layout>} />
-                        <Route path="/tick-ledger" element={<Layout><TickLedger /></Layout>} />
-                        <Route path="/business-supplies" element={<Layout><BusinessSupplies /></Layout>} />
-                        <Route path="/settings" element={<Layout><Settings /></Layout>} />
-                        <Route path="/notes" element={<Layout><Notes /></Layout>} />
-                        <Route path="/quick-sale" element={<Layout><NaturalLanguageLogger /></Layout>} />
-                        <Route path="/api" element={<Layout><Api /></Layout>} />
-                        <Route path="/mates-rates" element={<Layout><MatesRatesCalculator /></Layout>} />
-                        <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
-                        <Route path="*" element={<Layout><NotFound /></Layout>} />
-                      </Routes>
-                    </SidebarProvider>
-                    <InstallBanner />
+                    <Routes>
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/" element={<Layout><Dashboard /></Layout>} />
+                      <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+                      <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
+                      <Route path="/sales" element={<Layout><Sales /></Layout>} />
+                      <Route path="/customers" element={<Layout><Customers /></Layout>} />
+                      <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+                      <Route path="/calendar" element={<Layout><Calendar /></Layout>} />
+                      <Route path="/import" element={<Layout><Import /></Layout>} />
+                      <Route path="/tick-ledger" element={<Layout><TickLedger /></Layout>} />
+                      <Route path="/business-supplies" element={<Layout><BusinessSupplies /></Layout>} />
+                      <Route path="/settings" element={<Layout><Settings /></Layout>} />
+                      <Route path="/notes" element={<Layout><Notes /></Layout>} />
+                      <Route path="/quick-sale" element={<Layout><NaturalLanguageLogger /></Layout>} />
+                      <Route path="/api" element={<Layout><Api /></Layout>} />
+                      <Route path="/mates-rates" element={<Layout><MatesRatesCalculator /></Layout>} />
+                      <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
+                      <Route path="*" element={<Layout><NotFound /></Layout>} />
+                    </Routes>
                   </AuthGuard>
+                  <InstallBanner />
                 </BrowserRouter>
                 <Toaster />
               </NotesProvider>

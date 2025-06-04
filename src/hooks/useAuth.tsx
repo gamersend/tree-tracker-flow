@@ -17,7 +17,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize state with default values
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,24 +28,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         console.log('Initializing auth...');
         
-        // Get initial session
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        
-        console.log('Initial session:', initialSession);
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-
-        // Set up auth state listener
+        // Set up auth state listener FIRST
         const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
             console.log('Auth state changed:', event, session);
             setSession(session);
             setUser(session?.user ?? null);
+            
+            // Create profile if user signs up
+            if (event === 'SIGNED_UP' && session?.user) {
+              setTimeout(async () => {
+                await createUserProfile(session.user);
+              }, 0);
+            }
+            
             setLoading(false);
           }
         );
 
         subscription = authSubscription;
+
+        // THEN check for existing session
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log('Initial session:', initialSession);
+        
+        if (initialSession) {
+          setSession(initialSession);
+          setUser(initialSession.user);
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -63,13 +73,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  const createUserProfile = async (user: User) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          username: user.user_metadata?.username || user.email?.split('@')[0],
+          first_name: user.user_metadata?.first_name || '',
+          last_name: user.user_metadata?.last_name || '',
+          avatar_url: user.user_metadata?.avatar_url || null,
+        });
+
+      if (error && error.code !== '23505') { // Ignore duplicate key error
+        console.error('Error creating user profile:', error);
+      }
+    } catch (error) {
+      console.error('Error creating user profile:', error);
+    }
+  };
+
   const signUp = useCallback(async (email: string, password: string, userData?: any) => {
     try {
       setLoading(true);
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: redirectUrl,
           data: userData
         }
       });
