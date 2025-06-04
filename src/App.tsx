@@ -9,7 +9,7 @@ import { NotesProvider } from "@/contexts/NotesContext";
 import InstallBanner from "@/components/pwa/InstallBanner";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { StringProvider } from "./components/theme/StringProvider";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider } from "@/providers/AuthProvider";
 import { SecurityProvider } from "@/contexts/SecurityContext";
 import AuthGuard from "@/components/auth/AuthGuard";
 
