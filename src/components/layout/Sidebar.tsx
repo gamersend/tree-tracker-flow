@@ -122,12 +122,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <SidebarComponent
-      className={cn(
-        "bg-sidebar border-r border-sidebar-border",
-        isMobile ? "w-[80px]" : "w-[260px]"
-      )}
-    >
+    <SidebarComponent>
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
