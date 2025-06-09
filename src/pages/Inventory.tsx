@@ -1,14 +1,16 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
 import { useAddInventoryForm } from "@/hooks/useAddInventoryForm";
 import { useAuth } from "@/hooks/useAuth";
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import AddInventoryDialog from "@/components/inventory/AddInventoryDialog";
+import EditInventoryDialog from "@/components/inventory/EditInventoryDialog";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import InventorySummary from "@/components/inventory/InventorySummary";
 import CurrentStockCard from "@/components/inventory/CurrentStockCard";
+import { InventoryItem } from "@/types/inventory";
 
 const Inventory = () => {
   const { user, loading: authLoading } = useAuth();
@@ -19,8 +21,13 @@ const Inventory = () => {
     searchQuery,
     setSearchQuery,
     filteredInventory,
-    addInventoryItem
+    addInventoryItem,
+    updateInventoryItem,
+    deleteInventoryItem
   } = useSupabaseInventory();
+
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const {
     isDialogOpen,
@@ -94,6 +101,28 @@ const Inventory = () => {
     notes: item.notes,
     image: item.image_url
   }));
+
+  const handleEditItem = (item: InventoryItem) => {
+    setEditingItem(item);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateItem = async (
+    id: string,
+    strain: string,
+    purchaseDate: Date,
+    quantity: "112g" | "224g" | "448g",
+    totalCost: string,
+    notes: string,
+    image?: string | null
+  ) => {
+    const success = await updateInventoryItem(id, strain, purchaseDate, quantity, parseFloat(totalCost), notes, image);
+    return success;
+  };
+
+  const handleDeleteItem = async (id: string) => {
+    await deleteInventoryItem(id);
+  };
   
   return (
     <motion.div 
@@ -128,6 +157,14 @@ const Inventory = () => {
         strains={formattedStrains}
       />
 
+      <EditInventoryDialog
+        isOpen={isEditDialogOpen}
+        setIsOpen={setIsEditDialogOpen}
+        item={editingItem}
+        strains={formattedStrains}
+        onUpdateInventory={handleUpdateItem}
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <CurrentStockCard strains={strains} inventory={inventory} />
         <InventorySummary inventoryItems={formattedInventory} />
@@ -136,6 +173,8 @@ const Inventory = () => {
       <InventoryTable 
         inventoryItems={formattedFilteredInventory}
         searchQuery={searchQuery}
+        onEditItem={handleEditItem}
+        onDeleteItem={handleDeleteItem}
       />
     </motion.div>
   );

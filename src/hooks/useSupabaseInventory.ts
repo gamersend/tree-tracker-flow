@@ -157,6 +157,99 @@ export const useSupabaseInventory = () => {
     }
   };
 
+  // Update inventory item
+  const updateInventoryItem = async (
+    id: string,
+    strainName: string,
+    purchaseDate: Date,
+    quantity: '112g' | '224g' | '448g',
+    totalCost: number,
+    notes?: string,
+    imageUrl?: string
+  ) => {
+    if (!user) return false;
+
+    try {
+      // First, ensure strain exists or create it
+      let strain = strains.find(s => s.name === strainName);
+      
+      if (!strain) {
+        const quantityValue = quantity === '112g' ? 112 : quantity === '224g' ? 224 : 448;
+        const pricePerGram = totalCost / quantityValue;
+        
+        const { data: newStrain, error: strainError } = await supabase
+          .from('strains')
+          .insert({
+            user_id: user.id,
+            name: strainName,
+            cost_per_gram: pricePerGram,
+            image_url: imageUrl
+          })
+          .select()
+          .single();
+
+        if (strainError) throw strainError;
+        strain = newStrain;
+        setStrains(prev => [...prev, newStrain]);
+      }
+
+      // Calculate values
+      const quantityValue = quantity === '112g' ? 112 : quantity === '224g' ? 224 : 448;
+      const pricePerGram = totalCost / quantityValue;
+      const costPerOunce = pricePerGram * 28;
+
+      // Update inventory item
+      const { error } = await supabase
+        .from('inventory')
+        .update({
+          strain_id: strain.id,
+          purchase_date: purchaseDate.toISOString().split('T')[0],
+          quantity: quantityValue,
+          quantity_unit: quantity,
+          total_cost: totalCost,
+          price_per_gram: pricePerGram,
+          cost_per_ounce: costPerOunce,
+          notes,
+          image_url: imageUrl
+        })
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast.success('Inventory item updated successfully!');
+      await fetchInventory();
+      return true;
+    } catch (error) {
+      console.error('Error updating inventory item:', error);
+      toast.error('Failed to update inventory item');
+      return false;
+    }
+  };
+
+  // Delete inventory item
+  const deleteInventoryItem = async (id: string) => {
+    if (!user) return false;
+
+    try {
+      const { error } = await supabase
+        .from('inventory')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast.success('Inventory item deleted successfully!');
+      await fetchInventory();
+      return true;
+    } catch (error) {
+      console.error('Error deleting inventory item:', error);
+      toast.error('Failed to delete inventory item');
+      return false;
+    }
+  };
+
   // Initialize data
   useEffect(() => {
     if (user) {
@@ -181,6 +274,8 @@ export const useSupabaseInventory = () => {
     setSearchQuery,
     filteredInventory,
     addInventoryItem,
+    updateInventoryItem,
+    deleteInventoryItem,
     refetch: () => Promise.all([fetchInventory(), fetchStrains()])
   };
 };
