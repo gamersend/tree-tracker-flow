@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,8 +31,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setSession(session);
             setUser(session?.user ?? null);
             
-            // Create profile if user signs up - using correct event comparison
-            if (event === 'SIGNED_UP' && session?.user) {
+            // Create profile if user signs in for the first time (after signup)
+            if (event === 'SIGNED_IN' && session?.user) {
+              // Check if this is a new user by trying to create profile
               setTimeout(async () => {
                 await createUserProfile(session.user);
               }, 0);
