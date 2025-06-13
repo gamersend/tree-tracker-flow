@@ -105,34 +105,36 @@ const NaturalLanguageLogger = () => {
     }
 
     // Create new customer with required fields
-    const success = await addCustomer({
-      name: customerName,
-      platform: 'Direct',
-      trusted_buyer: false,
-      emoji: '🌿',
-      alias: '',
-      notes: ''
-    });
+    try {
+      const success = await addCustomer({
+        name: customerName,
+        platform: 'Direct',
+        trusted_buyer: false,
+        emoji: '🌿',
+        alias: '',
+        notes: ''
+      });
 
-    if (!success) {
+      if (!success) {
+        return null;
+      }
+
+      // Refresh customers list and find the newly created customer
+      await refetchCustomers();
+      
+      // Wait a bit for the refresh to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Find the newly created customer
+      const newCustomer = customers.find(c => 
+        c.name.toLowerCase() === customerName.toLowerCase()
+      );
+
+      return newCustomer?.id || null;
+    } catch (error) {
+      console.error('Error creating customer:', error);
       return null;
     }
-
-    // Refresh customers list and find the newly created customer
-    await refetchCustomers();
-    
-    // Wait a bit for the refresh to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Re-fetch to get the updated customer list
-    const updatedCustomers = await refetchCustomers();
-    
-    // Find the newly created customer
-    const newCustomer = customers.find(c => 
-      c.name.toLowerCase() === customerName.toLowerCase()
-    );
-
-    return newCustomer?.id || null;
   };
 
   // Find or create strain
@@ -151,29 +153,37 @@ const NaturalLanguageLogger = () => {
     }
 
     // Create new strain by adding an inventory item
-    // Fix: Convert quantity to number (112 instead of '112g')
-    const success = await addInventoryItem(
-      strainName,
-      new Date(),
-      112, // quantity as number, not string
-      costPerGram * 112, // total cost for 112g
-      'Auto-created from sale entry'
-    );
+    // Ensure quantity is passed as number, not string
+    const defaultQuantity = 112;
+    const totalCost = costPerGram * defaultQuantity;
+    
+    try {
+      const success = await addInventoryItem(
+        strainName,
+        new Date(),
+        defaultQuantity, // quantity as number
+        totalCost,
+        'Auto-created from sale entry'
+      );
 
-    if (!success) {
+      if (!success) {
+        throw new Error("Failed to create strain");
+      }
+
+      // Find the newly created strain
+      const newStrain = strains.find(s => 
+        s.name.toLowerCase() === strainName.toLowerCase()
+      );
+
+      if (!newStrain) {
+        throw new Error("Failed to find newly created strain");
+      }
+
+      return newStrain.id;
+    } catch (error) {
+      console.error('Error creating strain:', error);
       throw new Error("Failed to create strain");
     }
-
-    // Find the newly created strain
-    const newStrain = strains.find(s => 
-      s.name.toLowerCase() === strainName.toLowerCase()
-    );
-
-    if (!newStrain) {
-      throw new Error("Failed to find newly created strain");
-    }
-
-    return newStrain.id;
   };
 
   // Add the sale to Supabase
@@ -350,11 +360,27 @@ const NaturalLanguageLogger = () => {
           saleText={saleText}
           onTextChange={handleTextChange}
           onProcessText={handleProcessText}
-          onClearAll={handleClearAll}
-          handleKeyDown={handleKeyDown}
+          onClearAll={() => {
+            setSaleText("");
+            setParsedSale(null);
+            setEditableSale(null);
+            setIsEditing(false);
+            toast.info("All inputs cleared");
+          }}
+          handleKeyDown={(e: React.KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+              e.preventDefault();
+              handleProcessText();
+            }
+          }}
           isProcessing={isProcessing}
           recentEntries={recentEntries}
-          onUseRecentEntry={useRecentEntry}
+          onUseRecentEntry={(entry: string) => {
+            setSaleText(entry);
+            if (textareaRef.current) {
+              textareaRef.current.focus();
+            }
+          }}
           textareaRef={textareaRef}
         />
 
@@ -363,10 +389,20 @@ const NaturalLanguageLogger = () => {
           editableSale={editableSale}
           isEditing={isEditing}
           setIsEditing={setIsEditing}
-          handleEditBeforeImport={handleEditBeforeImport}
+          handleEditBeforeImport={() => {
+            if (!parsedSale) return;
+            setIsEditing(true);
+          }}
           handleAddToSales={handleAddToSales}
           getStrainSuggestions={getStrainSuggestions}
-          handleEditableChange={handleEditableChange}
+          handleEditableChange={(field: keyof ParsedSale, value: any) => {
+            if (!editableSale) return;
+            
+            setEditableSale({
+              ...editableSale,
+              [field]: value
+            });
+          }}
           isAddingSale={isAddingSale}
         />
       </div>

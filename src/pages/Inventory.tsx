@@ -69,17 +69,25 @@ const Inventory = () => {
     );
   }
 
-  // Convert Supabase data to component format
+  // Convert Supabase data to component format with proper date handling
   const formattedStrains = strains.map(strain => ({
     name: strain.name,
     costPerGram: strain.cost_per_gram,
     image: strain.image_url
   }));
 
+  const formatInventoryDate = (dateString: string): Date => {
+    // Handle different date formats that might come from Supabase
+    if (dateString.includes('T')) {
+      return new Date(dateString);
+    }
+    return new Date(dateString + 'T00:00:00');
+  };
+
   const formattedInventory = inventory.map(item => ({
     id: item.id,
     strain: item.strain_name,
-    purchaseDate: new Date(item.purchase_date + 'T00:00:00'), // Fix date parsing
+    purchaseDate: formatInventoryDate(item.purchase_date),
     quantity: item.quantity,
     quantityUnit: item.quantity_unit,
     totalCost: item.total_cost,
@@ -92,7 +100,7 @@ const Inventory = () => {
   const formattedFilteredInventory = filteredInventory.map(item => ({
     id: item.id,
     strain: item.strain_name,
-    purchaseDate: new Date(item.purchase_date + 'T00:00:00'), // Fix date parsing
+    purchaseDate: formatInventoryDate(item.purchase_date),
     quantity: item.quantity,
     quantityUnit: item.quantity_unit,
     totalCost: item.total_cost,
@@ -116,12 +124,21 @@ const Inventory = () => {
     notes: string,
     image?: string | null
   ) => {
-    const success = await updateInventoryItem(id, strain, purchaseDate, quantity, parseFloat(totalCost), notes, image);
-    return success;
+    try {
+      const success = await updateInventoryItem(id, strain, purchaseDate, quantity, parseFloat(totalCost), notes, image);
+      return success;
+    } catch (error) {
+      console.error('Error updating inventory item:', error);
+      return false;
+    }
   };
 
   const handleDeleteItem = async (id: string) => {
-    await deleteInventoryItem(id);
+    try {
+      await deleteInventoryItem(id);
+    } catch (error) {
+      console.error('Error deleting inventory item:', error);
+    }
   };
   
   return (
