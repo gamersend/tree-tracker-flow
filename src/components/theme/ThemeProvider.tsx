@@ -1,8 +1,9 @@
 
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { motion } from "framer-motion";
+import { SydneyGreenBackground } from "./SydneyGreenTheme";
 
-export type Theme = "dark" | "light" | "synthwave" | "forest";
+export type Theme = "dark" | "light" | "synthwave" | "forest" | "sydney-green";
 
 type ThemeContextType = {
   theme: Theme;
@@ -12,12 +13,12 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("sydney-green");
   
   // Load theme from localStorage on mount
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme") as Theme | null;
-    if (storedTheme && ["dark", "light", "synthwave", "forest"].includes(storedTheme)) {
+    if (storedTheme && ["dark", "light", "synthwave", "forest", "sydney-green"].includes(storedTheme)) {
       setTheme(storedTheme);
     }
   }, []);
@@ -27,7 +28,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("theme", theme);
     
     // Update document class for theme
-    document.body.classList.remove("theme-dark", "theme-light", "theme-synthwave", "theme-forest");
+    document.body.classList.remove("theme-dark", "theme-light", "theme-synthwave", "theme-forest", "theme-sydney-green");
     document.body.classList.add(`theme-${theme}`);
     
     // Update data-theme attribute for shadcn components
@@ -37,6 +38,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
       {/* Theme-specific background effects */}
+      {theme === "sydney-green" && <SydneyGreenBackground />}
+      
       {theme === "synthwave" && (
         <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-pink-800/30 to-indigo-900/30 animate-pulse-subtle"></div>

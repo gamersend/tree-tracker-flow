@@ -71,6 +71,11 @@ export default {
 					dark: '#1A1A2E',
 					light: '#F5F5F9',
 				},
+				// Sydney Green Theme Colors
+				'sydney-green': '#00FF66',
+				'sydney-purple': '#6B46C1',
+				'sydney-dark': '#0F0A19',
+				'sydney-card': 'rgba(15, 10, 25, 0.9)',
 				// Synthwave Theme Colors
 				synthwave: {
 					pink: '#ff79c6',
@@ -147,6 +152,10 @@ export default {
 					'0%, 100%': { boxShadow: '0 0 5px rgba(255, 121, 198, 0.5)' },
 					'50%': { boxShadow: '0 0 20px rgba(255, 121, 198, 0.8), 0 0 30px rgba(189, 147, 249, 0.5)' }
 				},
+				'sydney-glow': {
+					'0%, 100%': { boxShadow: '0 0 10px rgba(0, 255, 102, 0.4)' },
+					'50%': { boxShadow: '0 0 25px rgba(0, 255, 102, 0.8), 0 0 35px rgba(0, 255, 102, 0.4)' }
+				},
 				'forest-sway': {
 					'0%, 100%': { transform: 'rotate(-1deg)' },
 					'50%': { transform: 'rotate(1deg)' }
@@ -164,6 +173,7 @@ export default {
 				'glow': 'glow 2s infinite ease-in-out',
 				'ripple': 'ripple 1.5s linear',
 				'synthwave-glow': 'synthwave-glow 3s infinite ease-in-out',
+				'sydney-glow': 'sydney-glow 3s infinite ease-in-out',
 				'forest-sway': 'forest-sway 5s infinite ease-in-out',
 			},
 			backgroundImage: {
@@ -172,6 +182,7 @@ export default {
 				'psychedelic-gradient': 'linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc, #ff00cc)',
 				'synthwave-grid': "linear-gradient(180deg, rgba(30, 27, 46, 0) 0%, rgba(30, 27, 46, 0.3) 100%), url('/synthwave-grid.png')",
 				'forest-texture': "url('/forest-bg.jpg')",
+				'sydney-gradient': 'linear-gradient(135deg, #0f0a19 0%, #6b46c1 50%, #0f0a19 100%)',
 			}
 		}
 	},

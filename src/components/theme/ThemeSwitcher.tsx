@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Sun, Moon, Sparkles, Leaf } from "lucide-react";
+import { Sun, Moon, Sparkles, Leaf, Zap } from "lucide-react";
 import { useTheme, Theme } from "./ThemeProvider";
 import {
   DropdownMenu,
@@ -24,21 +24,24 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
     light: <Sun className="h-5 w-5" />,
     dark: <Moon className="h-5 w-5" />,
     synthwave: <Sparkles className="h-5 w-5" />,
-    forest: <Leaf className="h-5 w-5" />
+    forest: <Leaf className="h-5 w-5" />,
+    "sydney-green": <Zap className="h-5 w-5" />
   };
 
   const themeEmoji = {
     light: "🌞",
     dark: "🌙",
     synthwave: "🌌",
-    forest: "🍃"
+    forest: "🍃",
+    "sydney-green": "🦘"
   };
 
   const themeNames = {
     light: "Sunny Day",
     dark: "Classic Dark",
     synthwave: "Retro Synthwave",
-    forest: "Forest Zen"
+    forest: "Forest Zen",
+    "sydney-green": "Sydney Green"
   };
 
   const getThemeButtonClasses = () => {
@@ -51,6 +54,8 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
         return "bg-gradient-to-r from-purple-700 via-pink-600 to-purple-700 text-white";
       case "forest":
         return "bg-green-700 text-green-100";
+      case "sydney-green":
+        return "bg-sydney-green text-black shadow-lg shadow-sydney-green/30";
       default:
         return "bg-slate-800 text-slate-200";
     }
@@ -77,6 +82,17 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
         </motion.div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[200px]">
+        <DropdownMenuItem 
+          onClick={() => handleSelect("sydney-green")}
+          className="cursor-pointer flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-sydney-green" />
+            <span>{themeEmoji["sydney-green"]} {themeNames["sydney-green"]}</span>
+          </div>
+          {theme === "sydney-green" && <Badge variant="default" className="ml-2">Active</Badge>}
+        </DropdownMenuItem>
+        
         <DropdownMenuItem 
           onClick={() => handleSelect("light")}
           className="cursor-pointer flex items-center justify-between"

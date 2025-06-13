@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -123,6 +124,50 @@
     --ring: 267 90% 57%;
   }
 
+  /* Sydney Green Mode */
+  .theme-sydney-green {
+    --background: 240 50% 7%;  /* Deep purple-black */
+    --foreground: 120 100% 95%;  /* Light green-white */
+
+    --card: 240 40% 8%;  /* Slightly lighter purple-black */
+    --card-foreground: 120 100% 95%;
+
+    --popover: 240 40% 8%;
+    --popover-foreground: 120 100% 95%;
+
+    --primary: 147 100% 50%;  /* Sydney Green */
+    --primary-foreground: 240 50% 7%;
+
+    --secondary: 260 50% 20%;  /* Purple accent */
+    --secondary-foreground: 120 100% 95%;
+
+    --muted: 260 30% 15%;
+    --muted-foreground: 120 20% 70%;
+
+    --accent: 147 100% 50%;  /* Sydney Green */
+    --accent-foreground: 240 50% 7%;
+
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 120 100% 95%;
+
+    --border: 147 60% 30%;  /* Darker Sydney Green */
+    --input: 260 30% 15%;
+    --ring: 147 100% 50%;
+    
+    --sidebar-background: 240 50% 5%;  /* Even darker purple */
+    --sidebar-foreground: 120 100% 95%;
+    --sidebar-primary: 147 100% 50%;
+    --sidebar-primary-foreground: 240 50% 7%;
+    --sidebar-accent: 260 50% 20%;
+    --sidebar-accent-foreground: 120 100% 95%;
+    --sidebar-border: 147 60% 30%;
+    --sidebar-ring: 147 100% 50%;
+
+    /* Sydney Green specific shadows */
+    --shadow-sydney: 0 0 10px rgba(0, 255, 102, 0.3);
+    --shadow-sydney-lg: 0 0 25px rgba(0, 255, 102, 0.4);
+  }
+
   /* Retro Synthwave Mode */
   .theme-synthwave {
     --background: 248 24% 15%;  /* #1e1b2e */
@@ -213,6 +258,23 @@
     --shadow-lg: 0 8px 16px rgba(46, 79, 62, 0.12);
   }
 
+  /* Sydney Green specific utility classes */
+  .sydney-glow {
+    text-shadow: 0 0 10px rgba(0, 255, 102, 0.6);
+  }
+
+  .sydney-card-glow {
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.15);
+  }
+
+  .sydney-button-glow {
+    transition: all 0.3s ease;
+  }
+
+  .sydney-button-glow:hover {
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
+  }
+
   /* Stoner Mode Animations */
   .stoner-mode-active .card {
     transition: all 0.3s ease;
@@ -264,6 +326,11 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
   }
+
+  @keyframes sydney-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
 }
 
 @layer base {
@@ -274,6 +341,12 @@
     @apply bg-background text-foreground;
     font-family: 'Poppins', sans-serif;
     overscroll-behavior: none; /* Prevent overscroll bounce */
+  }
+  
+  /* Sydney Green theme specific background */
+  .theme-sydney-green body {
+    background: linear-gradient(135deg, #0f0a19 0%, #1a0f2e 25%, #6b46c1 50%, #1a0f2e 75%, #0f0a19 100%);
+    background-attachment: fixed;
   }
   
   /* Animation classes for use throughout app */
@@ -290,6 +363,21 @@
   }
   
   /* Theme-specific component styles */
+  .theme-sydney-green button {
+    @apply transition-all duration-300;
+  }
+  
+  .theme-sydney-green button:hover {
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
+  }
+  
+  .theme-sydney-green .card {
+    @apply bg-opacity-90 backdrop-blur-sm border-opacity-40;
+    background: linear-gradient(135deg, rgba(15, 10, 25, 0.9) 0%, rgba(107, 70, 193, 0.2) 50%, rgba(15, 10, 25, 0.9) 100%);
+    border: 1px solid rgba(0, 255, 102, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 255, 102, 0.15);
+  }
+  
   .theme-synthwave button {
     @apply transition-shadow duration-300;
   }
@@ -371,6 +459,10 @@
   .theme-forest .subtle-bounce {
     animation: float-forest 3s ease-in-out infinite;
   }
+
+  .theme-sydney-green .sydney-glow {
+    animation: sydney-pulse 3s ease-in-out infinite;
+  }
 }
 
 /* Animated gradient background for synthwave theme */
@@ -378,6 +470,13 @@
   background: linear-gradient(-45deg, #ff00cc, #3333ff, #00ffcc, #ff00cc);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
+}
+
+/* Sydney Green animated background */
+.theme-sydney-green .sydney-bg {
+  background: linear-gradient(-45deg, #0f0a19, #6b46c1, #00ff66, #6b46c1, #0f0a19);
+  background-size: 400% 400%;
+  animation: gradient 20s ease infinite;
 }
 
 @keyframes gradient {

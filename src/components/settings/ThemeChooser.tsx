@@ -4,7 +4,7 @@ import { useTheme, Theme } from "@/components/theme/ThemeProvider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Sun, Moon, Sparkles, Leaf } from "lucide-react";
+import { Sun, Moon, Sparkles, Leaf, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/hooks/useI18n";
 
@@ -12,14 +12,16 @@ const themeIcons = {
   light: <Sun className="h-5 w-5 text-amber-500" />,
   dark: <Moon className="h-5 w-5 text-indigo-400" />,
   synthwave: <Sparkles className="h-5 w-5 text-pink-500" />,
-  forest: <Leaf className="h-5 w-5 text-green-500" />
+  forest: <Leaf className="h-5 w-5 text-green-500" />,
+  "sydney-green": <Zap className="h-5 w-5 text-sydney-green" />
 };
 
 const themeNames = {
   light: "Sunny Day",
   dark: "Classic Dark",
   synthwave: "Retro Synthwave",
-  forest: "Forest Zen"
+  forest: "Forest Zen",
+  "sydney-green": "Sydney Green"
 };
 
 const ThemeChooser = () => {
@@ -28,7 +30,7 @@ const ThemeChooser = () => {
 
   // Add debug console logs to help with troubleshooting
   console.log("Current theme:", theme);
-  console.log("Theme options:", ["dark", "light", "synthwave", "forest"]);
+  console.log("Theme options:", ["sydney-green", "dark", "light", "synthwave", "forest"]);
 
   return (
     <Card>
@@ -45,7 +47,7 @@ const ThemeChooser = () => {
           onValueChange={(value) => setTheme(value as Theme)}
           className="space-y-4"
         >
-          {(["dark", "light", "synthwave", "forest"] as Theme[]).map((themeOption) => (
+          {(["sydney-green", "dark", "light", "synthwave", "forest"] as Theme[]).map((themeOption) => (
             <ThemeOption 
               key={themeOption} 
               theme={themeOption} 
@@ -74,6 +76,8 @@ const ThemeOption = ({ theme, isSelected }: ThemeOptionProps) => {
         return "bg-gradient-to-r from-purple-900 via-pink-800 to-indigo-800 border-pink-500";
       case "forest":
         return "bg-[#d9ead3] border-green-600";
+      case "sydney-green":
+        return "bg-gradient-to-r from-sydney-dark via-sydney-purple to-sydney-dark border-sydney-green";
       default:
         return "bg-background border-primary";
     }
