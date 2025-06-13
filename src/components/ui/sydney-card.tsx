@@ -7,7 +7,7 @@ const SydneyCard = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
-  // Filter out conflicting drag event handlers
+  // Filter out all conflicting event handlers
   const {
     onDrag,
     onDragCapture,
@@ -25,6 +25,12 @@ const SydneyCard = React.forwardRef<
     onDragStartCapture,
     onDrop,
     onDropCapture,
+    onAnimationStart,
+    onAnimationStartCapture,
+    onAnimationEnd,
+    onAnimationEndCapture,
+    onAnimationIteration,
+    onAnimationIterationCapture,
     ...safeProps
   } = props
   

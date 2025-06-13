@@ -2,7 +2,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { motion, HTMLMotionProps } from "framer-motion"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 const sydneyButtonVariants = cva(
@@ -49,7 +49,7 @@ const SydneyButton = React.forwardRef<HTMLButtonElement, SydneyButtonProps>(
       )
     }
 
-    // For motion.button, we need to filter out conflicting props
+    // Filter out all conflicting event handlers
     const {
       onDrag,
       onDragCapture,
@@ -67,6 +67,12 @@ const SydneyButton = React.forwardRef<HTMLButtonElement, SydneyButtonProps>(
       onDragStartCapture,
       onDrop,
       onDropCapture,
+      onAnimationStart,
+      onAnimationStartCapture,
+      onAnimationEnd,
+      onAnimationEndCapture,
+      onAnimationIteration,
+      onAnimationIterationCapture,
       ...safeProps
     } = props
 
