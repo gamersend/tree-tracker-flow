@@ -72,7 +72,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                   </TableCell>
                   <TableCell className="font-medium">{item.strain}</TableCell>
                   <TableCell>{safeFormatDate(item.purchaseDate, "MMM d, yyyy")}</TableCell>
-                  <TableCell>{item.quantityUnit}</TableCell>
+                  <TableCell>{item.quantity}g</TableCell>
                   <TableCell className="text-right">${safeFormatNumber(item.totalCost)}</TableCell>
                   <TableCell className="text-right">${safeFormatNumber(item.pricePerGram)}</TableCell>
                   <TableCell className="text-right">${safeFormatNumber(item.costPerOunce)}</TableCell>

@@ -208,6 +208,7 @@ export type Database = {
         Row: {
           cost_per_ounce: number
           created_at: string | null
+          display_unit: string | null
           id: string
           image_url: string | null
           notes: string | null
@@ -223,6 +224,7 @@ export type Database = {
         Insert: {
           cost_per_ounce: number
           created_at?: string | null
+          display_unit?: string | null
           id?: string
           image_url?: string | null
           notes?: string | null
@@ -238,6 +240,7 @@ export type Database = {
         Update: {
           cost_per_ounce?: number
           created_at?: string | null
+          display_unit?: string | null
           id?: string
           image_url?: string | null
           notes?: string | null

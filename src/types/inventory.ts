@@ -5,7 +5,7 @@ export type InventoryItem = {
   strain: string;
   purchaseDate: Date;
   quantity: number;
-  quantityUnit: "112g" | "224g" | "448g";
+  quantityUnit: string; // Now flexible - can be any string like "112g", "custom", etc.
   totalCost: number;
   pricePerGram: number;
   costPerOunce: number;

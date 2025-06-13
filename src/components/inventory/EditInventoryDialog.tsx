@@ -17,7 +17,7 @@ interface InventoryItem {
   strain: string;
   purchaseDate: Date;
   quantity: number;
-  quantityUnit: "112g" | "224g" | "448g";
+  quantityUnit: string;
   totalCost: number;
   pricePerGram: number;
   costPerOunce: number;
@@ -40,7 +40,7 @@ interface EditInventoryDialogProps {
     id: string,
     strain: string,
     purchaseDate: Date,
-    quantity: "112g" | "224g" | "448g",
+    quantity: number,
     totalCost: string,
     notes: string,
     image?: string | null
@@ -56,7 +56,9 @@ const EditInventoryDialog: React.FC<EditInventoryDialogProps> = ({
 }) => {
   const [strain, setStrain] = useState("");
   const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(undefined);
-  const [quantity, setQuantity] = useState<"112g" | "224g" | "448g">("112g");
+  const [quantity, setQuantity] = useState(0);
+  const [quantityInput, setQuantityInput] = useState("");
+  const [quickSelect, setQuickSelect] = useState("");
   const [totalCost, setTotalCost] = useState("");
   const [notes, setNotes] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -66,12 +68,32 @@ const EditInventoryDialog: React.FC<EditInventoryDialogProps> = ({
     if (item) {
       setStrain(item.strain);
       setPurchaseDate(item.purchaseDate);
-      setQuantity(item.quantityUnit);
+      setQuantity(item.quantity);
+      setQuantityInput(item.quantity.toString());
       setTotalCost(item.totalCost.toString());
       setNotes(item.notes || "");
       setSelectedImage(item.image || null);
+      setQuickSelect(""); // Reset quick select
     }
   }, [item]);
+
+  const handleQuickSelect = (value: string) => {
+    setQuickSelect(value);
+    const gramAmount = value === "112g" ? 112 : value === "224g" ? 224 : value === "448g" ? 448 : 0;
+    if (gramAmount > 0) {
+      setQuantity(gramAmount);
+      setQuantityInput(gramAmount.toString());
+    }
+  };
+
+  const handleQuantityInputChange = (value: string) => {
+    setQuantityInput(value);
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue) && numValue > 0) {
+      setQuantity(numValue);
+      setQuickSelect(""); // Clear quick select when typing custom amount
+    }
+  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -85,7 +107,7 @@ const EditInventoryDialog: React.FC<EditInventoryDialogProps> = ({
   };
 
   const handleUpdateInventory = async () => {
-    if (!item || !strain || !purchaseDate || !totalCost) return;
+    if (!item || !strain || !purchaseDate || !totalCost || quantity <= 0) return;
 
     const success = await onUpdateInventory(
       item.id,
@@ -102,7 +124,9 @@ const EditInventoryDialog: React.FC<EditInventoryDialogProps> = ({
       // Reset form
       setStrain("");
       setPurchaseDate(undefined);
-      setQuantity("112g");
+      setQuantity(0);
+      setQuantityInput("");
+      setQuickSelect("");
       setTotalCost("");
       setNotes("");
       setSelectedImage(null);
@@ -164,17 +188,27 @@ const EditInventoryDialog: React.FC<EditInventoryDialogProps> = ({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="quantity">Quantity</Label>
-            <Select value={quantity} onValueChange={(value: "112g" | "224g" | "448g") => setQuantity(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="112g">112g (4oz)</SelectItem>
-                <SelectItem value="224g">224g (8oz)</SelectItem>
-                <SelectItem value="448g">448g (1lb)</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="quantity">Quantity (grams)</Label>
+            <div className="space-y-2">
+              <Select value={quickSelect} onValueChange={handleQuickSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Quick select common amounts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="112g">112g (4oz)</SelectItem>
+                  <SelectItem value="224g">224g (8oz)</SelectItem>
+                  <SelectItem value="448g">448g (1lb)</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="number"
+                step="0.1"
+                min="0.1"
+                value={quantityInput}
+                onChange={(e) => handleQuantityInputChange(e.target.value)}
+                placeholder="Enter exact amount in grams"
+              />
+            </div>
           </div>
 
           <div className="grid gap-2">
@@ -183,6 +217,7 @@ const EditInventoryDialog: React.FC<EditInventoryDialogProps> = ({
               id="totalCost"
               type="number"
               step="0.01"
+              min="0"
               placeholder="0.00"
               value={totalCost}
               onChange={(e) => setTotalCost(e.target.value)}

@@ -55,7 +55,7 @@ export const useSupabaseInventory = () => {
         strain_name: item.strains.name,
         purchase_date: item.purchase_date,
         quantity: item.quantity,
-        quantity_unit: item.quantity_unit,
+        quantity_unit: item.quantity_unit || `${item.quantity}g`,
         total_cost: item.total_cost,
         price_per_gram: item.price_per_gram,
         cost_per_ounce: item.cost_per_ounce,
@@ -93,7 +93,7 @@ export const useSupabaseInventory = () => {
   const addInventoryItem = async (
     strainName: string,
     purchaseDate: Date,
-    quantity: '112g' | '224g' | '448g',
+    quantity: number,
     totalCost: number,
     notes?: string,
     imageUrl?: string
@@ -105,8 +105,7 @@ export const useSupabaseInventory = () => {
       let strain = strains.find(s => s.name === strainName);
       
       if (!strain) {
-        const quantityValue = quantity === '112g' ? 112 : quantity === '224g' ? 224 : 448;
-        const pricePerGram = totalCost / quantityValue;
+        const pricePerGram = totalCost / quantity;
         
         const { data: newStrain, error: strainError } = await supabase
           .from('strains')
@@ -125,8 +124,7 @@ export const useSupabaseInventory = () => {
       }
 
       // Calculate values
-      const quantityValue = quantity === '112g' ? 112 : quantity === '224g' ? 224 : 448;
-      const pricePerGram = totalCost / quantityValue;
+      const pricePerGram = totalCost / quantity;
       const costPerOunce = pricePerGram * 28;
 
       // Add inventory item
@@ -136,8 +134,8 @@ export const useSupabaseInventory = () => {
           user_id: user.id,
           strain_id: strain.id,
           purchase_date: purchaseDate.toISOString().split('T')[0],
-          quantity: quantityValue,
-          quantity_unit: quantity,
+          quantity: quantity,
+          quantity_unit: `${quantity}g`,
           total_cost: totalCost,
           price_per_gram: pricePerGram,
           cost_per_ounce: costPerOunce,
@@ -162,7 +160,7 @@ export const useSupabaseInventory = () => {
     id: string,
     strainName: string,
     purchaseDate: Date,
-    quantity: '112g' | '224g' | '448g',
+    quantity: number,
     totalCost: number,
     notes?: string,
     imageUrl?: string
@@ -174,8 +172,7 @@ export const useSupabaseInventory = () => {
       let strain = strains.find(s => s.name === strainName);
       
       if (!strain) {
-        const quantityValue = quantity === '112g' ? 112 : quantity === '224g' ? 224 : 448;
-        const pricePerGram = totalCost / quantityValue;
+        const pricePerGram = totalCost / quantity;
         
         const { data: newStrain, error: strainError } = await supabase
           .from('strains')
@@ -194,8 +191,7 @@ export const useSupabaseInventory = () => {
       }
 
       // Calculate values
-      const quantityValue = quantity === '112g' ? 112 : quantity === '224g' ? 224 : 448;
-      const pricePerGram = totalCost / quantityValue;
+      const pricePerGram = totalCost / quantity;
       const costPerOunce = pricePerGram * 28;
 
       // Update inventory item
@@ -204,8 +200,8 @@ export const useSupabaseInventory = () => {
         .update({
           strain_id: strain.id,
           purchase_date: purchaseDate.toISOString().split('T')[0],
-          quantity: quantityValue,
-          quantity_unit: quantity,
+          quantity: quantity,
+          quantity_unit: `${quantity}g`,
           total_cost: totalCost,
           price_per_gram: pricePerGram,
           cost_per_ounce: costPerOunce,

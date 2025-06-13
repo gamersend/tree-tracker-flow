@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { 
@@ -19,7 +19,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { StrainInfo } from "@/types/inventory";
-import { calculatePricePerGram, getQuantityInGrams, safeFormatNumber } from "@/utils/inventory-utils";
+import { safeFormatNumber } from "@/utils/inventory-utils";
 
 interface AddInventoryDialogProps {
   isOpen: boolean;
@@ -28,8 +28,8 @@ interface AddInventoryDialogProps {
   setStrain: (strain: string) => void;
   purchaseDate: Date | undefined;
   setPurchaseDate: (date: Date | undefined) => void;
-  quantity: "112g" | "224g" | "448g";
-  setQuantity: (quantity: "112g" | "224g" | "448g") => void;
+  quantity: number;
+  setQuantity: (quantity: number) => void;
   totalCost: string;
   setTotalCost: (cost: string) => void;
   notes: string;
@@ -60,6 +60,27 @@ const AddInventoryDialog: React.FC<AddInventoryDialogProps> = ({
   handleAddInventory,
   strains
 }) => {
+  const [quantityInput, setQuantityInput] = useState(quantity.toString());
+  const [quickSelect, setQuickSelect] = useState("");
+
+  const handleQuickSelect = (value: string) => {
+    setQuickSelect(value);
+    const gramAmount = value === "112g" ? 112 : value === "224g" ? 224 : value === "448g" ? 448 : 0;
+    if (gramAmount > 0) {
+      setQuantity(gramAmount);
+      setQuantityInput(gramAmount.toString());
+    }
+  };
+
+  const handleQuantityInputChange = (value: string) => {
+    setQuantityInput(value);
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue) && numValue > 0) {
+      setQuantity(numValue);
+      setQuickSelect(""); // Clear quick select when typing custom amount
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[600px]">
@@ -114,20 +135,27 @@ const AddInventoryDialog: React.FC<AddInventoryDialogProps> = ({
           </div>
           
           <div className="grid gap-2">
-            <Label htmlFor="quantity">Quantity</Label>
-            <Select 
-              value={quantity} 
-              onValueChange={(value: "112g" | "224g" | "448g") => setQuantity(value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select quantity" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="112g">112g (4 oz)</SelectItem>
-                <SelectItem value="224g">224g (8 oz)</SelectItem>
-                <SelectItem value="448g">448g (16 oz)</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="quantity">Quantity (grams)</Label>
+            <div className="space-y-2">
+              <Select value={quickSelect} onValueChange={handleQuickSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Quick select common amounts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="112g">112g (4 oz)</SelectItem>
+                  <SelectItem value="224g">224g (8 oz)</SelectItem>
+                  <SelectItem value="448g">448g (16 oz)</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="number"
+                step="0.1"
+                min="0.1"
+                value={quantityInput}
+                onChange={(e) => handleQuantityInputChange(e.target.value)}
+                placeholder="Enter exact amount in grams"
+              />
+            </div>
           </div>
           
           <div className="grid gap-2">
@@ -135,6 +163,8 @@ const AddInventoryDialog: React.FC<AddInventoryDialogProps> = ({
             <Input
               id="cost"
               type="number"
+              step="0.01"
+              min="0"
               value={totalCost}
               onChange={(e) => setTotalCost(e.target.value)}
               placeholder="e.g., 560"
@@ -186,13 +216,13 @@ const AddInventoryDialog: React.FC<AddInventoryDialogProps> = ({
             <h3 className="font-medium mb-2">Cost Preview</h3>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div className="text-gray-400">Quantity:</div>
-              <div>{quantity}</div>
+              <div>{quantity}g</div>
               <div className="text-gray-400">Total Cost:</div>
               <div>${totalCost || "0.00"}</div>
               <div className="text-gray-400">Cost per Gram:</div>
               <div className="font-medium">
-                {totalCost && quantity
-                  ? `$${safeFormatNumber(calculatePricePerGram(parseFloat(totalCost), getQuantityInGrams(quantity)))}`
+                {totalCost && quantity > 0
+                  ? `$${safeFormatNumber(parseFloat(totalCost) / quantity)}`
                   : "$0.00"}
               </div>
             </div>

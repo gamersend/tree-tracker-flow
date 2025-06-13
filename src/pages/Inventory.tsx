@@ -47,7 +47,7 @@ const Inventory = () => {
     handleImageUpload,
     handleAddInventory
   } = useAddInventoryForm(async (strain, purchaseDate, quantity, totalCost, notes, image) => {
-    const success = await addInventoryItem(strain, purchaseDate, quantity, parseFloat(totalCost), notes, image);
+    const success = await addInventoryItem(strain, purchaseDate, quantity, totalCost, notes, image);
     return success;
   });
 
@@ -79,26 +79,26 @@ const Inventory = () => {
   const formattedInventory = inventory.map(item => ({
     id: item.id,
     strain: item.strain_name,
-    purchaseDate: new Date(item.purchase_date),
+    purchaseDate: new Date(item.purchase_date + 'T00:00:00'), // Fix date parsing
     quantity: item.quantity,
-    quantityUnit: item.quantity_unit as "112g" | "224g" | "448g",
+    quantityUnit: item.quantity_unit,
     totalCost: item.total_cost,
     pricePerGram: item.price_per_gram,
     costPerOunce: item.cost_per_ounce,
-    notes: item.notes,
+    notes: item.notes || "",
     image: item.image_url
   }));
 
   const formattedFilteredInventory = filteredInventory.map(item => ({
     id: item.id,
     strain: item.strain_name,
-    purchaseDate: new Date(item.purchase_date),
+    purchaseDate: new Date(item.purchase_date + 'T00:00:00'), // Fix date parsing
     quantity: item.quantity,
-    quantityUnit: item.quantity_unit as "112g" | "224g" | "448g",
+    quantityUnit: item.quantity_unit,
     totalCost: item.total_cost,
     pricePerGram: item.price_per_gram,
     costPerOunce: item.cost_per_ounce,
-    notes: item.notes,
+    notes: item.notes || "",
     image: item.image_url
   }));
 
@@ -111,7 +111,7 @@ const Inventory = () => {
     id: string,
     strain: string,
     purchaseDate: Date,
-    quantity: "112g" | "224g" | "448g",
+    quantity: number,
     totalCost: string,
     notes: string,
     image?: string | null
@@ -121,7 +121,8 @@ const Inventory = () => {
   };
 
   const handleDeleteItem = async (id: string) => {
-    await deleteInventoryItem(id);
+    await deleteInventoryItem(i
+);
   };
   
   return (
