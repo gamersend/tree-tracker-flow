@@ -2,7 +2,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { motion } from "framer-motion"
+import { motion, HTMLMotionProps } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 const sydneyButtonVariants = cva(
@@ -39,19 +39,45 @@ export interface SydneyButtonProps
 
 const SydneyButton = React.forwardRef<HTMLButtonElement, SydneyButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : motion.button
-    
-    // Separate motion props from HTML button props
-    const { onAnimationStart, onAnimationComplete, ...buttonProps } = props
-    
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(sydneyButtonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        />
+      )
+    }
+
+    // For motion.button, we need to filter out conflicting props
+    const {
+      onDrag,
+      onDragCapture,
+      onDragEnd,
+      onDragEndCapture,
+      onDragEnter,
+      onDragEnterCapture,
+      onDragExit,
+      onDragExitCapture,
+      onDragLeave,
+      onDragLeaveCapture,
+      onDragOver,
+      onDragOverCapture,
+      onDragStart,
+      onDragStartCapture,
+      onDrop,
+      onDropCapture,
+      ...safeProps
+    } = props
+
     return (
-      <Comp
+      <motion.button
         className={cn(sydneyButtonVariants({ variant, size, className }))}
         ref={ref}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        {...buttonProps}
+        {...safeProps}
       />
     )
   }

@@ -7,8 +7,26 @@ const SydneyCard = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
-  // Separate motion props from HTML div props
-  const { onAnimationStart, onAnimationComplete, ...divProps } = props
+  // Filter out conflicting drag event handlers
+  const {
+    onDrag,
+    onDragCapture,
+    onDragEnd,
+    onDragEndCapture,
+    onDragEnter,
+    onDragEnterCapture,
+    onDragExit,
+    onDragExitCapture,
+    onDragLeave,
+    onDragLeaveCapture,
+    onDragOver,
+    onDragOverCapture,
+    onDragStart,
+    onDragStartCapture,
+    onDrop,
+    onDropCapture,
+    ...safeProps
+  } = props
   
   return (
     <motion.div
@@ -22,7 +40,7 @@ const SydneyCard = React.forwardRef<
         "rounded-xl border-2 border-sydney-green/30 bg-gradient-to-br from-slate-900/90 to-purple-900/90 backdrop-blur-sm text-card-foreground shadow-lg shadow-sydney-green/10 sydney-card-glow",
         className
       )}
-      {...divProps}
+      {...safeProps}
     >
       {children}
     </motion.div>
