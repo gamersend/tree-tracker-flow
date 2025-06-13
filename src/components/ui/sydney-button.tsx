@@ -40,6 +40,10 @@ export interface SydneyButtonProps
 const SydneyButton = React.forwardRef<HTMLButtonElement, SydneyButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : motion.button
+    
+    // Separate motion props from HTML button props
+    const { onAnimationStart, onAnimationComplete, ...buttonProps } = props
+    
     return (
       <Comp
         className={cn(sydneyButtonVariants({ variant, size, className }))}
@@ -47,7 +51,7 @@ const SydneyButton = React.forwardRef<HTMLButtonElement, SydneyButtonProps>(
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        {...props}
+        {...buttonProps}
       />
     )
   }

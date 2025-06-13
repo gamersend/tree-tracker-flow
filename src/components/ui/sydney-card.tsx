@@ -6,23 +6,28 @@ import { motion } from "framer-motion"
 const SydneyCard = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => (
-  <motion.div
-    ref={ref}
-    whileHover={{ 
-      scale: 1.02,
-      boxShadow: "0 0 25px rgba(0, 255, 102, 0.3)"
-    }}
-    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-    className={cn(
-      "rounded-xl border-2 border-sydney-green/30 bg-gradient-to-br from-slate-900/90 to-purple-900/90 backdrop-blur-sm text-card-foreground shadow-lg shadow-sydney-green/10 sydney-card-glow",
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </motion.div>
-))
+>(({ className, children, ...props }, ref) => {
+  // Separate motion props from HTML div props
+  const { onAnimationStart, onAnimationComplete, ...divProps } = props
+  
+  return (
+    <motion.div
+      ref={ref}
+      whileHover={{ 
+        scale: 1.02,
+        boxShadow: "0 0 25px rgba(0, 255, 102, 0.3)"
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={cn(
+        "rounded-xl border-2 border-sydney-green/30 bg-gradient-to-br from-slate-900/90 to-purple-900/90 backdrop-blur-sm text-card-foreground shadow-lg shadow-sydney-green/10 sydney-card-glow",
+        className
+      )}
+      {...divProps}
+    >
+      {children}
+    </motion.div>
+  )
+})
 SydneyCard.displayName = "SydneyCard"
 
 const SydneyCardHeader = React.forwardRef<
