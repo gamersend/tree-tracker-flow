@@ -151,10 +151,11 @@ const NaturalLanguageLogger = () => {
     }
 
     // Create new strain by adding an inventory item
+    // Fix: Convert quantity to number (112 instead of '112g')
     const success = await addInventoryItem(
       strainName,
       new Date(),
-      '112g',
+      112, // quantity as number, not string
       costPerGram * 112, // total cost for 112g
       'Auto-created from sale entry'
     );

@@ -121,8 +121,7 @@ const Inventory = () => {
   };
 
   const handleDeleteItem = async (id: string) => {
-    await deleteInventoryItem(i
-);
+    await deleteInventoryItem(id);
   };
   
   return (
