@@ -49,32 +49,20 @@ const SydneyButton = React.forwardRef<HTMLButtonElement, SydneyButtonProps>(
       )
     }
 
-    // Filter out all conflicting event handlers
-    const {
-      onDrag,
-      onDragCapture,
-      onDragEnd,
-      onDragEndCapture,
-      onDragEnter,
-      onDragEnterCapture,
-      onDragExit,
-      onDragExitCapture,
-      onDragLeave,
-      onDragLeaveCapture,
-      onDragOver,
-      onDragOverCapture,
-      onDragStart,
-      onDragStartCapture,
-      onDrop,
-      onDropCapture,
-      onAnimationStart,
-      onAnimationStartCapture,
-      onAnimationEnd,
-      onAnimationEndCapture,
-      onAnimationIteration,
-      onAnimationIterationCapture,
-      ...safeProps
-    } = props
+    // Create motion-safe props by filtering out conflicting handlers
+    const motionProps = React.useMemo(() => {
+      const {
+        // Filter out all HTML event handlers that conflict with Framer Motion
+        onDrag, onDragCapture, onDragEnd, onDragEndCapture,
+        onDragEnter, onDragEnterCapture, onDragExit, onDragExitCapture,
+        onDragLeave, onDragLeaveCapture, onDragOver, onDragOverCapture,
+        onDragStart, onDragStartCapture, onDrop, onDropCapture,
+        onAnimationStart, onAnimationStartCapture, onAnimationEnd,
+        onAnimationEndCapture, onAnimationIteration, onAnimationIterationCapture,
+        ...safeProps
+      } = props
+      return safeProps
+    }, [props])
 
     return (
       <motion.button
@@ -83,7 +71,7 @@ const SydneyButton = React.forwardRef<HTMLButtonElement, SydneyButtonProps>(
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        {...safeProps}
+        {...motionProps}
       />
     )
   }

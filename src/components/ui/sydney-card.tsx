@@ -7,32 +7,20 @@ const SydneyCard = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
-  // Filter out all conflicting event handlers
-  const {
-    onDrag,
-    onDragCapture,
-    onDragEnd,
-    onDragEndCapture,
-    onDragEnter,
-    onDragEnterCapture,
-    onDragExit,
-    onDragExitCapture,
-    onDragLeave,
-    onDragLeaveCapture,
-    onDragOver,
-    onDragOverCapture,
-    onDragStart,
-    onDragStartCapture,
-    onDrop,
-    onDropCapture,
-    onAnimationStart,
-    onAnimationStartCapture,
-    onAnimationEnd,
-    onAnimationEndCapture,
-    onAnimationIteration,
-    onAnimationIterationCapture,
-    ...safeProps
-  } = props
+  // Create motion-safe props by filtering out conflicting handlers
+  const motionProps = React.useMemo(() => {
+    const {
+      // Filter out all HTML event handlers that conflict with Framer Motion
+      onDrag, onDragCapture, onDragEnd, onDragEndCapture,
+      onDragEnter, onDragEnterCapture, onDragExit, onDragExitCapture,
+      onDragLeave, onDragLeaveCapture, onDragOver, onDragOverCapture,
+      onDragStart, onDragStartCapture, onDrop, onDropCapture,
+      onAnimationStart, onAnimationStartCapture, onAnimationEnd,
+      onAnimationEndCapture, onAnimationIteration, onAnimationIterationCapture,
+      ...safeProps
+    } = props
+    return safeProps
+  }, [props])
   
   return (
     <motion.div
@@ -46,7 +34,7 @@ const SydneyCard = React.forwardRef<
         "rounded-xl border-2 border-sydney-green/30 bg-gradient-to-br from-slate-900/90 to-purple-900/90 backdrop-blur-sm text-card-foreground shadow-lg shadow-sydney-green/10 sydney-card-glow",
         className
       )}
-      {...safeProps}
+      {...motionProps}
     >
       {children}
     </motion.div>

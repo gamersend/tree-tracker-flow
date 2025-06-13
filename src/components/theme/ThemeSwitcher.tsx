@@ -81,7 +81,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
           </Button>
         </motion.div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[200px]">
+      <DropdownMenuContent align="end" className="min-w-[200px] bg-background border-border">
         <DropdownMenuItem 
           onClick={() => handleSelect("sydney-green")}
           className="cursor-pointer flex items-center justify-between"
@@ -90,7 +90,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
             <Zap className="h-4 w-4 text-sydney-green" />
             <span>{themeEmoji["sydney-green"]} {themeNames["sydney-green"]}</span>
           </div>
-          {theme === "sydney-green" && <Badge variant="default" className="ml-2">Active</Badge>}
+          {theme === "sydney-green" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
         
         <DropdownMenuItem 
@@ -101,7 +101,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
             <Sun className="h-4 w-4 text-amber-500" />
             <span>{themeEmoji.light} {themeNames.light}</span>
           </div>
-          {theme === "light" && <Badge variant="default" className="ml-2">Active</Badge>}
+          {theme === "light" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
         
         <DropdownMenuItem 
@@ -112,7 +112,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
             <Moon className="h-4 w-4 text-indigo-400" />
             <span>{themeEmoji.dark} {themeNames.dark}</span>
           </div>
-          {theme === "dark" && <Badge variant="default" className="ml-2">Active</Badge>}
+          {theme === "dark" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
         
         <DropdownMenuItem 
@@ -123,7 +123,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
             <Sparkles className="h-4 w-4 text-pink-500" />
             <span>{themeEmoji.synthwave} {themeNames.synthwave}</span>
           </div>
-          {theme === "synthwave" && <Badge variant="synthwave" className="ml-2">Active</Badge>}
+          {theme === "synthwave" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
         
         <DropdownMenuItem 
@@ -134,7 +134,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
             <Leaf className="h-4 w-4 text-green-500" />
             <span>{themeEmoji.forest} {themeNames.forest}</span>
           </div>
-          {theme === "forest" && <Badge variant="forest" className="ml-2">Active</Badge>}
+          {theme === "forest" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

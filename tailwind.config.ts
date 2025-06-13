@@ -71,11 +71,18 @@ export default {
 					dark: '#1A1A2E',
 					light: '#F5F5F9',
 				},
-				// Sydney Green Theme Colors
+				// Sydney Green Theme Colors (Complete definitions)
 				'sydney-green': '#00FF66',
 				'sydney-purple': '#6B46C1',
 				'sydney-dark': '#0F0A19',
 				'sydney-card': 'rgba(15, 10, 25, 0.9)',
+				'sydney': {
+					green: '#00FF66',
+					purple: '#6B46C1', 
+					dark: '#0F0A19',
+					card: 'rgba(15, 10, 25, 0.9)',
+					light: '#E0FFE6',
+				},
 				// Synthwave Theme Colors
 				synthwave: {
 					pink: '#ff79c6',

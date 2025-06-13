@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Sun, Moon, Sparkles, Leaf, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/hooks/useI18n";
+import { Badge } from "@/components/ui/badge";
 
 const themeIcons = {
   light: <Sun className="h-5 w-5 text-amber-500" />,
@@ -98,6 +99,7 @@ const ThemeOption = ({ theme, isSelected }: ThemeOptionProps) => {
           {themeIcons[theme]}
         </div>
         <div className="font-medium">{themeNames[theme]}</div>
+        {isSelected && <Badge variant="default" className="ml-auto">Active</Badge>}
       </motion.label>
     </div>
   );

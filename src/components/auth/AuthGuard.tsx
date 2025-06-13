@@ -14,8 +14,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   // Show loading spinner while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tree-green"></div>
+      <div className="min-h-screen flex items-center justify-center bg-sydney-dark">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sydney-green"></div>
       </div>
     );
   }
