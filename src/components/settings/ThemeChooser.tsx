@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useTheme, Theme } from "@/components/theme/ThemeProvider";
-import { Card, CardContent } from "@/components/ui/card";
+import { SydneyCard, SydneyCardContent } from "@/components/ui/sydney-card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Sun, Moon, Sparkles, Leaf, Zap } from "lucide-react";
@@ -34,11 +34,11 @@ const ThemeChooser = () => {
   console.log("Theme options:", ["sydney-green", "dark", "light", "synthwave", "forest"]);
 
   return (
-    <Card>
-      <CardContent className="pt-6">
+    <SydneyCard>
+      <SydneyCardContent className="pt-6">
         <div className="mb-4">
-          <Label className="text-lg font-medium">Choose Theme</Label>
-          <p className="text-sm text-muted-foreground mt-1">
+          <Label className="text-lg font-medium text-sydney-green">Choose Theme</Label>
+          <p className="text-sm text-sydney-green/70 mt-1">
             Select a theme to personalize your experience
           </p>
         </div>
@@ -56,8 +56,8 @@ const ThemeChooser = () => {
             />
           ))}
         </RadioGroup>
-      </CardContent>
-    </Card>
+      </SydneyCardContent>
+    </SydneyCard>
   );
 };
 
@@ -86,20 +86,22 @@ const ThemeOption = ({ theme, isSelected }: ThemeOptionProps) => {
   
   return (
     <div className="flex items-center space-x-2">
-      <RadioGroupItem value={theme} id={`theme-${theme}`} />
+      <RadioGroupItem value={theme} id={`theme-${theme}`} className="border-sydney-green text-sydney-green" />
       <motion.label
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         htmlFor={`theme-${theme}`}
-        className={`flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer flex-1 border ${
-          isSelected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : 'border-muted'
+        className={`flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer flex-1 border transition-all duration-200 ${
+          isSelected 
+            ? 'ring-2 ring-sydney-green ring-offset-2 ring-offset-sydney-dark border-sydney-green bg-sydney-green/10' 
+            : 'border-sydney-green/30 hover:border-sydney-green/50 hover:bg-sydney-green/5'
         }`}
       >
         <div className={`h-8 w-8 rounded-md flex items-center justify-center border ${getThemePreviewClasses()}`}>
           {themeIcons[theme]}
         </div>
-        <div className="font-medium">{themeNames[theme]}</div>
-        {isSelected && <Badge variant="default" className="ml-auto">Active</Badge>}
+        <div className="font-medium text-sydney-green">{themeNames[theme]}</div>
+        {isSelected && <Badge variant="default" className="ml-auto bg-sydney-green text-sydney-dark">Active</Badge>}
       </motion.label>
     </div>
   );

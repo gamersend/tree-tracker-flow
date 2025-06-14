@@ -26,6 +26,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { useLocation, useNavigate } from "react-router-dom";
+import { SydneyGreenLogo } from "@/components/theme/SydneyGreenTheme";
 
 const Sidebar = () => {
   const isMobile = useIsMobile();
@@ -122,8 +123,11 @@ const Sidebar = () => {
   ];
 
   return (
-    <SidebarComponent>
-      <SidebarContent>
+    <SidebarComponent className="bg-sydney-dark border-sydney-green/30">
+      <div className="p-4 border-b border-sydney-green/30">
+        <SydneyGreenLogo />
+      </div>
+      <SidebarContent className="bg-sydney-dark">
         <SidebarGroup>
           <SidebarMenu>
             {navigationItems.map((item, index) => (
@@ -132,6 +136,10 @@ const Sidebar = () => {
                   onClick={() => navigateTo(item.href)}
                   tooltip={item.title}
                   isActive={isActive(item.href)}
+                  className={cn(
+                    "text-sydney-green/80 hover:text-sydney-green hover:bg-sydney-green/10 transition-all duration-200",
+                    isActive(item.href) && "bg-sydney-green/20 text-sydney-green border-r-2 border-sydney-green"
+                  )}
                 >
                   {item.icon}
                   {item.title}

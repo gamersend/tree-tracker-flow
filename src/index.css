@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -6,45 +5,49 @@
 @tailwind utilities;
 
 @layer base {
-  /* Base theme (dark) */
+  /* Base theme (Sydney Green) */
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 240 50% 7%;  /* Deep purple-black */
+    --foreground: 120 100% 95%;  /* Light green-white */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 40% 8%;  /* Slightly lighter purple-black */
+    --card-foreground: 120 100% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 40% 8%;
+    --popover-foreground: 120 100% 95%;
 
-    --primary: 267 99% 60%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 147 100% 50%;  /* Sydney Green */
+    --primary-foreground: 240 50% 7%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 260 50% 20%;  /* Purple accent */
+    --secondary-foreground: 120 100% 95%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 260 30% 15%;
+    --muted-foreground: 120 20% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 147 100% 50%;  /* Sydney Green */
+    --accent-foreground: 240 50% 7%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 120 100% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 267 99% 60%;
+    --border: 147 60% 30%;  /* Darker Sydney Green */
+    --input: 260 30% 15%;
+    --ring: 147 100% 50%;
     --radius: 0.5rem;
     
-    --sidebar-background: 222.2 84% 4.9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 267 99% 60%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 267 99% 60%;
+    --sidebar-background: 240 50% 5%;  /* Even darker purple */
+    --sidebar-foreground: 120 100% 95%;
+    --sidebar-primary: 147 100% 50%;
+    --sidebar-primary-foreground: 240 50% 7%;
+    --sidebar-accent: 260 50% 20%;
+    --sidebar-accent-foreground: 120 100% 95%;
+    --sidebar-border: 147 60% 30%;
+    --sidebar-ring: 147 100% 50%;
+
+    /* Sydney Green specific shadows */
+    --shadow-sydney: 0 0 10px rgba(0, 255, 102, 0.3);
+    --shadow-sydney-lg: 0 0 25px rgba(0, 255, 102, 0.4);
   }
 
   /* Light theme: Sunny Day */
@@ -124,7 +127,7 @@
     --ring: 267 90% 57%;
   }
 
-  /* Sydney Green Mode */
+  /* Sydney Green Mode (Enhanced as default) */
   .theme-sydney-green {
     --background: 240 50% 7%;  /* Deep purple-black */
     --foreground: 120 100% 95%;  /* Light green-white */
@@ -275,6 +278,27 @@
     box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
   }
 
+  /* Enhanced cannabis background pattern */
+  .cannabis-bg {
+    background: linear-gradient(135deg, #0f0a19 0%, #1a0f2e 25%, #6b46c1 50%, #1a0f2e 75%, #0f0a19 100%);
+    background-attachment: fixed;
+    position: relative;
+  }
+
+  .cannabis-bg::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/cannabis-pattern.svg');
+    background-size: 100px 100px;
+    opacity: 0.02;
+    pointer-events: none;
+    z-index: -1;
+  }
+
   /* Stoner Mode Animations */
   .stoner-mode-active .card {
     transition: all 0.3s ease;
@@ -343,8 +367,8 @@
     overscroll-behavior: none; /* Prevent overscroll bounce */
   }
   
-  /* Sydney Green theme specific background */
-  .theme-sydney-green body {
+  /* Sydney Green theme specific background (Enhanced as default) */
+  body {
     background: linear-gradient(135deg, #0f0a19 0%, #1a0f2e 25%, #6b46c1 50%, #1a0f2e 75%, #0f0a19 100%);
     background-attachment: fixed;
   }
@@ -362,41 +386,22 @@
     @apply animate-bounce-subtle;
   }
   
-  /* Theme-specific component styles */
-  .theme-sydney-green button {
+  /* Enhanced Theme-specific component styles */
+  button {
     @apply transition-all duration-300;
   }
   
-  .theme-sydney-green button:hover {
+  button:hover {
     box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
   }
   
-  .theme-sydney-green .card {
+  .card {
     @apply bg-opacity-90 backdrop-blur-sm border-opacity-40;
     background: linear-gradient(135deg, rgba(15, 10, 25, 0.9) 0%, rgba(107, 70, 193, 0.2) 50%, rgba(15, 10, 25, 0.9) 100%);
     border: 1px solid rgba(0, 255, 102, 0.3);
     box-shadow: 0 4px 20px rgba(0, 255, 102, 0.15);
   }
   
-  .theme-synthwave button {
-    @apply transition-shadow duration-300;
-  }
-  
-  .theme-synthwave button:hover {
-    box-shadow: var(--glow-pink);
-  }
-  
-  .theme-synthwave .card {
-    @apply bg-opacity-80 backdrop-blur-sm border-opacity-30;
-    box-shadow: 0 4px 20px rgba(189, 147, 249, 0.15);
-    border-image: linear-gradient(45deg, rgba(255, 121, 198, 0.6), rgba(189, 147, 249, 0.6)) 1;
-  }
-  
-  .theme-forest .card {
-    @apply rounded-xl border-opacity-40;
-    box-shadow: var(--shadow-md);
-  }
-
   /* Style transitions for theme switching */
   body, button, input, .card, .bg-background, .bg-card, .text-foreground, .text-muted-foreground, .border-border {
     @apply transition-colors duration-300;
@@ -451,29 +456,19 @@
     animation: notification-puff 0.4s ease-out;
   }
   
-  /* Theme-specific animations */
-  .theme-synthwave .card {
-    animation: glow-synthwave 4s infinite;
-  }
-  
-  .theme-forest .subtle-bounce {
-    animation: float-forest 3s ease-in-out infinite;
-  }
-
-  .theme-sydney-green .sydney-glow {
+  /* Theme-specific animations enhanced for Sydney Green */
+  .sydney-glow {
     animation: sydney-pulse 3s ease-in-out infinite;
   }
+
+  @keyframes sydney-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
 }
 
-/* Animated gradient background for synthwave theme */
-.theme-synthwave .psychedelic-bg {
-  background: linear-gradient(-45deg, #ff00cc, #3333ff, #00ffcc, #ff00cc);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
-}
-
-/* Sydney Green animated background */
-.theme-sydney-green .sydney-bg {
+/* Sydney Green animated background (Enhanced) */
+.sydney-bg {
   background: linear-gradient(-45deg, #0f0a19, #6b46c1, #00ff66, #6b46c1, #0f0a19);
   background-size: 400% 400%;
   animation: gradient 20s ease infinite;

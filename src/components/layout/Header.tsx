@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { SydneyButton } from "@/components/ui/sydney-button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, LogOut, User } from "lucide-react";
 import Sidebar from "./Sidebar";
@@ -30,15 +30,15 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-700 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
+    <header className="sticky top-0 z-50 w-full border-b border-sydney-green/30 bg-sydney-dark/95 backdrop-blur supports-[backdrop-filter]:bg-sydney-dark/60">
       <div className="flex h-14 items-center px-4 lg:px-6">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="md:hidden">
+            <SydneyButton variant="outline" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
-            </Button>
+            </SydneyButton>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0">
+          <SheetContent side="left" className="p-0 bg-sydney-dark border-sydney-green/30">
             <Sidebar />
           </SheetContent>
         </Sheet>
@@ -50,23 +50,25 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
+              <SydneyButton variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8 border border-sydney-green/30">
                   <AvatarImage src={user.user_metadata?.avatar_url} />
-                  <AvatarFallback>{getInitials(user.email || 'U')}</AvatarFallback>
+                  <AvatarFallback className="bg-sydney-green text-sydney-dark font-bold">
+                    {getInitials(user.email || 'U')}
+                  </AvatarFallback>
                 </Avatar>
-              </Button>
+              </SydneyButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-56 bg-sydney-dark border-sydney-green/30" align="end" forceMount>
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">{user.email}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-medium text-sydney-green">{user.email}</p>
+                  <p className="text-xs text-sydney-green/70">
                     {user.user_metadata?.first_name || 'User'}
                   </p>
                 </div>
               </div>
-              <DropdownMenuItem onClick={handleSignOut}>
+              <DropdownMenuItem onClick={handleSignOut} className="text-sydney-green hover:bg-sydney-green/10">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
