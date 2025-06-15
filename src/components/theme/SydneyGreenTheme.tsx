@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -156,4 +155,11 @@ export const PageBackground = ({ imageIndex = 0 }: { imageIndex?: number }) => {
       <div className="absolute inset-0 bg-gradient-to-br from-sydney-dark/90 via-sydney-purple/60 to-sydney-dark/90" />
     </motion.div>
   );
+};
+
+// Ensure the export table is explicit at the end of the file.
+export {
+  SydneyGreenBackground,
+  SydneyGreenLogo,
+  PageBackground,
 };
