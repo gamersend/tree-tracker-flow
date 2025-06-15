@@ -86,7 +86,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
         >
           <div className="flex items-center gap-2">
             <Sun className="h-4 w-4 text-amber-500" />
-            <span>{themeEmoji.light} {themeNames.light}</span>
+            <span>{themeEmojis.light} {themeNames.light}</span>
           </div>
           {theme === "light" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
@@ -97,7 +97,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
         >
           <div className="flex items-center gap-2">
             <Moon className="h-4 w-4 text-indigo-400" />
-            <span>{themeEmoji.dark} {themeNames.dark}</span>
+            <span>{themeEmojis.dark} {themeNames.dark}</span>
           </div>
           {theme === "dark" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
@@ -108,7 +108,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
         >
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-pink-500" />
-            <span>{themeEmoji.synthwave} {themeNames.synthwave}</span>
+            <span>{themeEmojis.synthwave} {themeNames.synthwave}</span>
           </div>
           {theme === "synthwave" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
@@ -119,7 +119,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
         >
           <div className="flex items-center gap-2">
             <Leaf className="h-4 w-4 text-green-500" />
-            <span>{themeEmoji.forest} {themeNames.forest}</span>
+            <span>{themeEmojis.forest} {themeNames.forest}</span>
           </div>
           {theme === "forest" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
