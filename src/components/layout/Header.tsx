@@ -4,7 +4,7 @@ import { SydneyButton } from "@/components/ui/sydney-button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, LogOut, User } from "lucide-react";
 import Sidebar from "./Sidebar";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
   DropdownMenu,

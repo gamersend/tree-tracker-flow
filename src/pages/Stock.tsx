@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseStock } from "@/hooks/useSupabaseStock";
 import StockHeader from "@/components/stock/StockHeader";
 import StockLevelsCard from "@/components/stock/StockLevelsCard";
