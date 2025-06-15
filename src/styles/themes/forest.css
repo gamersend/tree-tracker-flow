@@ -1,0 +1,47 @@
+
+@layer base {
+  /* Forest Zen Mode */
+  .theme-forest {
+    --background: 100 30% 87%;  /* #d9ead3 */
+    --foreground: 147 25% 25%;  /* #2e4f3e */
+
+    --card: 100 30% 92%;
+    --card-foreground: 147 25% 25%;
+
+    --popover: 100 30% 92%;
+    --popover-foreground: 147 25% 25%;
+
+    --primary: 145 40% 35%;  /* Forest green */
+    --primary-foreground: 100 30% 95%;
+
+    --secondary: 35 40% 40%;  /* Wood brown */
+    --secondary-foreground: 100 30% 95%;
+
+    --muted: 100 15% 80%;
+    --muted-foreground: 147 15% 35%;
+
+    --accent: 120 30% 60%;
+    --accent-foreground: 147 25% 25%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 100 30% 95%;
+
+    --border: 145 20% 75%;
+    --input: 145 20% 75%;
+    --ring: 145 40% 35%;
+    
+    --sidebar-background: 145 40% 35%;
+    --sidebar-foreground: 100 30% 95%;
+    --sidebar-primary: 100 30% 95%;
+    --sidebar-primary-foreground: 145 40% 35%;
+    --sidebar-accent: 35 40% 40%;
+    --sidebar-accent-foreground: 100 30% 95%;
+    --sidebar-border: 145 20% 60%;
+    --sidebar-ring: 100 30% 95%;
+
+    /* Natural shadows for forest theme */
+    --shadow-sm: 0 2px 4px rgba(46, 79, 62, 0.07);
+    --shadow-md: 0 4px 8px rgba(46, 79, 62, 0.1);
+    --shadow-lg: 0 8px 16px rgba(46, 79, 62, 0.12);
+  }
+}

@@ -1,0 +1,91 @@
+
+@layer base {
+  /* Base theme (Sydney Green) */
+  :root {
+    --background: 240 50% 7%;  /* Deep purple-black */
+    --foreground: 120 100% 95%;  /* Light green-white */
+
+    --card: 240 40% 8%;  /* Slightly lighter purple-black */
+    --card-foreground: 120 100% 95%;
+
+    --popover: 240 40% 8%;
+    --popover-foreground: 120 100% 95%;
+
+    --primary: 147 100% 50%;  /* Sydney Green */
+    --primary-foreground: 240 50% 7%;
+
+    --secondary: 260 50% 20%;  /* Purple accent */
+    --secondary-foreground: 120 100% 95%;
+
+    --muted: 260 30% 15%;
+    --muted-foreground: 120 20% 70%;
+
+    --accent: 147 100% 50%;  /* Sydney Green */
+    --accent-foreground: 240 50% 7%;
+
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 120 100% 95%;
+
+    --border: 147 60% 30%;  /* Darker Sydney Green */
+    --input: 260 30% 15%;
+    --ring: 147 100% 50%;
+    --radius: 0.5rem;
+    
+    --sidebar-background: 240 50% 5%;  /* Even darker purple */
+    --sidebar-foreground: 120 100% 95%;
+    --sidebar-primary: 147 100% 50%;
+    --sidebar-primary-foreground: 240 50% 7%;
+    --sidebar-accent: 260 50% 20%;
+    --sidebar-accent-foreground: 120 100% 95%;
+    --sidebar-border: 147 60% 30%;
+    --sidebar-ring: 147 100% 50%;
+
+    /* Sydney Green specific shadows */
+    --shadow-sydney: 0 0 10px rgba(0, 255, 102, 0.3);
+    --shadow-sydney-lg: 0 0 25px rgba(0, 255, 102, 0.4);
+  }
+
+  /* Sydney Green Mode (Enhanced as default) */
+  .theme-sydney-green {
+    --background: 240 50% 7%;  /* Deep purple-black */
+    --foreground: 120 100% 95%;  /* Light green-white */
+
+    --card: 240 40% 8%;  /* Slightly lighter purple-black */
+    --card-foreground: 120 100% 95%;
+
+    --popover: 240 40% 8%;
+    --popover-foreground: 120 100% 95%;
+
+    --primary: 147 100% 50%;  /* Sydney Green */
+    --primary-foreground: 240 50% 7%;
+
+    --secondary: 260 50% 20%;  /* Purple accent */
+    --secondary-foreground: 120 100% 95%;
+
+    --muted: 260 30% 15%;
+    --muted-foreground: 120 20% 70%;
+
+    --accent: 147 100% 50%;  /* Sydney Green */
+    --accent-foreground: 240 50% 7%;
+
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 120 100% 95%;
+
+    --border: 147 60% 30%;  /* Darker Sydney Green */
+    --input: 260 30% 15%;
+    --ring: 147 100% 50%;
+    
+    --sidebar-background: 240 50% 5%;  /* Even darker purple */
+    --sidebar-foreground: 120 100% 95%;
+    --sidebar-primary: 147 100% 50%;
+    --sidebar-primary-foreground: 240 50% 7%;
+    --sidebar-accent: 260 50% 20%;
+    --sidebar-accent-foreground: 120 100% 95%;
+    --sidebar-border: 147 60% 30%;
+    --sidebar-ring: 147 100% 50%;
+
+    /* Sydney Green specific shadows */
+    --shadow-sydney: 0 0 15px rgba(0, 255, 102, 0.4);
+    --shadow-sydney-lg: 0 0 30px rgba(0, 255, 102, 0.5);
+  }
+}

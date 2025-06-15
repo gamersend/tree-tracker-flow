@@ -1,0 +1,47 @@
+
+@layer base {
+  /* Retro Synthwave Mode */
+  .theme-synthwave {
+    --background: 248 24% 15%;  /* #1e1b2e */
+    --foreground: 270 20% 85%;  /* #d1c4e9 */
+
+    --card: 248 30% 20%;
+    --card-foreground: 270 20% 85%;
+
+    --popover: 248 30% 20%;
+    --popover-foreground: 270 20% 85%;
+
+    --primary: 321 100% 70%;  /* #ff79c6 - Neon pink */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 186 100% 77%;  /* #8be9fd - Cyan */
+    --secondary-foreground: 248 24% 15%;
+
+    --muted: 248 20% 25%;
+    --muted-foreground: 270 10% 70%;
+
+    --accent: 267 100% 78%;  /* #bd93f9 - Electric purple */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 100% 67%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 267 72% 30%;
+    --input: 248 20% 25%;
+    --ring: 321 100% 70%;
+    
+    --sidebar-background: 248 30% 18%;
+    --sidebar-foreground: 270 20% 85%;
+    --sidebar-primary: 321 100% 70%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 267 100% 78%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 267 72% 30%;
+    --sidebar-ring: 321 100% 70%;
+
+    /* Glow effects for synthwave */
+    --glow-purple: 0 0 5px rgba(189, 147, 249, 0.5), 0 0 20px rgba(189, 147, 249, 0.3);
+    --glow-pink: 0 0 5px rgba(255, 121, 198, 0.5), 0 0 20px rgba(255, 121, 198, 0.3);
+    --glow-cyan: 0 0 5px rgba(139, 233, 253, 0.5), 0 0 20px rgba(139, 233, 253, 0.3);
+  }
+}
