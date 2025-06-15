@@ -156,10 +156,3 @@ export const PageBackground = ({ imageIndex = 0 }: { imageIndex?: number }) => {
     </motion.div>
   );
 };
-
-// Ensure the export table is explicit at the end of the file.
-export {
-  SydneyGreenBackground,
-  SydneyGreenLogo,
-  PageBackground,
-};
