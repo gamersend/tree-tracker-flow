@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useSupabaseSales } from "@/hooks/useSupabaseSales";
 import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
 import { useSupabaseBusinessSupplies } from "@/hooks/useSupabaseBusinessSupplies";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
   const { user } = useAuth();

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -11,7 +10,7 @@ import { useSupabaseSales } from "@/hooks/useSupabaseSales";
 import { useSupabaseCustomers } from "@/hooks/useSupabaseCustomers";
 import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
 import { useSupabaseTickLedger } from "@/hooks/useSupabaseTickLedger";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { showParsingResultToast, showSaleAddedToast, showErrorToast } from "@/utils/toast-helpers";
 
 const NaturalLanguageLogger = () => {

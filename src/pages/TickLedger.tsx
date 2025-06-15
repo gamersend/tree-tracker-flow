@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -28,7 +27,7 @@ import {
   Trash2, 
   CheckCircle 
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseTickLedger } from "@/hooks/useSupabaseTickLedger";
 import AddTickDialog from "@/components/tick-ledger/AddTickDialog";
 import PaymentDialog from "@/components/tick-ledger/PaymentDialog";
