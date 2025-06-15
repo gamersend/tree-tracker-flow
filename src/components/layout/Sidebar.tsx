@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SydneyGreenLogo } from "@/components/theme/SydneyGreenTheme";
+import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 
 const Sidebar = () => {
   const isMobile = useIsMobile();
@@ -148,9 +149,14 @@ const Sidebar = () => {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        {/* Theme switcher directly below the navigation! */}
+        <div className="mt-6 flex justify-center">
+          <ThemeSwitcher variant="default" />
+        </div>
       </SidebarContent>
     </SidebarComponent>
   );
 };
 
 export default Sidebar;
+
