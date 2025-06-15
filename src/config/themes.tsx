@@ -1,14 +1,13 @@
-
 import React from "react";
 import { Theme } from "@/components/theme/ThemeProvider";
 import { Sun, Moon, Sparkles, Leaf, Zap } from "lucide-react";
 
 export const themeIcons: Record<Theme, React.ReactNode> = {
-  light: <Sun className="h-5 w-5 text-amber-500" />,
-  dark: <Moon className="h-5 w-5 text-indigo-400" />,
-  synthwave: <Sparkles className="h-5 w-5 text-pink-500" />,
-  forest: <Leaf className="h-5 w-5 text-green-500" />,
-  "sydney-green": <Zap className="h-5 w-5 text-sydney-green" />
+  light: React.createElement(Sun, { className: "h-5 w-5 text-amber-500" }),
+  dark: React.createElement(Moon, { className: "h-5 w-5 text-indigo-400" }),
+  synthwave: React.createElement(Sparkles, { className: "h-5 w-5 text-pink-500" }),
+  forest: React.createElement(Leaf, { className: "h-5 w-5 text-green-500" }),
+  "sydney-green": React.createElement(Zap, { className: "h-5 w-5 text-sydney-green" })
 };
 
 export const themeNames: Record<Theme, string> = {
@@ -50,4 +49,3 @@ export const themeFunFacts: Record<Theme, string> = {
     "dark": " - Classic and professional! 💼",
     "light": " - Bright and cheerful like a sunny Sydney day! ☀️"
 };
-
