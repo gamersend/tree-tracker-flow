@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -15,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CalendarIcon, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AddEventDialogProps {
   isOpen: boolean;

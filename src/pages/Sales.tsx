@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useSupabaseSales } from "@/hooks/useSupabaseSales";
 import { useSupabaseCustomers } from "@/hooks/useSupabaseCustomers";
 import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { SalesHeader } from "@/components/sales/SalesHeader";
 import { AddSaleDialog } from "@/components/sales/AddSaleDialog";
 import { SalesTable } from "@/components/sales/SalesTable";

@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseBusinessSupplies } from "@/hooks/useSupabaseBusinessSupplies";
 import BusinessSuppliesHeader from "@/components/business-supplies/BusinessSuppliesHeader";
 import BusinessSuppliesTable from "@/components/business-supplies/BusinessSuppliesTable";

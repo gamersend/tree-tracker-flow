@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useSupabaseInventory } from "@/hooks/useSupabaseInventory";
 import { useAddInventoryForm } from "@/hooks/useAddInventoryForm";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import AddInventoryDialog from "@/components/inventory/AddInventoryDialog";
 import EditInventoryDialog from "@/components/inventory/EditInventoryDialog";

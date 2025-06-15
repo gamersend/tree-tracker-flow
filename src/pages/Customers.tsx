@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import CustomerList from "@/components/customers/CustomerList";
 import CustomerDetails from "@/components/customers/CustomerDetails";
 import CustomerHeader from "@/components/customers/CustomerHeader";
