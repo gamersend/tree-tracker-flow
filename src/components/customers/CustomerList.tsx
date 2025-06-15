@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Star } from "lucide-react";
@@ -18,26 +18,19 @@ const CustomerList: React.FC<CustomerListProps> = ({
   onEditCustomer,
   onDeleteCustomer,
 }) => {
-  // Random fade-in animation for list items
-  useEffect(() => {
-    const listItems = document.querySelectorAll('.customer-item');
-    listItems.forEach((item, index) => {
-      (item as HTMLElement).style.animationDelay = `${index * 0.05}s`;
-    });
-  }, [customers]);
-
   console.log('CustomerList received customers:', customers);
 
   return (
     <ScrollArea className="h-[calc(100vh-300px)] pr-4">
       <div className="space-y-2">
         {customers && customers.length > 0 ? (
-          customers.map((customer) => {
+          customers.map((customer, index) => {
             console.log('Rendering customer:', customer);
             return (
               <div 
                 key={customer.id} 
                 className="customer-item flex items-center gap-3 p-3 rounded-md hover:bg-slate-800/80 cursor-pointer group transition-all duration-300 hover:scale-[1.02] animate-fade-in opacity-0"
+                style={{ animationDelay: `${index * 0.05}s`, animationFillMode: 'forwards' }}
                 onClick={() => onViewCustomer(customer)}
               >
                 <div className={`h-10 w-10 rounded-full flex items-center justify-center bg-gradient-to-br ${
