@@ -34,7 +34,7 @@ const Notifications: React.FC = () => {
             </p>
           </div>
           
-          <Button onClick={handleTestNotification} className="bg-tree-purple hover:bg-purple-700">
+          <Button onClick={handleTestNotification} variant="secondary">
             <Bell className="mr-2 h-4 w-4" />
             Test Notification
           </Button>

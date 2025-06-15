@@ -11,7 +11,7 @@
     --popover-foreground: 120 100% 95%;
 
     --primary: 147 100% 50%;  /* Sydney Green */
-    --primary-foreground: 0 0% 15%; /* Dark Gray */
+    --primary-foreground: 240 50% 7%; /* Deep purple-black */
 
     --secondary: 260 50% 20%;  /* Purple accent */
     --secondary-foreground: 120 100% 95%;
@@ -20,7 +20,7 @@
     --muted-foreground: 120 20% 70%;
 
     --accent: 147 100% 50%;  /* Sydney Green */
-    --accent-foreground: 0 0% 15%; /* Dark Gray */
+    --accent-foreground: 240 50% 7%; /* Deep purple-black */
 
     --destructive: 0 100% 60%;
     --destructive-foreground: 120 100% 95%;
@@ -33,7 +33,7 @@
     --sidebar-background: 240 50% 5%;  /* Even darker purple */
     --sidebar-foreground: 120 100% 95%;
     --sidebar-primary: 147 100% 50%;
-    --sidebar-primary-foreground: 0 0% 15%; /* Dark Gray */
+    --sidebar-primary-foreground: 240 50% 7%; /* Deep purple-black */
     --sidebar-accent: 260 50% 20%;
     --sidebar-accent-foreground: 120 100% 95%;
     --sidebar-border: 147 60% 30%;
@@ -56,7 +56,7 @@
     --popover-foreground: 120 100% 95%;
 
     --primary: 147 100% 50%;  /* Sydney Green */
-    --primary-foreground: 0 0% 15%; /* Dark Gray */
+    --primary-foreground: 240 50% 7%; /* Deep purple-black */
 
     --secondary: 260 50% 20%;  /* Purple accent */
     --secondary-foreground: 120 100% 95%;
@@ -65,7 +65,7 @@
     --muted-foreground: 120 20% 70%;
 
     --accent: 147 100% 50%;  /* Sydney Green */
-    --accent-foreground: 0 0% 15%; /* Dark Gray */
+    --accent-foreground: 240 50% 7%; /* Deep purple-black */
 
     --destructive: 0 100% 60%;
     --destructive-foreground: 120 100% 95%;
@@ -77,7 +77,7 @@
     --sidebar-background: 240 50% 5%;  /* Even darker purple */
     --sidebar-foreground: 120 100% 95%;
     --sidebar-primary: 147 100% 50%;
-    --sidebar-primary-foreground: 0 0% 15%; /* Dark Gray */
+    --sidebar-primary-foreground: 240 50% 7%; /* Deep purple-black */
     --sidebar-accent: 260 50% 20%;
     --sidebar-accent-foreground: 120 100% 95%;
     --sidebar-border: 147 60% 30%;
