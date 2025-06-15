@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { themeEmojis, themeNamesSimple } from "@/config/themes";
 
 interface ThemeSwitcherProps {
   variant?: "default" | "icon";
@@ -28,21 +29,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
     "sydney-green": <Zap className="h-5 w-5" />
   };
 
-  const themeEmoji = {
-    light: "🌞",
-    dark: "🌙",
-    synthwave: "🌌",
-    forest: "🍃",
-    "sydney-green": "🦘"
-  };
-
-  const themeNames = {
-    light: "Sunny Day",
-    dark: "Classic Dark",
-    synthwave: "Retro Synthwave",
-    forest: "Forest Zen",
-    "sydney-green": "Sydney Green"
-  };
+  const themeNames = themeNamesSimple;
 
   const getThemeButtonClasses = () => {
     switch (theme) {
@@ -88,7 +75,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
         >
           <div className="flex items-center gap-2">
             <Zap className="h-4 w-4 text-sydney-green" />
-            <span>{themeEmoji["sydney-green"]} {themeNames["sydney-green"]}</span>
+            <span>{themeEmojis["sydney-green"]} {themeNames["sydney-green"]}</span>
           </div>
           {theme === "sydney-green" && <Badge className="ml-2">Active</Badge>}
         </DropdownMenuItem>
