@@ -54,23 +54,23 @@ const Settings = () => {
 
       <Tabs defaultValue="general" className="space-y-6">
         <TabsList className="mb-6 flex flex-wrap bg-sydney-dark/80 border border-sydney-green/30">
-          <TabsTrigger value="general" className="data-[state=active]:bg-sydney-green data-[state=active]:text-sydney-dark">General</TabsTrigger>
-          <TabsTrigger value="appearance" className="data-[state=active]:bg-sydney-green data-[state=active]:text-sydney-dark">
+          <TabsTrigger value="general" className="data-[state=active]:bg-sydney-green data-[state=active]:text-primary-foreground">General</TabsTrigger>
+          <TabsTrigger value="appearance" className="data-[state=active]:bg-sydney-green data-[state=active]:text-primary-foreground">
             <div className="flex items-center gap-1">
               <Palette className="h-4 w-4" />
               <span>Appearance</span>
             </div>
           </TabsTrigger>
-          <TabsTrigger value="storage" className="data-[state=active]:bg-sydney-green data-[state=active]:text-sydney-dark">Data Storage</TabsTrigger>
-          <TabsTrigger value="accounts" className="data-[state=active]:bg-sydney-green data-[state=active]:text-sydney-dark">Accounts</TabsTrigger>
-          <TabsTrigger value="integrations" className="data-[state=active]:bg-sydney-green data-[state=active]:text-sydney-dark">Integrations</TabsTrigger>
-          <TabsTrigger value="ai" className="data-[state=active]:bg-sydney-green data-[state=state]:text-sydney-dark">
+          <TabsTrigger value="storage" className="data-[state=active]:bg-sydney-green data-[state=active]:text-primary-foreground">Data Storage</TabsTrigger>
+          <TabsTrigger value="accounts" className="data-[state=active]:bg-sydney-green data-[state=active]:text-primary-foreground">Accounts</TabsTrigger>
+          <TabsTrigger value="integrations" className="data-[state=active]:bg-sydney-green data-[state=active]:text-primary-foreground">Integrations</TabsTrigger>
+          <TabsTrigger value="ai" className="data-[state=active]:bg-sydney-green data-[state=state]:text-primary-foreground">
             <div className="flex items-center gap-1">
               <BrainCircuit className="h-4 w-4" />
               <span>AI</span>
             </div>
           </TabsTrigger>
-          <TabsTrigger value="api" className="data-[state=active]:bg-sydney-green data-[state=active]:text-sydney-dark">API Keys</TabsTrigger>
+          <TabsTrigger value="api" className="data-[state=active]:bg-sydney-green data-[state=active]:text-primary-foreground">API Keys</TabsTrigger>
         </TabsList>
         
         <TabsContent value="general">
@@ -81,7 +81,7 @@ const Settings = () => {
           >
             <GeneralSettingsTab onSave={handleSaveSettings} />
             <div className="flex justify-end mt-6">
-              <Button onClick={handleSaveSettings} className="bg-sydney-green text-sydney-dark hover:bg-sydney-green/90">
+              <Button onClick={handleSaveSettings} className="bg-sydney-green text-primary-foreground hover:bg-sydney-green/90">
                 {t("settings.save")} ✨
               </Button>
             </div>
@@ -111,7 +111,7 @@ const Settings = () => {
                   title: "Theme saved 🎉",
                   description: "Your theme preferences have been saved automatically"
                 })}
-                className="bg-sydney-green text-sydney-dark hover:bg-sydney-green/90"
+                className="bg-sydney-green text-primary-foreground hover:bg-sydney-green/90"
               >
                 Apply Changes 🚀
               </Button>

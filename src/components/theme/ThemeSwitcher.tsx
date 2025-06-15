@@ -42,7 +42,7 @@ export function ThemeSwitcher({ variant = "default" }: ThemeSwitcherProps) {
       case "forest":
         return "bg-green-700 text-green-100";
       case "sydney-green":
-        return "bg-sydney-green text-black shadow-lg shadow-sydney-green/30";
+        return "bg-sydney-green text-primary-foreground shadow-lg shadow-sydney-green/30";
       default:
         return "bg-slate-800 text-slate-200";
     }

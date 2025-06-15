@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -10,9 +9,9 @@ const sydneyButtonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-sydney-green text-black hover:bg-sydney-green/90 shadow-lg shadow-sydney-green/30",
+        default: "bg-sydney-green text-primary-foreground hover:bg-sydney-green/90 shadow-lg shadow-sydney-green/30",
         destructive: "bg-red-500 text-white hover:bg-red-500/90 shadow-lg shadow-red-500/30",
-        outline: "border-2 border-sydney-green text-sydney-green hover:bg-sydney-green hover:text-black shadow-lg shadow-sydney-green/20",
+        outline: "border-2 border-sydney-green text-sydney-green hover:bg-sydney-green hover:text-primary-foreground shadow-lg shadow-sydney-green/20",
         secondary: "bg-slate-700 text-sydney-green hover:bg-slate-600 border border-sydney-green/30",
         ghost: "text-sydney-green hover:bg-sydney-green/10",
         link: "text-sydney-green underline-offset-4 hover:underline",

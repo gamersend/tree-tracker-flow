@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 import { RadioGroupItem } from "@/components/ui/radio-group";
@@ -61,7 +60,7 @@ export const ThemeOption = ({ theme, isSelected }: ThemeOptionProps) => {
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
           >
-            <Badge variant="default" className="bg-sydney-green text-sydney-dark font-semibold">
+            <Badge variant="default" className="bg-sydney-green text-primary-foreground font-semibold">
               Active ✨
             </Badge>
           </motion.div>
@@ -72,4 +71,3 @@ export const ThemeOption = ({ theme, isSelected }: ThemeOptionProps) => {
 };
 
 export default ThemeOption;
-
