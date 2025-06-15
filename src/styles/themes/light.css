@@ -4,22 +4,22 @@
   [data-theme="light"],
   .theme-light {
     --background: 43 38% 95%;  /* #f9f5ec */
-    --foreground: 0 0% 17%;  /* #2c2c2c */
+    --foreground: 220 10% 25%;  /* #383a42, Dark grayish blue */
 
     --card: 43 38% 97%;
-    --card-foreground: 0 0% 17%;
+    --card-foreground: 220 10% 25%; /* #383a42, Dark grayish blue */
 
     --popover: 43 38% 97%;
-    --popover-foreground: 0 0% 17%;
+    --popover-foreground: 220 10% 25%; /* #383a42, Dark grayish blue */
 
     --primary: 130 40% 30%;  /* Forest green */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 45 90% 65%;  /* Sunflower yellow */
-    --secondary-foreground: 0 0% 17%;
+    --secondary-foreground: 220 10% 25%; /* #383a42, Dark grayish blue */
 
     --muted: 43 30% 90%;
-    --muted-foreground: 0 0% 35%;
+    --muted-foreground: 220 8% 50%; /* #797c85, Muted grayish blue */
 
     --accent: 130 30% 80%;
     --accent-foreground: 130 40% 30%;
