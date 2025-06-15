@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Layout from "@/components/layout/Layout";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { NotesProvider } from "@/contexts/NotesContext";
-import InstallBanner from "@/components/pwa/InstallBanner";
+// import InstallBanner from "@/components/pwa/InstallBanner"; - This will be removed
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { StringProvider } from "./components/theme/StringProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
@@ -63,7 +63,7 @@ function App() {
                       <Route path="*" element={<Layout><NotFound /></Layout>} />
                     </Routes>
                   </AuthGuard>
-                  <InstallBanner />
+                  {/* <InstallBanner /> - This will be removed */}
                 </BrowserRouter>
                 <Toaster />
               </NotesProvider>
